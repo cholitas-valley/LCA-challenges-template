@@ -4,32 +4,14 @@
 
 ## Getting Started
 
-### 1. Create repo from template
-
-Click "Use this template" on GitHub, then name your repo:
-```
-challenge-XXX-<name>
-```
-
-### 2. Clone your new repo
-
-```bash
-gh repo clone cholitas-valley/<your-challenge-repo>
-```
-
-### 3. Read your challenge spec
-
-Find your challenge at: [liga-cholita-autonoma/challenges/](https://github.com/cholitas-valley/liga-cholita-autonoma/tree/main/challenges)
-
-### 4. Configure the template
-
-Use the prompt below to set up this repo for your specific challenge:
+1. Create a repo from this template and clone it
+2. Pass the setup prompt below
 
 ---
 
 ## Setup Prompt
 
-Copy and replace `CHALLENGE_ID`:
+Replace `CHALLENGE_ID` and pass to Claude CLI (or another AI tool):
 
 ```
 CHALLENGE_ID=001-plantops
@@ -63,7 +45,7 @@ Update:
 ### Challenge-specific
 
 Review your challenge spec for additional requirements:
-[challenges/challenge-XXX.md](https://github.com/cholitas-valley/liga-cholita-autonoma/tree/main/challenges)
+[liga-cholita-autonoma/challenges/](https://github.com/cholitas-valley/liga-cholita-autonoma/tree/main/challenges)
 
 ---
 
