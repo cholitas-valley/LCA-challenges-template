@@ -1,0 +1,14 @@
+ total_telemetry_records 
+-------------------------
+                     624
+(1 row)
+
+ id |  plant_id   |     alert_type     |           message            | sent_to_discord |           timestamp           
+----+-------------+--------------------+------------------------------+-----------------+-------------------------------
+ 16 | peace-lily  | temp_low           | Temperature is low (15.40°C) | f               | 2026-01-06 17:24:35.736265+00
+ 15 | peace-lily  | soil_moisture_high | Soil moisture is high (99%)  | f               | 2026-01-06 17:22:35.644032+00
+ 14 | fiddle-leaf | temp_low           | Temperature is low (15.00°C) | f               | 2026-01-06 17:18:05.431199+00
+ 13 | fiddle-leaf | soil_moisture_low  | Soil moisture is low (29%)   | f               | 2026-01-06 17:15:35.328029+00
+ 12 | pothos      | temp_low           | Temperature is low (16.30°C) | f               | 2026-01-06 17:14:05.28148+00
+(5 rows)
+

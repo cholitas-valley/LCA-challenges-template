@@ -1,0 +1,10 @@
+{
+  "protocol": "lca-v1",
+  "run_branch": "run/001",
+  "phase": "COMPLETE",
+  "current_task_id": null,
+  "current_role": null,
+  "completed_task_ids": ["task-001", "task-002", "task-003", "task-004", "task-005", "task-006", "task-007", "task-008", "task-009", "task-010", "task-011", "task-012", "task-013"],
+  "last_handoff": "runs/handoffs/task-013.md",
+  "updated_at": "2026-01-06T19:45:00Z"
+}
