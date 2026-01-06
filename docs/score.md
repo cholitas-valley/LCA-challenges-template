@@ -1,5 +1,7 @@
 # Competition Score
 
+> [CHALLENGE_NAME]
+>
 > **Score = Tokens Used × Human Queries × Human Interventions**
 
 ## Metrics

@@ -1,17 +1,19 @@
 # Architecture
 
+> [CHALLENGE_NAME]
+
 ## Overview
 
-<!-- Document system overview -->
+[CHALLENGE_OVERVIEW]
 
 ## Components
 
-<!-- Document each component -->
+[CHALLENGE_COMPONENTS]
 
 ## Data Flow
 
-<!-- Document data flow between components -->
+[CHALLENGE_DATA_FLOW]
 
 ## Configuration
 
-<!-- Document environment variables -->
+See `.env.example`

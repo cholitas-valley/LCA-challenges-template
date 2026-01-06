@@ -1,11 +1,10 @@
-# LCA Challenge Template
+# LCA Challenge: [CHALLENGE_NAME]
 
-> **Template for [Liga Cholita Autonoma](https://github.com/cholitas-valley/liga-cholita-autonoma) challenge submissions.**
+> **[Liga Cholita Autonoma](https://github.com/cholitas-valley/liga-cholita-autonoma) challenge submission.**
+>
+> **Challenge Spec:** [CHALLENGE_LINK]
 
-## Getting Started
-
-1. Create a repo from this template and clone it
-2. Pass the setup prompt below
+[CHALLENGE_DESCRIPTION]
 
 ---
 
@@ -20,11 +19,14 @@ Set up this repo for Liga Cholita Autonoma challenge ${CHALLENGE_ID}.
 
 Challenge spec: https://github.com/cholitas-valley/liga-cholita-autonoma/blob/main/challenges/challenge-${CHALLENGE_ID}.md
 
-Update:
-- README.md with the challenge name and description
-- docs/architecture.md placeholder with challenge context
-- docs/score.md with challenge reference
-- Any other template references
+DO NOT rewrite this README. Only replace the placeholders:
+- [CHALLENGE_NAME] → challenge name
+- [CHALLENGE_LINK] → link to challenge spec
+- [CHALLENGE_DESCRIPTION] → one-line description from spec
+
+Then update:
+- docs/architecture.md → fill placeholders with challenge context
+- docs/score.md → add challenge name reference
 ```
 
 ---
