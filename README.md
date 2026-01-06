@@ -49,17 +49,53 @@ Review your challenge spec for additional requirements:
 
 ---
 
-## Template Structure
+## Recommended Architecture
 
 ```
 .
-├── README.md           # This file (update with your challenge info)
-├── .env.example        # Environment variables (fill in as needed)
-└── docs/
-    ├── architecture.md # System design (fill in during implementation)
-    ├── score.md        # Competition score tracking
-    └── evidence/       # Screenshots/logs proving tests pass
+├── Makefile              # Single entrypoints for AI agent
+├── docker-compose.yml    # Challenge environment
+├── scripts/
+│   └── check.sh          # "Done" gate (lint, typecheck, test, e2e)
+├── rules/
+│   └── agent.md          # Instructions for AI agent
+├── tasks/
+│   └── task-001.md       # Task definitions
+├── docs/
+│   ├── architecture.md
+│   ├── score.md
+│   └── evidence/
+├── .env.example
+└── README.md
 ```
+
+### Makefile
+
+```make
+up:
+	docker compose up -d
+
+down:
+	docker compose down -v
+
+logs:
+	docker compose logs -f --tail=200
+
+check:
+	./scripts/check.sh
+```
+
+### scripts/check.sh
+
+Per-template "done" gate. AI loops against this until it passes.
+
+### rules/agent.md
+
+Agent instructions (work on new branch, run `make check` before done, update docs, commit after check passes).
+
+### tasks/
+
+Task files for the AI to work through sequentially.
 
 ---
 
