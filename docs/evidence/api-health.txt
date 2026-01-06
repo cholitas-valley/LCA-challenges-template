@@ -1,0 +1,1 @@
+{"status":"healthy","timestamp":"2026-01-06T17:26:01.058Z","database":"connected","mqtt":"connected"}
