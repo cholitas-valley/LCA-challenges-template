@@ -1,6 +1,6 @@
 # Competition Score
 
-> [CHALLENGE_NAME]
+> 001 — PlantOps
 >
 > **Score = Tokens Used × Human Queries × Human Interventions**
 

@@ -1,10 +1,10 @@
-# LCA Challenge: [CHALLENGE_NAME]
+# LCA Challenge: 001 — PlantOps
 
 > **[Liga Cholita Autonoma](https://github.com/cholitas-valley/liga-cholita-autonoma) challenge submission.**
 >
-> **Challenge Spec:** [CHALLENGE_LINK]
+> **Challenge Spec:** [challenge-001-plantops.md](https://github.com/cholitas-valley/liga-cholita-autonoma/blob/main/challenges/challenge-001-plantops.md)
 
-[CHALLENGE_DESCRIPTION]
+Build a self-hosted system that ingests plant sensor data via MQTT, stores it, displays it live in a dashboard, and sends alerts when a plant needs attention.
 
 ---
 
