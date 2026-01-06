@@ -43,6 +43,78 @@ Notes (high-level):
 
 This challenge uses **Claude Code** as a multi-agent orchestrated system. The goal is to run long-horizon "plan → implement → check → docs → commit" loops with **role-specific constraints** and **explicit handoffs**.
 
+### Agent & Flow Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                            ORCHESTRATOR                                  │
+│                           (CLAUDE.md)                                    │
+│                                                                          │
+│  ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐     │
+│  │PLANNING │──▶│BETWEEN_ │──▶│IN_TASK  │──▶│BETWEEN_ │──▶│BLOCKED  │     │
+│  │         │   │TASKS    │   │         │   │TASKS    │   │(human)  │     │
+│  └────┬────┘   └────┬────┘   └────┬────┘   └─────────┘   └─────────┘     │
+│       │             │             │                                      │
+│       ▼             ▼             ▼                                      │
+│  ┌─────────┐   ┌─────────┐   ┌────────────────────────────────────┐      │
+│  │ planner │   │ arbiter │   │          ROLE AGENTS               │      │
+│  └─────────┘   └─────────┘   │  ┌─────────┐ ┌─────────┐ ┌──────┐  │      │
+│                              │  │ backend │ │frontend │ │  qa  │  │      │
+│                              │  └─────────┘ └─────────┘ └──────┘  │      │
+│                              │  ┌─────────┐ ┌─────────┐           │      │
+│                              │  │  docs   │ │ gitops  │           │      │
+│                              │  └─────────┘ └─────────┘           │      │
+│                              └────────────────────────────────────┘      │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          HOOKS (out-of-band)                             │
+│                                                                          │
+│  PreToolUse ─────────▶ tool-use-record.py ─────▶ runs/tools/usage.jsonl  │
+│                                                                          │
+│  Stop / SubagentStop┬▶ usage-record.py ───────▶ runs/usage/usage.jsonl   │
+│                     └▶ arbiter-scheduler.py ──▶ runs/arbiter/pending.json│
+│                                                                          │
+│  PermissionRequest ──▶ permission-record.py ───▶ runs/permissions/*.jsonl│
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          EXECUTION LOOP                                  │
+│                                                                          │
+│  ┌────────────────────────────────────────────────────────────────┐      │
+│  │                                                                │      │
+│  ▼                                                                │      │
+│  ┌──────────┐  pending?  ┌──────────┐  invoke  ┌──────────┐       │      │
+│  │ arbiter  │───────────▶│  check   │─────────▶│ execute  │       │      │
+│  │  check   │    no      │ decision │   role   │   task   │       │      │
+│  └──────────┘            └────┬─────┘          └────┬─────┘       │      │
+│                               │                     │             │      │
+│                          needs_human?               │             │      │
+│                          yes │ no                   │             │      │
+│                              ▼                      ▼             │      │
+│                        ┌─────────┐           ┌──────────┐         │      │
+│                        │ BLOCKED │           │ handoff  │─────────┘      │
+│                        │ (stop)  │           │ + post   │                │
+│                        └─────────┘           └──────────┘                │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          TASK LIFECYCLE                                  │
+│                                                                          │
+│  runs/tasks/task-XXX.md                                                  │
+│         │                                                                │
+│         ▼                                                                │
+│  ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐       │
+│  │ read task  │──▶│invoke role │──▶│ check_cmd  │──▶│   write    │       │
+│  │ frontmatter│   │   agent    │   │ until pass │   │  handoff   │       │
+│  └────────────┘   └────────────┘   └────────────┘   └─────┬──────┘       │
+│                                                           │              │
+│                                                           ▼              │
+│                                                   runs/handoffs/         │
+│                                                   task-XXX.md            │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
 This design is based on Claude Code features:
 - **Memory file**: `CLAUDE.md` is automatically loaded as project memory at launch.
 - **Project subagents**: `.claude/agents/*.md` define tool access, system prompts, and separate contexts.
@@ -67,19 +139,31 @@ CLAUDE.md                    # Orchestrator protocol (auto-loaded)
 │   ├── lca-frontend.md      # Frontend implementation
 │   ├── lca-docs.md          # Documentation updates
 │   ├── lca-gitops.md        # Branch/commit/push hygiene
-│   └── lca-qa.md            # Check/fix loop
+│   ├── lca-qa.md            # Check/fix loop
+│   └── lca-arbiter.md       # Periodic checkpoint auditor
 ├── hooks/
-│   └── usage-record.py      # Token tracking (no LLM overhead)
+│   ├── usage-record.py      # Token tracking (no LLM overhead)
+│   ├── tool-use-record.py   # Tool invocation logging (PreToolUse)
+│   ├── permission-record.py # Permission request logging (when prompts occur)
+│   └── arbiter-scheduler.py # Triggers arbiter on token/time thresholds
 └── skills/
     └── lca-protocol/
         └── SKILL.md         # Protocol definition (task/state/handoff formats)
 
 runs/
 ├── plan.md                  # Generated: architecture decisions + task outline
-├── state.json               # Generated: current task + completed tasks + latest handoff
+├── state.json               # Generated: current task + phase + role + completed tasks
 ├── tasks/                   # Generated: task-XXX.md (YAML frontmatter + DoD)
 ├── handoffs/                # Generated: task-XXX.md (what changed + verify + next steps)
 ├── usage/                   # Generated: usage.jsonl (token usage records)
+├── tools/                   # Generated: usage.jsonl (tool invocation log)
+├── permissions/             # Generated: requests.jsonl (permission prompts, if any)
+├── arbiter/                 # Arbiter checkpoint system
+│   ├── config.json          # Thresholds (tokens, time, files, lines, permissions)
+│   ├── state.json           # Last checkpoint metadata
+│   ├── pending.json         # Snapshot triggering arbiter (transient)
+│   ├── decision.json        # Arbiter output (needs_human, reasons)
+│   └── checkpoints/         # Historical checkpoint reports
 └── notes.md                 # Generated: blocking notes (if stuck)
 ```
 
@@ -89,22 +173,41 @@ The orchestrator is defined in `CLAUDE.md` (the "protocol controller").
 
 ```
 1. Boot:
-   * If no tasks/state exist → invoke lca-planner to generate runs/plan.md + runs/tasks/* + runs/state.json
+   * If no tasks/state exist → set phase = "PLANNING"
+   * Invoke lca-planner to generate runs/plan.md + runs/tasks/* + runs/state.json
+   * Set phase = "BETWEEN_TASKS"
 
-2. Execute:
+2. Arbiter check (before each task):
+   * If runs/arbiter/pending.json exists → invoke lca-arbiter
+   * Read runs/arbiter/decision.json
+   * If needs_human == true → set phase = "BLOCKED" and STOP
+
+3. Execute:
    * Read runs/state.json → open current runs/tasks/task-XXX.md
+   * Set phase = "IN_TASK", current_role = <role from task>
    * Invoke the task's role agent (backend/frontend/docs/qa/gitops)
 
-3. Validate (inside the role agent):
+4. Validate (inside the role agent):
    * Run task.check_command until it passes (fix failures and re-run)
 
-4. Handoff:
+5. Handoff:
    * Role agent writes runs/handoffs/task-XXX.md
    * If task specifies post agents → invoke them in order (e.g., docs → gitops)
 
-5. Advance:
-   * Orchestrator updates runs/state.json and proceeds to next task
+6. Advance:
+   * Mark task complete in runs/state.json
+   * Set phase = "BETWEEN_TASKS", clear current_role
+   * Proceed to next task (loop to step 2)
 ```
+
+### State Phases
+
+| Phase | Description |
+|-------|-------------|
+| `PLANNING` | Planner is generating/updating tasks |
+| `IN_TASK` | A role agent is actively executing a task |
+| `BETWEEN_TASKS` | Task completed; arbiter may trigger |
+| `BLOCKED` | Human review required (arbiter decision or repeated failures) |
 
 ### Role Agents
 
@@ -116,6 +219,7 @@ The orchestrator is defined in `CLAUDE.md` (the "protocol controller").
 | `lca-docs` | README + docs updates | docs-only (README.md, docs/**) unless task allows more |
 | `lca-qa` | Run checks, diagnose failures, minimal fixes | smallest-diff fixes; do not weaken tests |
 | `lca-gitops` | Branch/commit/push workflow | commit after checks pass; push may require approval |
+| `lca-arbiter` | Periodic checkpoint auditor | edits **runs/arbiter/** only; read-only git commands |
 
 ### Task Format
 
@@ -157,6 +261,38 @@ Token usage is captured **out-of-band** (no LLM overhead) via Claude Code hooks:
 * `Stop` and `SubagentStop` trigger `.claude/hooks/usage-record.py`
 * The hook records usage into `runs/usage/usage.jsonl`
 * Records are tagged with the current `task_id` and role via `runs/state.json`
+
+### Arbiter System
+
+The arbiter is an independent "blackhat" auditor that operates between tasks to decide if human review is needed.
+
+**Triggering:**
+* `Stop` and `SubagentStop` hooks trigger `.claude/hooks/arbiter-scheduler.py`
+* Scheduler checks if phase == "BETWEEN_TASKS" (never runs mid-task)
+* If token/time thresholds are exceeded, writes `runs/arbiter/pending.json`
+
+**Checkpoints:**
+* When `pending.json` exists, orchestrator invokes `lca-arbiter`
+* Arbiter reviews: token burn, diff size, permission prompts, objective drift
+* Writes checkpoint report to `runs/arbiter/checkpoints/<timestamp>.md`
+* Writes `runs/arbiter/decision.json` with `needs_human` boolean
+
+**Thresholds (configurable in `runs/arbiter/config.json`):**
+* `min_tokens_between_checkpoints`: 30000
+* `min_minutes_between_checkpoints`: 20
+* `max_files_changed_without_human`: 25
+* `max_lines_changed_without_human`: 800
+* `max_permission_prompts_between_checkpoints`: 3
+
+**Tool Usage Logging:**
+* `PreToolUse` hook triggers `.claude/hooks/tool-use-record.py` for every Bash invocation
+* Logs to `runs/tools/usage.jsonl` - works even with `bypassPermissions` mode
+* Tagged with `task_id`, `role`, and `phase` for arbiter review
+
+**Permission Logging:**
+* `PermissionRequest` and `Notification` hooks trigger `.claude/hooks/permission-record.py`
+* Only fires when actual permission prompts occur (not in `bypassPermissions` mode)
+* Logs to `runs/permissions/requests.jsonl`
 
 ### Permissions Model
 

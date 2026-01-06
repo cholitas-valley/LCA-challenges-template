@@ -15,12 +15,28 @@ description: Defines the LCA task/state/handoff protocol and role handoffs for C
 ```json
 {
   "protocol": "lca-v1",
+  "run_branch": "run/001",
+  "phase": "PLANNING | IN_TASK | BETWEEN_TASKS | BLOCKED",
   "current_task_id": "task-001",
+  "current_role": "lca-backend",
   "completed_task_ids": [],
   "last_handoff": null,
   "updated_at": "ISO-8601"
 }
 ```
+
+### Phase values
+- `PLANNING` – planner is generating/updating tasks
+- `IN_TASK` – a role agent is executing a task
+- `BETWEEN_TASKS` – task completed, arbiter may run
+- `BLOCKED` – human review required
+
+## Arbiter checkpoint folders
+- `runs/arbiter/config.json` – thresholds
+- `runs/arbiter/state.json` – last checkpoint metadata
+- `runs/arbiter/pending.json` – snapshot triggering arbiter
+- `runs/arbiter/decision.json` – arbiter output
+- `runs/arbiter/checkpoints/` – historical reports
 
 ## Task File Format (runs/tasks/task-XXX.md)
 

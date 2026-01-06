@@ -10,42 +10,95 @@ You MUST delegate execution to the role subagents in `.claude/agents/`.
 - handoffs: `runs/handoffs/<task_id>.md`
 - state: `runs/state.json`
 
+## State schema
+`runs/state.json` must always include:
+```json
+{
+  "protocol": "lca-v1",
+  "run_branch": "run/001",
+  "phase": "PLANNING | IN_TASK | BETWEEN_TASKS | BLOCKED",
+  "current_task_id": "task-001",
+  "current_role": "lca-backend",
+  "completed_task_ids": [],
+  "last_handoff": null,
+  "updated_at": "ISO-8601"
+}
+```
+
 ## Boot
 If `runs/state.json` does not exist OR `runs/tasks/` is empty:
-1) Use `lca-planner` to generate/update:
+
+1) **Create run branch** (if on main/master):
+   - Generate branch name: `run/<NNN>` (next sequential number)
+   - `git checkout -b run/<NNN>`
+   - Record branch in `runs/state.json`
+
+2) Set `phase = "PLANNING"`
+
+3) Use `lca-planner` to generate/update:
    - `runs/plan.md`
    - `runs/tasks/task-001.md ...` (rolling plan is fine)
-   - `runs/state.json` (point to next task)
+   - `runs/state.json` (point to next task, set `phase = "BETWEEN_TASKS"`)
 
 ## Execution loop
 Repeat until all tasks are marked complete in `runs/state.json`:
 
-1) Read `runs/state.json`, open the current task file in `runs/tasks/`.
-2) Identify:
-   - `role` (required)
-   - `follow_roles` (optional)
-   - `post` agents (optional)
-   - `check_command`
-   - `handoff` path
-3) Invoke the required role subagent by name (e.g., `lca-frontend`) and instruct it:
-   - obey the task's `allowed_paths`
-   - run `check_command` and fix until it passes
-   - write the required `handoff` file
+### 1) Check arbiter
+If `runs/arbiter/pending.json` exists:
+- Invoke `lca-arbiter`
+- Read `runs/arbiter/decision.json`
+- If `needs_human == true`: set `phase = "BLOCKED"` and STOP for user review
+- Else: continue (arbiter clears pending.json)
 
-4) If `post` includes additional agents (e.g., `docs`, `gitops`), invoke them in order, using the handoff as primary context.
+### 2) Start task
+- Read `runs/state.json`, open the current task file in `runs/tasks/`
+- Update state: `phase = "IN_TASK"`, `current_role = <role from task>`
+- Identify:
+  - `role` (required)
+  - `follow_roles` (optional)
+  - `post` agents (optional)
+  - `check_command`
+  - `handoff` path
 
-5) Update `runs/state.json`:
-   - mark task complete
-   - advance to the next task
-   - record latest handoff path
+### 3) Execute role
+- Invoke the required role subagent by name (e.g., `lca-frontend`)
+- Instruct it to:
+  - obey the task's `allowed_paths`
+  - run `check_command` and fix until it passes
+  - write the required `handoff` file
+
+### 4) Post agents
+If `post` includes additional agents (e.g., `docs`, `gitops`):
+- Update `current_role` for each
+- Invoke them in order, using the handoff as primary context
+
+### 5) Advance state
+- Mark task complete in `runs/state.json`
+- Advance to the next task
+- Record latest handoff path
+- Set `phase = "BETWEEN_TASKS"`
+- Clear `current_role`
 
 ## Role composition (`follow_roles`)
 If a task sets `follow_roles`, tell the primary role subagent to:
 - Read `.claude/agents/<follow_role_agent>.md` for constraints
 - Apply those constraints in addition to its own (more restrictive wins)
 
+## Arbiter
+The arbiter (`lca-arbiter`) is an independent auditor that:
+- Runs ONLY between tasks (never mid-task)
+- Is triggered automatically by hooks when token/time thresholds are met
+- Reviews repo state, token burn, diff size, permission prompts
+- Decides if human review is needed
+- Writes checkpoint reports to `runs/arbiter/checkpoints/`
+
+The arbiter is kept isolated from other agents and operates as a "blackhat" reviewer.
+
 ## If blocked
-If you hit repeated failures, write a short note in `runs/notes.md` with:
-- what failed
-- what you tried
-- what input you need from the human
+If you hit repeated failures OR arbiter requests human review:
+- Set `phase = "BLOCKED"`
+- Write a short note in `runs/notes.md` with:
+  - what failed
+  - what you tried
+  - what input you need from the human
+- STOP and wait for user input

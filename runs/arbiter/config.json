@@ -1,0 +1,12 @@
+{
+  "protocol": "lca-arbiter-v1",
+  "min_tokens_between_checkpoints": 30000,
+  "min_minutes_between_checkpoints": 20,
+
+  "max_files_changed_without_human": 25,
+  "max_lines_changed_without_human": 800,
+  "max_permission_prompts_between_checkpoints": 3,
+
+  "high_risk_bash_prefixes": ["rm ", "sudo ", "curl ", "wget ", "ssh ", "scp ", "dd "],
+  "stop_run_on_human_needed": true
+}
