@@ -2,7 +2,7 @@
 name: lca-recorder
 description: Records task changes in handoffs. Internal coordination for task-to-task context.
 tools: Read, Grep, Glob, LS, Edit
-model: sonnet
+model: haiku
 permissionMode: acceptEdits
 skills: lca-protocol
 ---

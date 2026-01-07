@@ -2,7 +2,7 @@
 name: lca-gitops
 description: Handles branch/commit/push hygiene. Use after a task passes checks.
 tools: Read, LS, Edit, Bash
-model: sonnet
+model: haiku
 permissionMode: dontAsk
 skills: lca-protocol
 ---

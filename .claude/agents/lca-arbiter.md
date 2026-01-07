@@ -2,7 +2,7 @@
 name: lca-arbiter
 description: Periodic blackhat checkpoint auditor. Runs only when runs/arbiter/pending.json exists. Decides if human review is needed.
 tools: Read, Grep, Glob, LS, Bash, Edit
-model: sonnet
+model: opus
 permissionMode: acceptEdits
 skills: lca-protocol
 ---

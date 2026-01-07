@@ -2,7 +2,7 @@
 name: lca-planner
 description: Generates and maintains runs/plan.md and writes the next tasks under runs/tasks/. Use proactively at session start and whenever tasks are missing or need replanning.
 tools: Read, Grep, Glob, LS, Edit
-model: sonnet
+model: opus
 permissionMode: acceptEdits
 skills: lca-protocol
 ---
