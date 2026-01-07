@@ -20,3 +20,8 @@ export {
   useUpdateLLMSettings,
   useTestLLMSettings,
 } from './useSettings';
+
+export {
+  useCarePlan,
+  useGenerateCarePlan,
+} from './useCarePlan';

@@ -9,6 +9,7 @@ import type {
   PlantUpdate,
   PlantListResponse,
   TelemetryHistoryResponse,
+  CarePlanResponse,
 } from '../types';
 
 const API_BASE = '/api';
@@ -67,4 +68,10 @@ export const plantApi = {
     fetchApi<TelemetryHistoryResponse>(`/plants/${id}/history?hours=${hours}`),
   devices: (id: string) =>
     fetchApi<DeviceListResponse>(`/plants/${id}/devices`),
+  getCarePlan: (id: string) =>
+    fetchApi<CarePlanResponse>(`/plants/${id}/care-plan`),
+  analyze: (id: string) =>
+    fetchApi<CarePlanResponse>(`/plants/${id}/analyze`, {
+      method: 'POST',
+    }),
 };

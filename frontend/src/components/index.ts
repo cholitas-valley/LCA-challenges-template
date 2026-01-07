@@ -13,3 +13,4 @@ export { ConfirmDialog } from './ConfirmDialog';
 export { TelemetryChart } from './TelemetryChart';
 export { ThresholdForm } from './ThresholdForm';
 export { PlantDeviceList } from './PlantDeviceList';
+export { CarePlanDisplay } from './CarePlanDisplay';

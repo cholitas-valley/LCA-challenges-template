@@ -166,6 +166,12 @@ export function PlantDetail() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Link
+                to={`/plants/${id}/care`}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                View Care Plan
+              </Link>
               <button
                 onClick={handleDeletePlant}
                 disabled={deleteMutation.isPending}
