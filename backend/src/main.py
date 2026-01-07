@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from src.db.connection import close_pool, init_pool
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
 from src.models import ErrorResponse, HealthResponse
-from src.routers import devices
+from src.routers import devices, plants
 
 
 @asynccontextmanager
@@ -78,6 +78,7 @@ async def plantops_error_handler(request: Request, exc: PlantOpsError) -> JSONRe
 
 # Include routers
 app.include_router(devices.router)
+app.include_router(plants.router)
 
 
 # Health endpoint

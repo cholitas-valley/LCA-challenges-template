@@ -1,4 +1,4 @@
 """Repository package."""
-from . import device
+from . import device, plant
 
-__all__ = ["device"]
+__all__ = ["device", "plant"]
