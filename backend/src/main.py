@@ -6,18 +6,20 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from src.db.connection import close_pool, init_pool
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
 from src.models import ErrorResponse, HealthResponse
+from src.routers import devices
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup and shutdown."""
-    # Startup: Initialize database pool when needed
-    # Currently no database connection required
+    # Startup: Initialize database pool
+    await init_pool()
     yield
-    # Shutdown: Close database pool when needed
-    # Currently no cleanup required
+    # Shutdown: Close database pool
+    await close_pool()
 
 
 app = FastAPI(
@@ -72,6 +74,10 @@ async def plantops_error_handler(request: Request, exc: PlantOpsError) -> JSONRe
         status_code=500,
         content=ErrorResponse(error="Internal Error", detail=str(exc)).model_dump(),
     )
+
+
+# Include routers
+app.include_router(devices.router)
 
 
 # Health endpoint

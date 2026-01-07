@@ -2,9 +2,9 @@
   "protocol": "lca-v1",
   "run_branch": "run/003",
   "phase": "IN_TASK",
-  "current_task_id": "task-003",
+  "current_task_id": "task-004",
   "current_role": "lca-gitops",
-  "completed_task_ids": ["task-001", "task-002"],
-  "last_handoff": "runs/handoffs/task-002.md",
-  "updated_at": "2026-01-07T21:08:00Z"
+  "completed_task_ids": ["task-001", "task-002", "task-003"],
+  "last_handoff": "runs/handoffs/task-003.md",
+  "updated_at": "2026-01-07T21:22:00Z"
 }
