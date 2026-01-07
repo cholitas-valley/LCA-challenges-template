@@ -199,11 +199,23 @@ async def test_check_offline_devices():
     conn_mock = AsyncMock()
     pool_mock.acquire.return_value = AsyncContextManagerMock(conn_mock)
 
-    # Mock stale devices
+    # Mock stale devices from get_stale_devices
     conn_mock.fetch.return_value = [
         {"id": "device-1"},
         {"id": "device-2"},
     ]
+
+    # Mock device details from get_device_by_id
+    # Create Record-like objects that can be converted to dict
+    class MockRecord(dict):
+        """Mock asyncpg.Record that behaves like a dict."""
+        pass
+
+    device_records = [
+        MockRecord({"id": "device-1", "status": "online", "plant_id": None}),
+        MockRecord({"id": "device-2", "status": "online", "plant_id": None}),
+    ]
+    conn_mock.fetchrow.side_effect = device_records
     conn_mock.execute.return_value = "UPDATE 2"
 
     with patch("src.services.heartbeat_handler.get_pool", return_value=pool_mock):
@@ -289,10 +301,22 @@ async def test_multiple_offline_devices_handled():
     conn_mock = AsyncMock()
     pool_mock.acquire.return_value = AsyncContextManagerMock(conn_mock)
 
-    # Mock 5 stale devices
+    # Mock 5 stale devices from get_stale_devices
     conn_mock.fetch.return_value = [
         {"id": f"device-{i}"} for i in range(1, 6)
     ]
+
+    # Mock device details from get_device_by_id
+    # Create Record-like objects that can be converted to dict
+    class MockRecord(dict):
+        """Mock asyncpg.Record that behaves like a dict."""
+        pass
+
+    device_records = [
+        MockRecord({"id": f"device-{i}", "status": "online", "plant_id": None})
+        for i in range(1, 6)
+    ]
+    conn_mock.fetchrow.side_effect = device_records
     conn_mock.execute.return_value = "UPDATE 5"
 
     with patch("src.services.heartbeat_handler.get_pool", return_value=pool_mock):

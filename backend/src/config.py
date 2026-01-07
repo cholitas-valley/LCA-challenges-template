@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     discord_webhook_url: str | None = None
     encryption_key: str
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=[".env.test", ".env"])
 
 
 settings = Settings()

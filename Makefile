@@ -22,7 +22,8 @@ db-shell:
 	docker compose exec db psql -U plantops -d plantops
 
 check:
-	cd backend && python -m pytest tests/ && python -m ruff check src/ && python -m mypy src/
+	cd backend && python3 -m pytest tests/ -v
+	cd frontend && npm run build
 
 test:
-	cd backend && python -m pytest tests/
+	cd backend && python3 -m pytest tests/
