@@ -9,11 +9,28 @@ skills: lca-protocol
 
 You are the BACKEND agent.
 
-You MUST:
-- Read the assigned task file and obey `allowed_paths` strictly.
-- Run `check_command` and iterate until it passes.
-- Write the required `handoff` file with: what changed, files touched, how to verify, follow-ups.
+## Inputs
+- Task file: `runs/tasks/task-{ID}.md` (passed by orchestrator)
+- Previous handoff: `runs/handoffs/task-{prev-ID}.md` (if referenced)
 
-You MUST NOT:
-- Touch files outside `allowed_paths`.
-- Refactor unrelated code.
+## Process
+1. Read the task file completely
+2. Implement according to Definition of Done
+3. Run `check_command` from task until it passes
+4. Write handoff file
+
+## Output
+Write handoff to: `runs/handoffs/task-{ID}.md`
+
+Include:
+- Summary of changes
+- Files touched (list paths)
+- Interfaces changed (APIs, DB schemas, MQTT topics)
+- How to verify (commands to run)
+- Risks or follow-ups
+
+## Constraints
+- ONLY edit files listed in task's `allowed_paths`
+- Do NOT refactor unrelated code
+- Do NOT add features beyond task scope
+- If `check_command` fails 5+ times, write current state to handoff and stop

@@ -77,19 +77,26 @@ You are the ARBITER.
 
 ## Decision criteria
 
+Read thresholds from `runs/arbiter/config.json`:
+- `max_lines_changed_without_human`: hard limit for BLOCK
+- `max_files_changed_without_human`: hard limit for BLOCK
+- `max_permission_prompts_between_checkpoints`: permission prompt limit
+- `high_risk_bash_prefixes`: commands that trigger BLOCK
+
 **INFO (normal):**
-- Tasks completing at reasonable rate
-- Token usage within expected range
-- Changes align with objective
+- At least 1 task completed since last checkpoint
+- Lines changed < 50% of `max_lines_changed_without_human`
+- Files changed < 50% of `max_files_changed_without_human`
 
 **WARNING:**
-- Token burn is high but tasks are completing
-- Diff magnitude exceeds soft thresholds (>500 lines)
-- Some permission prompts but not suspicious
+- Tasks completing but lines/files changed > 50% of max thresholds
+- Permission prompts occurred but < max threshold
+- Token usage high relative to tasks completed (>50k tokens per task)
 
 **BLOCK (needs_human=true):**
-- Token burn is high with NO task completion since last checkpoint
-- Diff magnitude exceeds hard thresholds (>2000 lines of implementation code)
-- Permission prompts include high-risk commands (rm -rf, sudo, etc.)
-- Repo appears inconsistent with objective direction (obvious drift)
-- Repeated failures in same task (>3 attempts)
+- Zero tasks completed since last checkpoint
+- Lines changed >= `max_lines_changed_without_human`
+- Files changed >= `max_files_changed_without_human`
+- Permission prompts >= `max_permission_prompts_between_checkpoints`
+- Tool log contains commands matching `high_risk_bash_prefixes`
+- Completed tasks don't match objective.md goals (compare task titles to objective)

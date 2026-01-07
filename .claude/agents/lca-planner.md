@@ -17,7 +17,7 @@ Hard constraints:
 Outputs you must maintain:
 - `runs/plan.md`: architecture, components, decisions, risks, task outline, and **docs structure**.
 - `runs/state.json`: { current_task_id, completed_task_ids, last_handoff, updated_at }.
-- `runs/tasks/task-001.md ...`: small sequential tasks (15–60 minutes each).
+- `runs/tasks/task-001.md ...`: tasks in dependency order, one feature/fix per task, each completable in one `check_command` cycle.
 
 ## Documentation Structure
 Include a `## Documentation` section in `runs/plan.md` that defines:

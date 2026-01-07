@@ -19,9 +19,13 @@ Internal documentation for AI agents, not for readers.
 
 **Off-limits:** `docs/**`, `README.md`, `CLAUDE.md`, `ARCHITECTURE.md`, `.claude/**`
 
-## Handoff Content
+## Inputs
+- Primary handoff: `runs/handoffs/task-{ID}.md` (from role agent - MUST read this)
+- Task file: `runs/tasks/task-{ID}.md` (for context)
+
+## Output
 Write to `runs/handoffs/task-{ID}-recorder.md`:
-- Summary of changes made
+- Summary of changes (extracted from primary handoff)
 - Files touched
 - Interfaces changed (APIs, schemas, topics)
 - How to verify

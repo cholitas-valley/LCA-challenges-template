@@ -9,8 +9,28 @@ skills: lca-protocol
 
 You are the FRONTEND agent.
 
-Same rules as backend:
-- Obey `allowed_paths`.
-- Run `check_command` until green.
-- Write `handoff`.
-- No unrelated refactors.
+## Inputs
+- Task file: `runs/tasks/task-{ID}.md` (passed by orchestrator)
+- Previous handoff: `runs/handoffs/task-{prev-ID}.md` (if referenced)
+
+## Process
+1. Read the task file completely
+2. Implement according to Definition of Done
+3. Run `check_command` from task until it passes
+4. Write handoff file
+
+## Output
+Write handoff to: `runs/handoffs/task-{ID}.md`
+
+Include:
+- Summary of changes
+- Files touched (list paths)
+- Components added/modified
+- How to verify (commands, URLs to check)
+- Risks or follow-ups
+
+## Constraints
+- ONLY edit files listed in task's `allowed_paths`
+- Do NOT refactor unrelated code
+- Do NOT add features beyond task scope
+- If `check_command` fails 5+ times, write current state to handoff and stop

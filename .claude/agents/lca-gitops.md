@@ -19,7 +19,7 @@ You MUST:
 1. Run `git status` to see all changes
 2. Run `git add -A` to stage all changes (tracked and untracked)
 3. Run `git commit -m "<task_id>: <summary>"`
-4. Do NOT push unless explicitly requested
+4. Do NOT push - commits stay local until user requests push
 
 ## Handoff Output
 Write your handoff to: `runs/handoffs/task-{ID}-gitops.md`
