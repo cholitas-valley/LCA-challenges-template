@@ -11,6 +11,7 @@ DEFAULT_CFG = {
     "protocol": "lca-arbiter-v1",
     "min_tokens_between_checkpoints": 30000,
     "min_minutes_between_checkpoints": 20,
+    "min_tasks_between_checkpoints": 3,
     "max_files_changed_without_human": 25,
     "max_lines_changed_without_human": 800,
     "max_permission_prompts_between_checkpoints": 3,
@@ -119,9 +120,26 @@ def main():
     now_epoch = int(time.time())
     total_tokens = sum_tokens(runs / "usage" / "usage.jsonl")
     dt_tokens = total_tokens - int(arb_state.get("last_checkpoint_tokens") or 0)
-    dt_minutes = (now_epoch - int(arb_state.get("last_checkpoint_epoch") or 0)) / 60.0
 
-    if dt_tokens < int(cfg["min_tokens_between_checkpoints"]) and dt_minutes < float(cfg["min_minutes_between_checkpoints"]):
+    # Handle first-run case: if epoch is 0, treat as just happened (no time elapsed)
+    last_checkpoint_epoch = int(arb_state.get("last_checkpoint_epoch") or 0)
+    if last_checkpoint_epoch == 0:
+        dt_minutes = 0.0  # First run, no time elapsed since "last checkpoint"
+    else:
+        dt_minutes = (now_epoch - last_checkpoint_epoch) / 60.0
+
+    # Task-based trigger: check if N tasks completed since last checkpoint
+    tasks_completed = len(state.get("completed_task_ids") or [])
+    tasks_at_last = int(arb_state.get("last_checkpoint_tasks") or 0)
+    tasks_since = tasks_completed - tasks_at_last
+    min_tasks = int(cfg.get("min_tasks_between_checkpoints", 3))
+
+    # Trigger if ANY threshold exceeded
+    token_threshold_exceeded = dt_tokens >= int(cfg["min_tokens_between_checkpoints"])
+    time_threshold_exceeded = dt_minutes >= float(cfg["min_minutes_between_checkpoints"])
+    task_threshold_exceeded = tasks_since >= min_tasks
+
+    if not (token_threshold_exceeded or time_threshold_exceeded or task_threshold_exceeded):
         return
 
     # Snapshot for arbiter agent
@@ -129,10 +147,12 @@ def main():
         "ts": datetime.utcnow().isoformat() + "Z",
         "hook_event_name": hook.get("hook_event_name"),
         "current_task_id": state.get("current_task_id"),
-        "completed_task_ids_count": len(state.get("completed_task_ids") or []),
+        "completed_task_ids_count": tasks_completed,
         "tokens_total": total_tokens,
         "tokens_since_last_checkpoint": dt_tokens,
         "minutes_since_last_checkpoint": round(dt_minutes, 1),
+        "tasks_since_last_checkpoint": tasks_since,
+        "trigger_reason": "tokens" if token_threshold_exceeded else ("time" if time_threshold_exceeded else "tasks"),
         "git": {
             "branch": sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], project_dir),
             "head": sh(["git", "rev-parse", "HEAD"], project_dir),

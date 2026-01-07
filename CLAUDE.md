@@ -47,8 +47,11 @@ Repeat until all tasks are marked complete in `runs/state.json`:
 If `runs/arbiter/pending.json` exists:
 - Invoke `lca-arbiter`
 - Read `runs/arbiter/decision.json`
-- If `needs_human == true`: set `phase = "BLOCKED"` and STOP for user review
-- Else: continue (arbiter clears pending.json)
+- Handle based on severity:
+  - **INFO**: Log and continue normally
+  - **WARNING**: Append summary to `runs/notes.md`, then continue
+  - **BLOCK** (or `needs_human == true`): Set `phase = "BLOCKED"` and STOP for user review
+- Verify arbiter deleted `pending.json` (if not, log warning)
 
 ### 2) Start task
 - Read `runs/state.json`, open the current task file in `runs/tasks/`
@@ -67,10 +70,39 @@ If `runs/arbiter/pending.json` exists:
   - run `check_command` and fix until it passes
   - write the required `handoff` file
 
-### 4) Post agents
-If `post` includes additional agents (e.g., `docs`, `gitops`):
-- Update `current_role` for each
-- Invoke them in order, using the handoff as primary context
+### 4) Post agents (CRITICAL - must invoke ALL)
+If the task has a `post` array with agent names:
+
+**You MUST invoke EVERY agent in the `post` array, in order.**
+
+For EACH agent in `post` (e.g., `[lca-docs, lca-gitops]`):
+1. Update `current_role` in state to the agent name
+2. Invoke the agent subagent (e.g., `lca-docs`, then `lca-gitops`)
+3. Pass the primary handoff as context
+4. Wait for agent to complete
+5. Verify the agent wrote its handoff file:
+   - Expected path: `runs/handoffs/task-{ID}-{agent-suffix}.md`
+   - Example: `task-001-docs.md`, `task-001-gitops.md`
+6. If handoff missing after agent completes, log warning to `runs/notes.md`
+
+**Common post agents:**
+- `lca-docs` → writes `task-{ID}-docs.md` (documentation updates)
+- `lca-gitops` → writes `task-{ID}-gitops.md` (commits changes)
+
+**Example:** If task has `post: [lca-docs, lca-gitops]`:
+```
+1. Invoke lca-docs → verify task-001-docs.md created
+2. Invoke lca-gitops → verify task-001-gitops.md created
+3. Only then proceed to step 5
+```
+
+### 4b) Verify post agents completed
+Before advancing to step 5, verify:
+- All agents in `post` array were invoked
+- Each agent's handoff file exists
+- If any handoff is missing:
+  - Retry the agent once
+  - If still missing, log to `runs/notes.md` and continue
 
 ### 5) Advance state
 - Mark task complete in `runs/state.json`

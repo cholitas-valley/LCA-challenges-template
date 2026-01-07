@@ -22,5 +22,12 @@ Outputs you must maintain:
 Task generation rules:
 - Each task file MUST use the Task File Format in the lca-protocol skill.
 - Each task MUST name one primary `role` (backend|frontend|docs|gitops|qa).
-- Use `post: [docs, gitops]` when a task should hand off to docs/commit automatically.
+- **ALWAYS include `post: [lca-docs, lca-gitops]`** for implementation tasks.
+  - This ensures documentation is updated AND changes are committed after each task.
+  - Only omit lca-gitops for pure documentation/planning tasks.
 - Prefer "rolling planning": create the next 1–3 tasks, not 40.
+
+## Constraints
+- If you cannot create task files directly, STOP and request the orchestrator to create them.
+- Do NOT output task specifications to notes.md, handoffs, or other files.
+- Request orchestrator assistance for file creation if needed.
