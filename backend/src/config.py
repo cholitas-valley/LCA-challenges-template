@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     mqtt_host: str = "mosquitto"
     mqtt_port: int = 1883
     mqtt_passwd_file: str = "/mosquitto/passwd"
+    mqtt_backend_username: str = "plantops_backend"
+    mqtt_backend_password: str
     discord_webhook_url: str | None = None
     encryption_key: str
 
