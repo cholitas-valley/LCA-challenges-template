@@ -1,0 +1,29 @@
+{
+  "ts": "2026-01-07T19:14:38.353677Z",
+  "hook_event_name": "SubagentStop",
+  "current_task_id": "task-001",
+  "completed_task_ids_count": 0,
+  "tokens_total": 195566,
+  "tokens_since_last_checkpoint": 28620,
+  "minutes_since_last_checkpoint": 525619.6,
+  "tasks_since_last_checkpoint": 0,
+  "trigger_reason": "time",
+  "git": {
+    "branch": "run/003",
+    "head": "6efe0e8a79cfd0a5b56f64a02f9f1d68210f2345",
+    "status_porcelain_lines": 8,
+    "diff_stat": "runs/arbiter/state.json | 5 +++--\n 1 file changed, 3 insertions(+), 2 deletions(-)"
+  },
+  "diff_metrics": {
+    "files": 1,
+    "lines_added": 3,
+    "lines_removed": 2
+  },
+  "tool_invocations_since_last_checkpoint": 15,
+  "permission_prompts_since_last_checkpoint": 0,
+  "thresholds": {
+    "max_files_changed_without_human": 25,
+    "max_lines_changed_without_human": 800,
+    "max_permission_prompts_between_checkpoints": 3
+  }
+}

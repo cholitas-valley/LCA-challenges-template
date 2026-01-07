@@ -1,0 +1,15 @@
+{
+  "severity": "INFO",
+  "needs_human": false,
+  "summary": "Routine post-planning checkpoint. 25 tasks generated, 0 implementation changes yet. Token usage (166k) reasonable for comprehensive planning. All metrics within thresholds.",
+  "reasons": [
+    "Planning phase completed successfully with 25 task files",
+    "Zero files/lines changed (only protocol artifacts in runs/)",
+    "No high-risk commands in tool log",
+    "Zero permission prompts",
+    "Token usage justified by scope of planning (IoT + LLM features)"
+  ],
+  "suggested_user_actions": [],
+  "permission_requests_summary": [],
+  "reviewed_at": "2026-01-07T19:15:00Z"
+}
