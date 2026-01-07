@@ -1,4 +1,10 @@
 """Pydantic models package."""
+from .care_plan import (
+    CarePlan,
+    CarePlanMetric,
+    CarePlanResponse,
+    CarePlanWatering,
+)
 from .common import ErrorResponse, HealthResponse
 from .device import (
     DeviceListResponse,
@@ -31,6 +37,10 @@ from .telemetry import (
 __all__ = [
     "HealthResponse",
     "ErrorResponse",
+    "CarePlan",
+    "CarePlanWatering",
+    "CarePlanMetric",
+    "CarePlanResponse",
     "DeviceRegisterRequest",
     "DeviceRegisterResponse",
     "DeviceResponse",

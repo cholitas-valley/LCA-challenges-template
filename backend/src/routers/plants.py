@@ -1,4 +1,5 @@
 """Plant management endpoints."""
+import json
 import uuid
 from datetime import datetime, timedelta
 
@@ -6,6 +7,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from src.db.connection import get_db
+from src.models.care_plan import CarePlanResponse
 from src.models.plant import (
     PlantCreate,
     PlantListResponse,
@@ -17,6 +19,11 @@ from src.models.telemetry import TelemetryHistoryResponse, TelemetryRecord
 from src.repositories import plant as plant_repo
 from src.repositories import device as device_repo
 from src.repositories import telemetry as telemetry_repo
+from src.repositories import care_plan as care_plan_repo
+from src.repositories import settings as settings_repo
+from src.services.encryption import EncryptionService
+from src.services.llm import LLMService
+import os
 
 router = APIRouter(prefix="/api/plants", tags=["plants"])
 
@@ -277,4 +284,194 @@ async def get_plant_history(
     return TelemetryHistoryResponse(
         records=records,
         count=len(records),
+    )
+
+
+@router.post("/{plant_id}/analyze", response_model=CarePlanResponse)
+async def analyze_plant(
+    plant_id: str,
+    db: asyncpg.Connection = Depends(get_db),
+) -> CarePlanResponse:
+    """
+    Generate a new care plan for a plant using LLM.
+
+    This endpoint:
+    1. Retrieves the plant details and current sensor data
+    2. Analyzes 24-hour historical trends
+    3. Uses the configured LLM to generate personalized care recommendations
+    4. Stores the care plan in the database
+    5. Returns the generated care plan
+
+    Args:
+        plant_id: Plant ID to analyze
+
+    Returns:
+        Generated care plan
+
+    Raises:
+        404: Plant not found
+        503: LLM not configured or unavailable
+    """
+    # Verify plant exists
+    plant = await plant_repo.get_plant_by_id(db, plant_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Get LLM configuration
+    llm_config_str = await settings_repo.get_setting(db, "llm_config")
+    if not llm_config_str:
+        raise HTTPException(
+            status_code=503,
+            detail="LLM not configured. Please configure LLM settings first.",
+        )
+
+    # Decrypt LLM config
+    encryption_key = os.getenv("ENCRYPTION_KEY", "default-encryption-key-for-dev")
+    encryption_service = EncryptionService(encryption_key)
+
+    try:
+        llm_config = json.loads(encryption_service.decrypt(llm_config_str))
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Failed to decrypt LLM configuration: {str(e)}",
+        )
+
+    # Get current readings
+    current_readings = {}
+    latest_telemetry = await telemetry_repo.get_latest_by_plant(db, plant_id)
+    if latest_telemetry:
+        if latest_telemetry.get("soil_moisture") is not None:
+            current_readings["soil_moisture"] = latest_telemetry["soil_moisture"]
+        if latest_telemetry.get("temperature") is not None:
+            current_readings["temperature"] = latest_telemetry["temperature"]
+        if latest_telemetry.get("humidity") is not None:
+            current_readings["humidity"] = latest_telemetry["humidity"]
+        if latest_telemetry.get("light_level") is not None:
+            current_readings["light_level"] = latest_telemetry["light_level"]
+
+    # Get 24-hour history for trends
+    end_time = datetime.now()
+    start_time = end_time - timedelta(hours=24)
+    history = await telemetry_repo.get_history(
+        db,
+        plant_id=plant_id,
+        start_time=start_time,
+        end_time=end_time,
+        limit=10000,
+    )
+
+    # Calculate history summary
+    history_summary = {}
+    if history:
+        # Calculate moisture stats
+        moisture_values = [
+            h["soil_moisture"] for h in history if h.get("soil_moisture") is not None
+        ]
+        if moisture_values:
+            history_summary["moisture"] = {
+                "avg": round(sum(moisture_values) / len(moisture_values), 1),
+                "min": round(min(moisture_values), 1),
+                "max": round(max(moisture_values), 1),
+            }
+
+        # Calculate temperature stats
+        temp_values = [
+            h["temperature"] for h in history if h.get("temperature") is not None
+        ]
+        if temp_values:
+            history_summary["temperature"] = {
+                "avg": round(sum(temp_values) / len(temp_values), 1),
+                "min": round(min(temp_values), 1),
+                "max": round(max(temp_values), 1),
+            }
+
+        # Calculate humidity stats
+        humidity_values = [
+            h["humidity"] for h in history if h.get("humidity") is not None
+        ]
+        if humidity_values:
+            history_summary["humidity"] = {
+                "avg": round(sum(humidity_values) / len(humidity_values), 1),
+                "min": round(min(humidity_values), 1),
+                "max": round(max(humidity_values), 1),
+            }
+
+    # Initialize LLM service
+    try:
+        llm_service = LLMService(
+            provider=llm_config["provider"],
+            api_key=llm_config["api_key"],
+            model=llm_config["model"],
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Failed to initialize LLM service: {str(e)}",
+        )
+
+    # Generate care plan
+    try:
+        care_plan = await llm_service.generate_care_plan(
+            plant_name=plant["name"],
+            species=plant.get("species"),
+            current_readings=current_readings,
+            history_summary=history_summary,
+            thresholds=plant.get("thresholds"),
+        )
+    except TimeoutError:
+        raise HTTPException(
+            status_code=503,
+            detail="LLM request timed out. Please try again.",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Failed to generate care plan: {str(e)}",
+        )
+
+    # Save care plan to database
+    await care_plan_repo.save_care_plan(db, plant_id, care_plan)
+
+    # Return response
+    return CarePlanResponse(
+        plant_id=plant["id"],
+        plant_name=plant["name"],
+        species=plant.get("species"),
+        care_plan=care_plan,
+        last_generated=care_plan.generated_at,
+    )
+
+
+@router.get("/{plant_id}/care-plan", response_model=CarePlanResponse)
+async def get_care_plan(
+    plant_id: str,
+    db: asyncpg.Connection = Depends(get_db),
+) -> CarePlanResponse:
+    """
+    Get the stored care plan for a plant.
+
+    Args:
+        plant_id: Plant ID
+
+    Returns:
+        Stored care plan or null if no plan exists
+
+    Raises:
+        404: Plant not found
+    """
+    # Verify plant exists
+    plant = await plant_repo.get_plant_by_id(db, plant_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Get stored care plan
+    care_plan = await care_plan_repo.get_care_plan(db, plant_id)
+
+    return CarePlanResponse(
+        plant_id=plant["id"],
+        plant_name=plant["name"],
+        species=plant.get("species"),
+        care_plan=care_plan,
+        last_generated=care_plan.generated_at if care_plan else None,
     )
