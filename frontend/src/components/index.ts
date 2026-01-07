@@ -7,3 +7,6 @@ export { EmptyState } from './EmptyState';
 export { SensorReading } from './SensorReading';
 export { PlantCard } from './PlantCard';
 export { CreatePlantModal } from './CreatePlantModal';
+export { DeviceTable } from './DeviceTable';
+export { AssignDeviceModal } from './AssignDeviceModal';
+export { ConfirmDialog } from './ConfirmDialog';
