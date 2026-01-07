@@ -9,9 +9,9 @@ from pathlib import Path
 
 DEFAULT_CFG = {
     "protocol": "lca-arbiter-v1",
-    "min_tokens_between_checkpoints": 30000,
-    "min_minutes_between_checkpoints": 20,
-    "min_tasks_between_checkpoints": 3,
+    "trigger_after_tokens": 100000,
+    "trigger_after_minutes": 20,
+    "trigger_after_tasks": 1,
     "max_files_changed_without_human": 25,
     "max_lines_changed_without_human": 800,
     "max_permission_prompts_between_checkpoints": 3,
@@ -132,12 +132,11 @@ def main():
     tasks_completed = len(state.get("completed_task_ids") or [])
     tasks_at_last = int(arb_state.get("last_checkpoint_tasks") or 0)
     tasks_since = tasks_completed - tasks_at_last
-    min_tasks = int(cfg.get("min_tasks_between_checkpoints", 3))
 
     # Trigger if ANY threshold exceeded
-    token_threshold_exceeded = dt_tokens >= int(cfg["min_tokens_between_checkpoints"])
-    time_threshold_exceeded = dt_minutes >= float(cfg["min_minutes_between_checkpoints"])
-    task_threshold_exceeded = tasks_since >= min_tasks
+    token_threshold_exceeded = dt_tokens >= int(cfg.get("trigger_after_tokens", 100000))
+    time_threshold_exceeded = dt_minutes >= float(cfg.get("trigger_after_minutes", 20))
+    task_threshold_exceeded = tasks_since >= int(cfg.get("trigger_after_tasks", 1))
 
     if not (token_threshold_exceeded or time_threshold_exceeded or task_threshold_exceeded):
         return

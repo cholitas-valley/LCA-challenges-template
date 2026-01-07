@@ -61,9 +61,9 @@ This challenge uses **Claude Code** as a multi-agent orchestrated system. The go
 │  └─────────┘   └─────────┘   │  ┌─────────┐ ┌─────────┐ ┌──────┐  │      │
 │                              │  │ backend │ │frontend │ │  qa  │  │      │
 │                              │  └─────────┘ └─────────┘ └──────┘  │      │
-│                              │  ┌─────────┐ ┌─────────┐           │      │
-│                              │  │  docs   │ │ gitops  │           │      │
-│                              │  └─────────┘ └─────────┘           │      │
+│                              │  ┌─────────┐ ┌─────────┐ ┌──────┐  │      │
+│                              │  │recorder │ │  docs   │ │gitops│  │      │
+│                              │  └─────────┘ └─────────┘ └──────┘  │      │
 │                              └────────────────────────────────────┘      │
 └──────────────────────────────────────────────────────────────────────────┘
 
@@ -282,8 +282,9 @@ The arbiter is an independent "blackhat" auditor that operates between tasks to 
 * Writes `runs/arbiter/decision.json` with `needs_human` boolean
 
 **Thresholds (configurable in `runs/arbiter/config.json`):**
-* `min_tokens_between_checkpoints`: 30000
-* `min_minutes_between_checkpoints`: 20
+* `trigger_after_tokens`: 100000 (arbiter runs after 100k tokens)
+* `trigger_after_minutes`: 20
+* `trigger_after_tasks`: 1 (arbiter runs after each task)
 * `max_files_changed_without_human`: 25
 * `max_lines_changed_without_human`: 800
 * `max_permission_prompts_between_checkpoints`: 3

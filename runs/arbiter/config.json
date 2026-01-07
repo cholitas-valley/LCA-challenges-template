@@ -1,7 +1,9 @@
 {
   "protocol": "lca-arbiter-v1",
-  "min_tokens_between_checkpoints": 30000,
-  "min_minutes_between_checkpoints": 20,
+
+  "trigger_after_tokens": 100000,
+  "trigger_after_minutes": 20,
+  "trigger_after_tasks": 1,
 
   "max_files_changed_without_human": 25,
   "max_lines_changed_without_human": 800,
