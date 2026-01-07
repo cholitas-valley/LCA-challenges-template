@@ -1,4 +1,5 @@
 """Telemetry handler service for processing incoming sensor data."""
+import asyncio
 import json
 import logging
 from datetime import datetime
@@ -16,14 +17,16 @@ logger = logging.getLogger(__name__)
 class TelemetryHandler:
     """Handler for processing telemetry messages from MQTT."""
 
-    def __init__(self, threshold_evaluator=None):
+    def __init__(self, threshold_evaluator=None, alert_queue: asyncio.Queue | None = None):
         """
         Initialize telemetry handler.
 
         Args:
             threshold_evaluator: Optional ThresholdEvaluator instance for alert checks
+            alert_queue: Optional queue for sending alerts to Discord worker
         """
         self.threshold_evaluator = threshold_evaluator
+        self.alert_queue = alert_queue
 
     async def handle_telemetry(self, device_id: str, payload: dict) -> None:
         """
@@ -106,6 +109,12 @@ class TelemetryHandler:
                                         f"{violation.metric}={violation.value} "
                                         f"({violation.direction} threshold {violation.threshold})"
                                     )
+
+                                    # Queue alert for Discord if queue is configured
+                                    if self.alert_queue:
+                                        # Add plant name to violation for Discord message
+                                        violation.plant_name = plant_record.get('name', 'Unknown')
+                                        await self.alert_queue.put(violation)
                         except Exception as e:
                             logger.error(f"Error evaluating thresholds for {plant_id}: {e}")
         

@@ -1,4 +1,5 @@
 """Heartbeat handler for device status tracking."""
+import asyncio
 import logging
 from datetime import datetime, timedelta
 
@@ -11,14 +12,16 @@ logger = logging.getLogger(__name__)
 class HeartbeatHandler:
     """Handler for processing device heartbeats and tracking online/offline status."""
 
-    def __init__(self, timeout_seconds: int = 180):
+    def __init__(self, timeout_seconds: int = 180, alert_queue: asyncio.Queue | None = None):
         """
         Initialize heartbeat handler.
 
         Args:
             timeout_seconds: Number of seconds without heartbeat before marking offline (default 180)
+            alert_queue: Optional queue for sending offline alerts to Discord worker
         """
         self.timeout_seconds = timeout_seconds
+        self.alert_queue = alert_queue
 
     async def handle_heartbeat(self, device_id: str, payload: dict) -> None:
         """
@@ -61,7 +64,7 @@ class HeartbeatHandler:
         try:
             pool = get_pool()
             async with pool.acquire() as conn:
-                # Get devices that are stale
+                # Get devices that are stale (fetch full records for alerting)
                 stale_device_ids = await device_repo.get_stale_devices(
                     conn, self.timeout_seconds
                 )
@@ -69,10 +72,39 @@ class HeartbeatHandler:
                 if not stale_device_ids:
                     return []
 
+                # Fetch device details for alerting
+                device_details = []
+                for device_id in stale_device_ids:
+                    device = await device_repo.get_device_by_id(conn, device_id)
+                    if device:
+                        device_details.append(device)
+
                 # Mark them offline
                 await device_repo.mark_devices_offline(conn, stale_device_ids)
 
                 logger.info(f"Marked {len(stale_device_ids)} devices as offline: {stale_device_ids}")
+
+                # Queue offline alerts if alert queue is configured
+                if self.alert_queue:
+                    from src.services.alert_worker import DeviceOfflineEvent
+                    from src.repositories import plant as plant_repo
+
+                    for device in device_details:
+                        # Get plant name if device is assigned
+                        plant_name = None
+                        if device.get('plant_id'):
+                            plant = await plant_repo.get_plant_by_id(conn, device['plant_id'])
+                            if plant:
+                                plant_name = plant.get('name')
+
+                        # Queue offline event
+                        event = DeviceOfflineEvent(
+                            device_id=device['id'],
+                            plant_name=plant_name,
+                            last_seen=device.get('last_seen_at'),
+                        )
+                        await self.alert_queue.put(event)
+
                 return stale_device_ids
 
         except Exception as e:

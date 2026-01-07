@@ -14,6 +14,8 @@ from src.db.connection import close_pool, init_pool
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
 from src.models import ErrorResponse, HealthResponse
 from src.routers import devices, plants
+from src.services.alert_worker import AlertWorker
+from src.services.discord import DiscordService
 from src.services.heartbeat_handler import HeartbeatHandler
 from src.services.mqtt_subscriber import MQTTSubscriber, parse_device_id
 from src.services.telemetry_handler import TelemetryHandler
@@ -21,10 +23,20 @@ from src.services.threshold_evaluator import ThresholdEvaluator
 
 logger = logging.getLogger(__name__)
 
-# Initialize handlers
+# Initialize alert queue and Discord service
+alert_queue = asyncio.Queue()
+discord_service = DiscordService(webhook_url=settings.discord_webhook_url)
+
+# Initialize handlers with alert queue
 threshold_evaluator = ThresholdEvaluator()
-telemetry_handler = TelemetryHandler(threshold_evaluator=threshold_evaluator)
-heartbeat_handler = HeartbeatHandler()
+telemetry_handler = TelemetryHandler(
+    threshold_evaluator=threshold_evaluator,
+    alert_queue=alert_queue,
+)
+heartbeat_handler = HeartbeatHandler(alert_queue=alert_queue)
+
+# Initialize alert worker
+alert_worker = AlertWorker(discord=discord_service, queue=alert_queue)
 
 
 async def handle_telemetry(topic: str, payload: bytes) -> None:
@@ -132,12 +144,25 @@ async def lifespan(app: FastAPI):
         offline_task = asyncio.create_task(offline_checker_task())
         logger.info("Offline checker task started")
 
+        # Start alert worker in background
+        alert_task = asyncio.create_task(alert_worker.run())
+        logger.info("Alert worker started")
+
         # Store instances in app state for potential access
         app.state.mqtt = mqtt
         app.state.mqtt_task = mqtt_task
         app.state.offline_task = offline_task
+        app.state.alert_task = alert_task
 
         yield
+
+        # Shutdown: Stop alert worker
+        alert_worker.stop()
+        alert_task.cancel()
+        try:
+            await alert_task
+        except asyncio.CancelledError:
+            pass
 
         # Shutdown: Cancel offline checker
         offline_task.cancel()
