@@ -14,3 +14,9 @@ export {
   useProvisionDevice,
   useDeleteDevice,
 } from './useDevices';
+
+export {
+  useLLMSettings,
+  useUpdateLLMSettings,
+  useTestLLMSettings,
+} from './useSettings';

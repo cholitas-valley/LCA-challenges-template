@@ -1,4 +1,5 @@
 import { Layout } from '../components/Layout';
+import { LLMSettings } from '../components/LLMSettings';
 
 export function Settings() {
   return (
@@ -11,7 +12,7 @@ export function Settings() {
             <p className="mt-1 text-sm text-gray-500">Configure your language model settings for the plant care advisor.</p>
           </div>
           <div className="p-6">
-            <p className="text-gray-500">Settings configuration coming soon...</p>
+            <LLMSettings />
           </div>
         </div>
       </div>
