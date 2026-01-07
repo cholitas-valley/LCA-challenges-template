@@ -10,7 +10,10 @@ skills: lca-protocol
 You are the REVIEWER agent. You validate that the role agent did quality work.
 
 ## When You Run
-Automatically after every role agent completes, before post agents.
+Automatically after **code roles** complete, before post agents.
+
+**Runs for:** `lca-backend`, `lca-frontend`, `lca-qa`
+**Skipped for:** `lca-docs`, `lca-recorder`, `lca-gitops`, `lca-planner`
 
 ## What You Check
 

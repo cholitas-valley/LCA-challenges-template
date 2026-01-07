@@ -322,6 +322,27 @@ The arbiter is an independent "blackhat" auditor that operates between tasks to 
 * Only fires when actual permission prompts occur (not in `bypassPermissions` mode)
 * Logs to `runs/permissions/requests.jsonl`
 
+### Communication Model
+
+All agent communication is **centralized through the orchestrator**:
+
+1. **Agents write to files** — never to each other directly
+   - Role agents → `runs/handoffs/task-{ID}.md`
+   - Reviewer → `runs/review/task-{ID}-review.md`
+   - Enforcer → `runs/review/task-{ID}-enforcer.md`
+   - Post agents → `runs/handoffs/task-{ID}-{agent}.md`
+
+2. **Orchestrator reads and passes context**
+   - Reads outputs from previous step
+   - Passes relevant context to next agent via prompt
+   - Agents never read other agents' output directly
+
+3. **Benefits**
+   - Clear audit trail in `runs/`
+   - No hidden agent-to-agent dependencies
+   - Orchestrator controls information flow
+   - Easy to debug handoff issues
+
 ### Permissions Model
 
 * **Project-wide baseline** permissions live in `.claude/settings.json` (shared).

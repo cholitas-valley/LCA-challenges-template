@@ -71,9 +71,10 @@ If `runs/arbiter/pending.json` exists:
   - write the required `handoff` file
 
 ### 3b) Review & Enforce (automatic)
-After role agent completes, automatically run quality gates:
+After role agent completes, automatically run quality gates.
 
-**Step 1: lca-reviewer (code quality)**
+**Step 1: lca-reviewer (code quality)** — *code roles only*
+- Skip if role is NOT in: `lca-backend`, `lca-frontend`, `lca-qa`
 - Invoke `lca-reviewer`
 - Pass the task file and handoff as context
 - Reviewer checks: tests valid, no shortcuts, DoD met
