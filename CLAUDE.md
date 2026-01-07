@@ -75,23 +75,24 @@ If the task has a `post` array with agent names:
 
 **You MUST invoke EVERY agent in the `post` array, in order.**
 
-For EACH agent in `post` (e.g., `[lca-docs, lca-gitops]`):
+For EACH agent in `post` (e.g., `[lca-recorder, lca-gitops]`):
 1. Update `current_role` in state to the agent name
-2. Invoke the agent subagent (e.g., `lca-docs`, then `lca-gitops`)
+2. Invoke the agent subagent (e.g., `lca-recorder`, then `lca-gitops`)
 3. Pass the primary handoff as context
 4. Wait for agent to complete
 5. Verify the agent wrote its handoff file:
    - Expected path: `runs/handoffs/task-{ID}-{agent-suffix}.md`
-   - Example: `task-001-docs.md`, `task-001-gitops.md`
+   - Example: `task-001-recorder.md`, `task-001-gitops.md`
 6. If handoff missing after agent completes, log warning to `runs/notes.md`
 
 **Common post agents:**
-- `lca-docs` → writes `task-{ID}-docs.md` (documentation updates)
+- `lca-recorder` → writes `task-{ID}-recorder.md` (records changes for next task)
+- `lca-docs` → writes to `docs/` (reader documentation, milestone tasks only)
 - `lca-gitops` → writes `task-{ID}-gitops.md` (commits changes)
 
-**Example:** If task has `post: [lca-docs, lca-gitops]`:
+**Example:** If task has `post: [lca-recorder, lca-gitops]`:
 ```
-1. Invoke lca-docs → verify task-001-docs.md created
+1. Invoke lca-recorder → verify task-001-recorder.md created
 2. Invoke lca-gitops → verify task-001-gitops.md created
 3. Only then proceed to step 5
 ```

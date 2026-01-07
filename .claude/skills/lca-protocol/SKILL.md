@@ -45,7 +45,7 @@ Each task starts with YAML frontmatter:
 ```yaml
 task_id: task-001
 title: Short human title
-role: lca-backend | lca-frontend | lca-docs | lca-gitops | lca-qa
+role: lca-backend | lca-frontend | lca-recorder | lca-docs | lca-gitops | lca-qa
 follow_roles: []            # optional: list of agent names to additionally obey
 post: []                    # optional: list of agent names to run after role succeeds
 depends_on: []              # optional

@@ -34,6 +34,7 @@ This document captures the issues found during run/001 and the fixes applied to 
 | 7 | Binary needs_human limiting | No severity levels | Added INFO/WARNING/BLOCK severity |
 | 14 | Planner dumped specs to notes.md | No constraint on file creation | Added explicit constraints |
 | 15 | Inconsistent handoff naming | No standard defined | Standardized to task-{ID}-{agent}.md |
+| 16 | lca-docs wrote to architecture.md | No file scope constraint | Moved architecture.md out of docs/, constrain lca-docs to docs/ |
 
 ---
 
