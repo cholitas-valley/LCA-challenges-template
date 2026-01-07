@@ -64,6 +64,9 @@ This challenge uses **Claude Code** as a multi-agent orchestrated system. The go
 │                              │  ┌─────────┐ ┌─────────┐ ┌──────┐  │      │
 │                              │  │recorder │ │  docs   │ │gitops│  │      │
 │                              │  └─────────┘ └─────────┘ └──────┘  │      │
+│                              │  ┌──────────┐ ┌──────────┐         │      │
+│                              │  │ reviewer │ │ enforcer │         │      │
+│                              │  └──────────┘ └──────────┘         │      │
 │                              └────────────────────────────────────┘      │
 └──────────────────────────────────────────────────────────────────────────┘
 
@@ -143,6 +146,8 @@ docs/                        # Implementation docs (lca-docs writes here)
 │   ├── lca-docs.md          # Implementation documentation for readers
 │   ├── lca-gitops.md        # Branch/commit/push hygiene
 │   ├── lca-qa.md            # Check/fix loop
+│   ├── lca-reviewer.md      # Code quality gate (automatic)
+│   ├── lca-enforcer.md      # Protocol compliance gate (automatic)
 │   └── lca-arbiter.md       # Periodic checkpoint auditor
 ├── hooks/
 │   ├── usage-record.py      # Token tracking (no LLM overhead)
@@ -158,6 +163,7 @@ runs/
 ├── state.json               # Generated: current task + phase + role + completed tasks
 ├── tasks/                   # Generated: task-XXX.md (YAML frontmatter + DoD)
 ├── handoffs/                # Generated: task-XXX.md (what changed + verify + next steps)
+├── review/                  # Generated: task-XXX-review.md, task-XXX-enforcer.md
 ├── usage/                   # Generated: usage.jsonl (token usage records)
 ├── tools/                   # Generated: usage.jsonl (tool invocation log)
 ├── permissions/             # Generated: requests.jsonl (permission prompts, if any)
@@ -223,6 +229,8 @@ The orchestrator is defined in `CLAUDE.md` (the "protocol controller").
 | `lca-docs` | Write implementation docs for readers | **docs/** only; follows plan structure |
 | `lca-qa` | Run checks, diagnose failures, minimal fixes | smallest-diff fixes; do not weaken tests |
 | `lca-gitops` | Branch/commit/push workflow | commit after checks pass; push may require approval |
+| `lca-reviewer` | Code quality gate (auto after role) | read-only; can reject back to role |
+| `lca-enforcer` | Protocol compliance gate (auto after reviewer) | read-only; can reject back to role |
 | `lca-arbiter` | Periodic checkpoint auditor | edits **runs/arbiter/** only; read-only git commands |
 
 ### Model Assignment
@@ -231,10 +239,12 @@ The orchestrator is defined in `CLAUDE.md` (the "protocol controller").
 |-------|-------|-----------|
 | `lca-arbiter` | **opus** | Critical judgment - decides if run should stop |
 | `lca-planner` | **opus** | Architecture decisions, task decomposition |
+| `lca-reviewer` | **opus** | Quality judgment - validates code and tests |
 | `lca-backend` | sonnet | Complex implementation work |
 | `lca-frontend` | sonnet | Complex implementation work |
 | `lca-qa` | sonnet | Debugging and test fixes |
 | `lca-docs` | sonnet | Quality documentation for readers |
+| `lca-enforcer` | sonnet | Rule-based protocol checks |
 | `lca-recorder` | haiku | Simple summarization |
 | `lca-gitops` | haiku | Simple git commands |
 

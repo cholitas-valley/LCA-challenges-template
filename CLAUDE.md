@@ -70,6 +70,28 @@ If `runs/arbiter/pending.json` exists:
   - run `check_command` and fix until it passes
   - write the required `handoff` file
 
+### 3b) Review & Enforce (automatic)
+After role agent completes, automatically run quality gates:
+
+**Step 1: lca-reviewer (code quality)**
+- Invoke `lca-reviewer`
+- Pass the task file and handoff as context
+- Reviewer checks: tests valid, no shortcuts, DoD met
+- If REJECTED:
+  - Read rejection feedback from `runs/review/task-{ID}-review.md`
+  - Re-invoke the role agent with the feedback
+  - Repeat until approved (max 3 attempts, then BLOCK)
+- If APPROVED: proceed to enforcer
+
+**Step 2: lca-enforcer (protocol compliance)**
+- Invoke `lca-enforcer`
+- Enforcer checks: handoff correct, files in right places, state consistent
+- If VIOLATION:
+  - Read violation from `runs/review/task-{ID}-enforcer.md`
+  - Re-invoke the role agent with the violation
+  - Repeat until compliant (max 2 attempts, then BLOCK)
+- If COMPLIANT: proceed to post agents
+
 ### 4) Post agents (CRITICAL - must invoke ALL)
 If the task has a `post` array with agent names:
 
