@@ -11,7 +11,9 @@ from src.models.plant import (
     PlantResponse,
     PlantUpdate,
 )
+from src.models.device import DeviceListResponse, DeviceResponse
 from src.repositories import plant as plant_repo
+from src.repositories import device as device_repo
 
 router = APIRouter(prefix="/api/plants", tags=["plants"])
 
@@ -173,15 +175,52 @@ async def delete_plant(
 ) -> Response:
     """
     Delete a plant by ID.
-    
+
     This will also unassign all devices from the plant (set plant_id to NULL).
-    
+
     Args:
         plant_id: Plant ID to delete
     """
     deleted = await plant_repo.delete_plant(db, plant_id)
-    
+
     if not deleted:
         raise HTTPException(status_code=404, detail="Plant not found")
-    
+
     return Response(status_code=204)
+
+
+@router.get("/{plant_id}/devices", response_model=DeviceListResponse)
+async def get_plant_devices(
+    plant_id: str,
+    db: asyncpg.Connection = Depends(get_db),
+) -> DeviceListResponse:
+    """
+    List all devices associated with a plant.
+
+    Args:
+        plant_id: Plant ID to get devices for
+    """
+    # Verify plant exists
+    plant = await plant_repo.get_plant_by_id(db, plant_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Get devices for this plant
+    devices_data = await device_repo.get_devices_by_plant(db, plant_id)
+
+    devices = [
+        DeviceResponse(
+            id=d["id"],
+            mac_address=d["mac_address"],
+            mqtt_username=d["mqtt_username"],
+            plant_id=d["plant_id"],
+            status=d["status"],
+            firmware_version=d["firmware_version"],
+            sensor_types=d["sensor_types"],
+            last_seen_at=d["last_seen_at"],
+            created_at=d["created_at"],
+        )
+        for d in devices_data
+    ]
+
+    return DeviceListResponse(devices=devices, total=len(devices))

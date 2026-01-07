@@ -10,11 +10,14 @@ from src.config import settings
 from src.db.connection import get_db
 from src.models import (
     DeviceListResponse,
+    DeviceProvisionRequest,
+    DeviceProvisionResponse,
     DeviceRegisterRequest,
     DeviceRegisterResponse,
     DeviceResponse,
 )
 from src.repositories import device as device_repo
+from src.repositories import plant as plant_repo
 from src.services.mqtt_auth import MQTTAuthService
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
@@ -155,3 +158,71 @@ async def delete_device(
         raise HTTPException(status_code=404, detail="Device not found")
 
     return {"message": "Device deleted successfully"}
+
+
+@router.post("/{device_id}/provision", response_model=DeviceProvisionResponse)
+async def provision_device(
+    device_id: str,
+    request: DeviceProvisionRequest,
+    db: asyncpg.Connection = Depends(get_db),
+) -> DeviceProvisionResponse:
+    """
+    Provision a device by associating it with a plant.
+
+    This updates the device's plant_id and sets its status to 'online'.
+
+    Args:
+        device_id: Device ID to provision
+        request: Provision request with plant_id
+    """
+    # Verify device exists
+    device = await device_repo.get_device_by_id(db, device_id)
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Verify plant exists
+    plant = await plant_repo.get_plant_by_id(db, request.plant_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Assign device to plant
+    updated_device = await device_repo.assign_device_to_plant(
+        db, device_id, request.plant_id
+    )
+
+    if not updated_device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    return DeviceProvisionResponse(
+        id=updated_device["id"],
+        plant_id=updated_device["plant_id"],
+        status=updated_device["status"],
+        message="Device provisioned successfully",
+    )
+
+
+@router.post("/{device_id}/unassign")
+async def unassign_device(
+    device_id: str,
+    db: asyncpg.Connection = Depends(get_db),
+) -> dict:
+    """
+    Remove device from plant assignment.
+
+    This sets the device's plant_id to NULL but keeps the device registered.
+
+    Args:
+        device_id: Device ID to unassign
+    """
+    # Verify device exists
+    device = await device_repo.get_device_by_id(db, device_id)
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Unassign device from plant
+    updated_device = await device_repo.unassign_device(db, device_id)
+
+    if not updated_device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    return {"message": "Device unassigned successfully"}

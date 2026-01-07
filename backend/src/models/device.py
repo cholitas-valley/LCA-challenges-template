@@ -37,3 +37,16 @@ class DeviceListResponse(BaseModel):
     """Response model for device list."""
     devices: list[DeviceResponse]
     total: int
+
+
+class DeviceProvisionRequest(BaseModel):
+    """Request model for device provisioning."""
+    plant_id: str
+
+
+class DeviceProvisionResponse(BaseModel):
+    """Response model for device provisioning."""
+    id: str
+    plant_id: str
+    status: str
+    message: str

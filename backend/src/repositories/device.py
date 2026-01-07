@@ -122,11 +122,11 @@ async def list_devices(
 async def delete_device(conn: asyncpg.Connection, device_id: str) -> bool:
     """
     Delete device by ID.
-    
+
     Args:
         conn: Database connection
         device_id: Device ID
-        
+
     Returns:
         True if device was deleted, False if not found
     """
@@ -136,3 +136,80 @@ async def delete_device(conn: asyncpg.Connection, device_id: str) -> bool:
     )
     # result is like "DELETE 1" or "DELETE 0"
     return result.split()[-1] == "1"
+
+
+async def assign_device_to_plant(
+    conn: asyncpg.Connection,
+    device_id: str,
+    plant_id: str,
+) -> dict | None:
+    """
+    Assign device to a plant and update status to 'online'.
+
+    Args:
+        conn: Database connection
+        device_id: Device ID
+        plant_id: Plant ID
+
+    Returns:
+        Updated device record as dict or None if not found
+    """
+    row = await conn.fetchrow(
+        """
+        UPDATE devices
+        SET plant_id = $1, status = 'online'
+        WHERE id = $2
+        RETURNING *
+        """,
+        plant_id,
+        device_id,
+    )
+    return dict(row) if row else None
+
+
+async def unassign_device(conn: asyncpg.Connection, device_id: str) -> dict | None:
+    """
+    Remove device from plant (set plant_id to NULL).
+
+    Args:
+        conn: Database connection
+        device_id: Device ID
+
+    Returns:
+        Updated device record as dict or None if not found
+    """
+    row = await conn.fetchrow(
+        """
+        UPDATE devices
+        SET plant_id = NULL
+        WHERE id = $1
+        RETURNING *
+        """,
+        device_id,
+    )
+    return dict(row) if row else None
+
+
+async def get_devices_by_plant(
+    conn: asyncpg.Connection,
+    plant_id: str,
+) -> list[dict]:
+    """
+    Get all devices assigned to a plant.
+
+    Args:
+        conn: Database connection
+        plant_id: Plant ID
+
+    Returns:
+        List of device records as dicts
+    """
+    rows = await conn.fetch(
+        """
+        SELECT * FROM devices
+        WHERE plant_id = $1
+        ORDER BY created_at DESC
+        """,
+        plant_id,
+    )
+    return [dict(row) for row in rows]

@@ -2,6 +2,8 @@
 from .common import ErrorResponse, HealthResponse
 from .device import (
     DeviceListResponse,
+    DeviceProvisionRequest,
+    DeviceProvisionResponse,
     DeviceRegisterRequest,
     DeviceRegisterResponse,
     DeviceResponse,
@@ -22,6 +24,8 @@ __all__ = [
     "DeviceRegisterResponse",
     "DeviceResponse",
     "DeviceListResponse",
+    "DeviceProvisionRequest",
+    "DeviceProvisionResponse",
     "PlantCreate",
     "PlantUpdate",
     "PlantResponse",
