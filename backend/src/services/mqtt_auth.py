@@ -163,14 +163,14 @@ class MQTTAuthService:
     def reload_mosquitto(self, pid_file: Optional[str] = None) -> None:
         """
         Send SIGHUP to Mosquitto to reload password file.
-        
+
         This is optional and can be deferred. In containerized environments,
         Mosquitto may automatically reload or we may need to use docker exec.
-        
+
         Args:
             pid_file: Path to Mosquitto PID file (optional)
         """
-        # This is a placeholder - actual implementation depends on deployment
-        # In Docker, we would need to use `docker exec mosquitto killall -HUP mosquitto`
-        # or rely on Mosquitto's automatic reload on file change
+        # Mosquitto 2.0+ automatically reloads password file on change
+        # If manual reload needed, use: docker exec plantops-mosquitto kill -HUP 1
+        # For now, rely on auto-reload functionality
         pass

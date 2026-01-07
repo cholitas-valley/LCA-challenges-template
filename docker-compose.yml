@@ -25,7 +25,7 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./mosquitto/passwd:/mosquitto/config/passwd
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
@@ -42,6 +42,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql://plantops:plantops_dev@db:5432/plantops}
       MQTT_HOST: ${MQTT_HOST:-mosquitto}
       MQTT_PORT: ${MQTT_PORT:-1883}
+      MQTT_PASSWD_FILE: ${MQTT_PASSWD_FILE:-/mosquitto/passwd}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
     depends_on:
@@ -51,6 +52,7 @@ services:
         condition: service_started
     volumes:
       - ./backend:/app
+      - ./mosquitto/passwd:/mosquitto/passwd
     restart: unless-stopped
 
   frontend:
