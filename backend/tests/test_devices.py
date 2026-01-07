@@ -9,15 +9,19 @@ from httpx import AsyncClient
 @pytest.mark.asyncio
 async def test_register_new_device(async_client: AsyncClient):
     """Test registering a new device returns credentials."""
-    # Mock the database repository functions
+    # Mock the database repository functions and MQTT auth
     with patch("src.repositories.device.get_device_by_mac") as mock_get_by_mac, \
-         patch("src.repositories.device.create_device") as mock_create:
+         patch("src.repositories.device.create_device") as mock_create, \
+         patch("src.routers.devices.mqtt_auth") as mock_mqtt:
 
         # No existing device
         mock_get_by_mac.return_value = None
 
         # Mock create device to return None (we just need it to not fail)
         mock_create.return_value = None
+
+        # Mock MQTT auth service
+        mock_mqtt.generate_credentials.return_value = ("device_test123", "test_password_xyz")
 
         response = await async_client.post(
             "/api/devices/register",
@@ -43,6 +47,9 @@ async def test_register_new_device(async_client: AsyncClient):
         assert len(data["mqtt_password"]) > 0
         assert data["mqtt_password"] != "<stored_securely>"  # Should be plaintext on registration
 
+        # Verify MQTT user was added
+        mock_mqtt.add_user.assert_called_once()
+
 
 @pytest.mark.asyncio
 async def test_register_same_mac_returns_same_device(async_client: AsyncClient):
@@ -50,11 +57,13 @@ async def test_register_same_mac_returns_same_device(async_client: AsyncClient):
     mac = "11:22:33:44:55:66"
 
     with patch("src.repositories.device.get_device_by_mac") as mock_get_by_mac, \
-         patch("src.repositories.device.create_device") as mock_create:
+         patch("src.repositories.device.create_device") as mock_create, \
+         patch("src.routers.devices.mqtt_auth") as mock_mqtt:
 
         # First registration - no existing device
         mock_get_by_mac.return_value = None
         mock_create.return_value = None
+        mock_mqtt.generate_credentials.return_value = ("device_abc123", "secret_pass")
 
         response1 = await async_client.post(
             "/api/devices/register",
@@ -214,7 +223,14 @@ async def test_list_devices_pagination(async_client: AsyncClient):
 @pytest.mark.asyncio
 async def test_delete_device_removes_it(async_client: AsyncClient):
     """Test deleting a device removes it from the list."""
-    with patch("src.repositories.device.delete_device") as mock_delete:
+    with patch("src.repositories.device.get_device_by_id") as mock_get, \
+         patch("src.repositories.device.delete_device") as mock_delete, \
+         patch("src.routers.devices.mqtt_auth") as mock_mqtt:
+        # Mock device exists
+        mock_get.return_value = {
+            "id": "test-device-id",
+            "mqtt_username": "device_test123"
+        }
         # Mock successful deletion
         mock_delete.return_value = True
 
@@ -224,14 +240,16 @@ async def test_delete_device_removes_it(async_client: AsyncClient):
 
         # Verify delete was called
         mock_delete.assert_called_once()
+        # Verify MQTT user was removed
+        mock_mqtt.remove_user.assert_called_once_with("device_test123")
 
 
 @pytest.mark.asyncio
 async def test_delete_nonexistent_device_returns_404(async_client: AsyncClient):
     """Test deleting a nonexistent device returns 404."""
-    with patch("src.repositories.device.delete_device") as mock_delete:
+    with patch("src.repositories.device.get_device_by_id") as mock_get:
         # Mock device not found
-        mock_delete.return_value = False
+        mock_get.return_value = None
 
         response = await async_client.delete("/api/devices/nonexistent-id")
         assert response.status_code == 404

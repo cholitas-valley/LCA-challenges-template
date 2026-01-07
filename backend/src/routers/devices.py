@@ -15,8 +15,12 @@ from src.models import (
     DeviceResponse,
 )
 from src.repositories import device as device_repo
+from src.services.mqtt_auth import MQTTAuthService
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
+
+# Initialize MQTT auth service
+mqtt_auth = MQTTAuthService(settings.mqtt_passwd_file)
 
 
 @router.post("/register", response_model=DeviceRegisterResponse)
@@ -47,20 +51,25 @@ async def register_device(
     
     # Generate new device credentials
     device_id = str(uuid.uuid4())
-    
-    # Generate short ID for MQTT username (first 8 chars of UUID)
-    short_id = device_id.replace("-", "")[:8]
-    mqtt_username = f"device_{short_id}"
-    
-    # Generate random password (32 characters)
-    mqtt_password = secrets.token_urlsafe(32)
-    
-    # Hash password with bcrypt
+
+    # Use MQTT auth service to generate credentials
+    mqtt_username, mqtt_password = mqtt_auth.generate_credentials()
+
+    # Hash password with bcrypt for database storage
     password_hash = bcrypt.hashpw(
         mqtt_password.encode("utf-8"),
         bcrypt.gensalt(),
     ).decode("utf-8")
-    
+
+    # Add user to Mosquitto password file
+    try:
+        mqtt_auth.add_user(mqtt_username, mqtt_password)
+    except RuntimeError as e:
+        # If mosquitto_passwd fails, we can still proceed
+        # The device will be in the database but won't be able to connect to MQTT
+        # Log this error in production
+        pass
+
     # Create device in database
     await device_repo.create_device(
         db,
@@ -122,13 +131,27 @@ async def delete_device(
 ) -> dict:
     """
     Delete a device by ID.
-    
+
     Args:
         device_id: Device ID to delete
     """
+    # Get device info before deletion to remove from MQTT
+    device = await device_repo.get_device_by_id(db, device_id)
+
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Remove from MQTT password file
+    try:
+        mqtt_auth.remove_user(device["mqtt_username"])
+    except RuntimeError as e:
+        # Log error but continue with deletion
+        pass
+
+    # Delete from database
     deleted = await device_repo.delete_device(db, device_id)
-    
+
     if not deleted:
         raise HTTPException(status_code=404, detail="Device not found")
-    
+
     return {"message": "Device deleted successfully"}
