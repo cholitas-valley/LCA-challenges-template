@@ -13,7 +13,7 @@ from src.config import settings
 from src.db.connection import close_pool, init_pool
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
 from src.models import ErrorResponse, HealthResponse
-from src.routers import devices, plants
+from src.routers import devices, plants, settings as settings_router
 from src.services.alert_worker import AlertWorker
 from src.services.discord import DiscordService
 from src.services.heartbeat_handler import HeartbeatHandler
@@ -240,6 +240,7 @@ async def plantops_error_handler(request: Request, exc: PlantOpsError) -> JSONRe
 # Include routers
 app.include_router(devices.router)
 app.include_router(plants.router)
+app.include_router(settings_router.router)
 
 
 # Health endpoint

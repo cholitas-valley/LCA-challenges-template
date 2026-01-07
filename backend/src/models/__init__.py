@@ -16,6 +16,12 @@ from .plant import (
     PlantUpdate,
     ThresholdConfig,
 )
+from .settings import (
+    LLMProvider,
+    LLMSettingsResponse,
+    LLMSettingsUpdate,
+    LLMTestResponse,
+)
 from .telemetry import (
     TelemetryHistoryResponse,
     TelemetryPayload,
@@ -37,6 +43,10 @@ __all__ = [
     "PlantListResponse",
     "PlantThresholds",
     "ThresholdConfig",
+    "LLMProvider",
+    "LLMSettingsUpdate",
+    "LLMSettingsResponse",
+    "LLMTestResponse",
     "TelemetryPayload",
     "TelemetryRecord",
     "TelemetryHistoryResponse",
