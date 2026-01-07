@@ -1,15 +1,15 @@
 {
   "severity": "INFO",
   "needs_human": false,
-  "summary": "Routine post-planning checkpoint. 25 tasks generated, 0 implementation changes yet. Token usage (166k) reasonable for comprehensive planning. All metrics within thresholds.",
   "reasons": [
-    "Planning phase completed successfully with 25 task files",
-    "Zero files/lines changed (only protocol artifacts in runs/)",
-    "No high-risk commands in tool log",
+    "Task-001 completed successfully - 1 task finished since last checkpoint",
+    "Commit d8a6945 created with 48 files for project scaffolding",
+    "Uncommitted changes minimal: 3 files, 15 lines added, 6 removed (all protocol artifacts)",
+    "All changes align with objective.md Feature 1 (Core Platform)",
+    "No high-risk commands in tool log (59 invocations reviewed)",
     "Zero permission prompts",
-    "Token usage justified by scope of planning (IoT + LLM features)"
+    "Token usage reasonable: 28,620 tokens for task completion with review"
   ],
   "suggested_user_actions": [],
-  "permission_requests_summary": [],
-  "reviewed_at": "2026-01-07T19:15:00Z"
+  "permission_requests_summary": []
 }
