@@ -213,3 +213,94 @@ async def get_devices_by_plant(
         plant_id,
     )
     return [dict(row) for row in rows]
+
+
+async def update_last_seen(
+    conn: asyncpg.Connection,
+    device_id: str,
+    timestamp: datetime,
+) -> dict | None:
+    """
+    Update device last_seen_at timestamp and set status to 'online'.
+
+    Args:
+        conn: Database connection
+        device_id: Device ID
+        timestamp: Timestamp to set for last_seen_at
+
+    Returns:
+        Updated device record as dict or None if not found
+    """
+    row = await conn.fetchrow(
+        """
+        UPDATE devices
+        SET last_seen_at = $1, status = 'online'
+        WHERE id = $2
+        RETURNING *
+        """,
+        timestamp,
+        device_id,
+    )
+    return dict(row) if row else None
+
+
+async def get_stale_devices(
+    conn: asyncpg.Connection,
+    threshold_seconds: int,
+) -> list[str]:
+    """
+    Get device IDs that haven't been seen within threshold_seconds.
+
+    Only considers devices with status 'online' to avoid repeatedly marking
+    already-offline devices.
+
+    Args:
+        conn: Database connection
+        threshold_seconds: Number of seconds without activity to consider stale
+
+    Returns:
+        List of device IDs that are stale
+    """
+    from datetime import datetime, timedelta
+
+    cutoff_time = datetime.now() - timedelta(seconds=threshold_seconds)
+
+    rows = await conn.fetch(
+        """
+        SELECT id FROM devices
+        WHERE status = 'online'
+          AND last_seen_at IS NOT NULL
+          AND last_seen_at < $1
+        """,
+        cutoff_time,
+    )
+    return [row["id"] for row in rows]
+
+
+async def mark_devices_offline(
+    conn: asyncpg.Connection,
+    device_ids: list[str],
+) -> int:
+    """
+    Mark multiple devices as offline.
+
+    Args:
+        conn: Database connection
+        device_ids: List of device IDs to mark offline
+
+    Returns:
+        Number of devices updated
+    """
+    if not device_ids:
+        return 0
+
+    result = await conn.execute(
+        """
+        UPDATE devices
+        SET status = 'offline'
+        WHERE id = ANY($1::text[])
+        """,
+        device_ids,
+    )
+    # result is like "UPDATE 3"
+    return int(result.split()[-1])
