@@ -56,12 +56,15 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: node:18-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: plantops-frontend
-    working_dir: /app
     ports:
       - "5173:5173"
-    command: sh -c "echo 'Frontend placeholder - not yet implemented' && sleep infinity"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
     restart: unless-stopped
