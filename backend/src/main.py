@@ -17,11 +17,13 @@ from src.routers import devices, plants
 from src.services.heartbeat_handler import HeartbeatHandler
 from src.services.mqtt_subscriber import MQTTSubscriber, parse_device_id
 from src.services.telemetry_handler import TelemetryHandler
+from src.services.threshold_evaluator import ThresholdEvaluator
 
 logger = logging.getLogger(__name__)
 
 # Initialize handlers
-telemetry_handler = TelemetryHandler()
+threshold_evaluator = ThresholdEvaluator()
+telemetry_handler = TelemetryHandler(threshold_evaluator=threshold_evaluator)
 heartbeat_handler = HeartbeatHandler()
 
 
