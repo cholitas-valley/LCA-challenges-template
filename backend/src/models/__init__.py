@@ -16,6 +16,11 @@ from .plant import (
     PlantUpdate,
     ThresholdConfig,
 )
+from .telemetry import (
+    TelemetryHistoryResponse,
+    TelemetryPayload,
+    TelemetryRecord,
+)
 
 __all__ = [
     "HealthResponse",
@@ -32,4 +37,7 @@ __all__ = [
     "PlantListResponse",
     "PlantThresholds",
     "ThresholdConfig",
+    "TelemetryPayload",
+    "TelemetryRecord",
+    "TelemetryHistoryResponse",
 ]

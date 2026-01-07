@@ -1,5 +1,6 @@
 """Plant management endpoints."""
 import uuid
+from datetime import datetime, timedelta
 
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -12,8 +13,10 @@ from src.models.plant import (
     PlantUpdate,
 )
 from src.models.device import DeviceListResponse, DeviceResponse
+from src.models.telemetry import TelemetryHistoryResponse, TelemetryRecord
 from src.repositories import plant as plant_repo
 from src.repositories import device as device_repo
+from src.repositories import telemetry as telemetry_repo
 
 router = APIRouter(prefix="/api/plants", tags=["plants"])
 
@@ -224,3 +227,54 @@ async def get_plant_devices(
     ]
 
     return DeviceListResponse(devices=devices, total=len(devices))
+
+
+@router.get("/{plant_id}/history", response_model=TelemetryHistoryResponse)
+async def get_plant_history(
+    plant_id: str,
+    hours: int = 24,
+    db: asyncpg.Connection = Depends(get_db),
+) -> TelemetryHistoryResponse:
+    """
+    Get telemetry history for a plant.
+
+    Args:
+        plant_id: Plant ID to get history for
+        hours: Number of hours of history to retrieve (default: 24)
+    """
+    # Verify plant exists
+    plant = await plant_repo.get_plant_by_id(db, plant_id)
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Calculate time range
+    end_time = datetime.now()
+    start_time = end_time - timedelta(hours=hours)
+
+    # Get telemetry history
+    records_data = await telemetry_repo.get_history(
+        db,
+        plant_id=plant_id,
+        start_time=start_time,
+        end_time=end_time,
+        limit=10000,  # High limit for history queries
+    )
+
+    # Convert to response models
+    records = [
+        TelemetryRecord(
+            time=r["time"],
+            device_id=r["device_id"],
+            plant_id=r["plant_id"],
+            soil_moisture=r["soil_moisture"],
+            temperature=r["temperature"],
+            humidity=r["humidity"],
+            light_level=r["light_level"],
+        )
+        for r in records_data
+    ]
+
+    return TelemetryHistoryResponse(
+        records=records,
+        count=len(records),
+    )

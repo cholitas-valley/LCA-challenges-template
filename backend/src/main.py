@@ -1,5 +1,6 @@
 """PlantOps FastAPI application."""
 import asyncio
+import json
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -13,9 +14,13 @@ from src.db.connection import close_pool, init_pool
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
 from src.models import ErrorResponse, HealthResponse
 from src.routers import devices, plants
-from src.services.mqtt_subscriber import MQTTSubscriber
+from src.services.mqtt_subscriber import MQTTSubscriber, parse_device_id
+from src.services.telemetry_handler import TelemetryHandler
 
 logger = logging.getLogger(__name__)
+
+# Initialize telemetry handler
+telemetry_handler = TelemetryHandler()
 
 
 async def handle_telemetry(topic: str, payload: bytes) -> None:
@@ -26,8 +31,23 @@ async def handle_telemetry(topic: str, payload: bytes) -> None:
         topic: MQTT topic (e.g., "devices/abc123/telemetry")
         payload: Message payload (JSON bytes)
     """
-    # TODO: Implement in task-010
-    logger.info(f"Received telemetry on {topic}: {len(payload)} bytes")
+    try:
+        # Extract device_id from topic
+        device_id = parse_device_id(topic)
+        if not device_id:
+            logger.warning(f"Could not parse device_id from topic: {topic}")
+            return
+
+        # Parse JSON payload
+        payload_dict = json.loads(payload.decode("utf-8"))
+
+        # Process telemetry
+        await telemetry_handler.handle_telemetry(device_id, payload_dict)
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in telemetry payload from {topic}: {e}")
+    except Exception as e:
+        logger.error(f"Error handling telemetry from {topic}: {e}")
 
 
 async def handle_heartbeat(topic: str, payload: bytes) -> None:

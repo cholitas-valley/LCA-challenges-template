@@ -16,8 +16,10 @@ from src.models import (
     DeviceRegisterResponse,
     DeviceResponse,
 )
+from src.models.telemetry import TelemetryRecord
 from src.repositories import device as device_repo
 from src.repositories import plant as plant_repo
+from src.repositories import telemetry as telemetry_repo
 from src.services.mqtt_auth import MQTTAuthService
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
@@ -226,3 +228,39 @@ async def unassign_device(
         raise HTTPException(status_code=404, detail="Device not found")
 
     return {"message": "Device unassigned successfully"}
+
+
+@router.get("/{device_id}/telemetry/latest", response_model=TelemetryRecord)
+async def get_device_latest_telemetry(
+    device_id: str,
+    db: asyncpg.Connection = Depends(get_db),
+) -> TelemetryRecord:
+    """
+    Get the most recent telemetry reading for a device.
+
+    Args:
+        device_id: Device ID to get telemetry for
+    """
+    # Verify device exists
+    device = await device_repo.get_device_by_id(db, device_id)
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Get latest telemetry
+    record = await telemetry_repo.get_latest_by_device(db, device_id)
+
+    if not record:
+        raise HTTPException(
+            status_code=404,
+            detail="No telemetry data found for this device"
+        )
+
+    return TelemetryRecord(
+        time=record["time"],
+        device_id=record["device_id"],
+        plant_id=record["plant_id"],
+        soil_moisture=record["soil_moisture"],
+        temperature=record["temperature"],
+        humidity=record["humidity"],
+        light_level=record["light_level"],
+    )
