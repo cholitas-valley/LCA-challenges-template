@@ -4,3 +4,6 @@ export { Navigation } from './Navigation';
 export { LoadingSpinner } from './LoadingSpinner';
 export { ErrorMessage } from './ErrorMessage';
 export { EmptyState } from './EmptyState';
+export { SensorReading } from './SensorReading';
+export { PlantCard } from './PlantCard';
+export { CreatePlantModal } from './CreatePlantModal';
