@@ -110,15 +110,24 @@ For EACH agent in `post` (e.g., `[lca-recorder, lca-gitops]`):
 
 **Common post agents:**
 - `lca-recorder` → writes `task-{ID}-recorder.md` (records changes for next task)
+- `code-simplifier` → refines code for clarity/consistency (Claude Code plugin, no handoff)
 - `lca-docs` → writes to `docs/` (reader documentation, milestone tasks only)
 - `lca-gitops` → writes `task-{ID}-gitops.md` (commits changes)
 
-**Example:** If task has `post: [lca-recorder, lca-gitops]`:
+**Example:** If task has `post: [lca-recorder, code-simplifier, lca-gitops]`:
 ```
 1. Invoke lca-recorder → verify task-001-recorder.md created
-2. Invoke lca-gitops → verify task-001-gitops.md created
-3. Only then proceed to step 5
+2. Invoke code-simplifier → simplifies recently modified code (plugin, no handoff file)
+3. Invoke lca-gitops → verify task-001-gitops.md created
+4. Only then proceed to step 5
 ```
+
+**Note on code-simplifier:**
+- Official Anthropic plugin (`claude plugin install code-simplifier`)
+- Runs on Opus model for high-quality refactoring
+- Preserves exact functionality - only changes how code is written
+- Focuses on recently modified files in the task
+- Does NOT write a handoff file (it's a plugin, not a subagent)
 
 ### 4b) Verify post agents completed
 Before advancing to step 5, verify:
