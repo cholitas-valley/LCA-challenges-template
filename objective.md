@@ -197,12 +197,202 @@ CREATE TABLE alerts (
 - **Regenerate Button**: Refresh care plan with latest data
 
 ### Definition of Done
-- [ ] User can configure Anthropic or OpenAI API key
-- [ ] API key is stored securely (encrypted or hashed)
-- [ ] LLM generates care plan based on plant species + sensor data
-- [ ] Care plan displays on per-plant care page
-- [ ] Care plans persist, refresh on demand
-- [ ] Works without LLM configured (graceful degradation)
+- [x] User can configure Anthropic or OpenAI API key
+- [x] API key is stored securely (encrypted or hashed)
+- [x] LLM generates care plan based on plant species + sensor data
+- [x] Care plan displays on per-plant care page
+- [x] Care plans persist, refresh on demand
+- [x] Works without LLM configured (graceful degradation)
+- [x] `make check` passes
+
+---
+
+## Feature 3: Production Hardening for Real ESP32 Deployment
+
+**Goal:** Harden the system for real home production deployment with actual ESP32 sensors, focusing on security, reliability, and operational readiness.
+
+### Completed State (run/003)
+
+Features 1 and 2 are **complete** as of run/003:
+
+| Metric | Value |
+|--------|-------|
+| Branch | `run/003` (COMPLETE) |
+| Tasks completed | 25/25 |
+| Backend tests | 116 passing |
+| Frontend build | Success (795 modules) |
+| Last task | `task-025` (Final QA) |
+| Last handoff | `runs/handoffs/task-025.md` |
+
+**What exists (Backend):**
+- Device registration API (`POST /api/devices/register`)
+- MQTT credential generation (unique username/password per device)
+- Mosquitto password file authentication (auto-reload via SIGHUP)
+- Plant CRUD API with threshold configuration
+- Telemetry ingestion via MQTT → TimescaleDB
+- Device heartbeat tracking (online/offline status)
+- Discord alerts (threshold breach, device offline)
+- LLM care plan generation (Anthropic/OpenAI with user API key)
+- Alert worker with queue processing
+- Care plan worker with async generation
+
+**What exists (Frontend):**
+- React dashboard with plant cards, device management
+- Plant detail page with 24h history charts
+- Device management UI (register, assign to plants)
+- Settings UI for LLM configuration
+- Per-plant care pages with AI recommendations
+
+**What exists (DevOps/Scripts):**
+- `docker-compose.yml` - Dev environment (db, mosquitto, backend, frontend)
+- `Makefile` with targets: `up`, `down`, `logs`, `check`, `test`, `seed`, `simulate`
+- `scripts/seed.py` - Creates test plants, registers devices, assigns them, sends telemetry
+- `scripts/simulator.py` - Continuous device simulator (registers, connects MQTT, publishes)
+- `mosquitto/mosquitto.conf` - Basic config with password file auth
+- `mosquitto/passwd` - Password file (auto-managed by backend)
+
+**What exists (Reference Skills):**
+- `.spawner/skills/` - Domain expertise YAML files (backend, frontend, hardware, etc.)
+- Agent prompts reference skills in `.claude/agents/*.md`
+
+**Post-run/003 commits (already on branch):**
+- `1e4c050` - Complete backend and frontend implementation
+- `8321e0c` - fix: missing runs
+- `73a7aed` - feat: spawner skills integration
+
+**Current limitations identified in task-025:**
+1. No MQTT TLS (connections unencrypted)
+2. No connection resilience (reconnect logic)
+3. No structured logging
+4. No proper migration versioning
+5. No health/readiness probes beyond basic `/health`
+6. Docker config is dev-only (bind mounts, no resource limits)
+7. No real ESP32 firmware (only Python simulator)
+8. Incomplete documentation
+
+### Starting Point for run/004
+
+**Branch from:** `run/003` (latest commit on branch)
+**Phase:** `PLANNING`
+**First task:** `task-026`
+
+**Context for planner - what already exists:**
+- Working device registration + MQTT authentication (password file)
+- Telemetry pipeline (MQTT → Backend → TimescaleDB)
+- Python simulator (`scripts/simulator.py`) and seeder (`scripts/seed.py`)
+- Basic migration runner, health endpoint, care plan worker
+- React dashboard with all Feature 1 & 2 functionality
+- Reference skills in `.spawner/skills/` for domain patterns
+
+**Frontend scope:** Unchanged unless required by new backend capabilities.
+
+### 3.1 MQTT Security (TLS)
+
+**Requirement:** Secure MQTT connections for home network deployment.
+
+- Mosquitto must support TLS connections (port 8883)
+- Backend must connect via TLS when configured
+- ESP32 firmware must connect via TLS
+- Self-signed certificates acceptable for home use
+- Plain TCP (1883) may remain available for local development
+
+### 3.2 Connection Resilience
+
+**Requirement:** System recovers gracefully from network interruptions.
+
+- Backend auto-reconnects to MQTT with backoff
+- ESP32 auto-reconnects to WiFi and MQTT
+- Health endpoint reflects actual connection status
+- Optional: offline buffering on ESP32
+
+### 3.3 Structured Logging
+
+**Requirement:** Production-ready logging for debugging and monitoring.
+
+- JSON-formatted logs when configured for production
+- Configurable log levels via environment variable
+- Logs include relevant context (device_id, plant_id, etc.)
+
+### 3.4 Database Migrations
+
+**Requirement:** Repeatable, versioned database schema management.
+
+- Migrations are versioned and idempotent
+- System tracks which migrations have been applied
+- Safe to run migrations multiple times
+
+### 3.5 Docker Production Configuration
+
+**Requirement:** Production-ready container deployment.
+
+- Production Docker config without development bind mounts
+- Resource limits on containers
+- Health checks for orchestration
+- Documented environment variables
+
+### 3.6 ESP32 Firmware
+
+**Requirement:** Real hardware support for plant monitoring.
+
+- PlatformIO project for ESP32
+- Self-registration via backend API on first boot
+- Publishes telemetry and heartbeat to MQTT
+- Supports common sensors (temperature, humidity, soil moisture, light)
+- WiFi configuration without hardcoded credentials
+
+### 3.7 Documentation
+
+**Requirement:** Complete documentation for deployment and hardware setup.
+
+- Feature 2 documentation (missing)
+- Production deployment guide
+- ESP32 firmware setup and flashing instructions
+- API reference
+
+### Definition of Done
+
+**MQTT Security:**
+- [ ] Mosquitto configured with TLS on port 8883
+- [ ] Self-signed certificates generated and documented
+- [ ] Backend connects via TLS when `MQTT_USE_TLS=true`
+- [ ] ESP32 firmware connects via TLS
+
+**Connection Resilience:**
+- [ ] Backend reconnects automatically on MQTT disconnect
+- [ ] ESP32 reconnects automatically on WiFi/MQTT disconnect
+- [ ] `/health` endpoint shows MQTT connection status
+- [ ] `/ready` endpoint returns 503 when not connected
+
+**Structured Logging:**
+- [ ] All backend logs in JSON format (when `LOG_FORMAT=json`)
+- [ ] Log level configurable via `LOG_LEVEL`
+- [ ] Request tracing with correlation IDs
+
+**Database Migrations:**
+- [ ] Migrations versioned in `migrations/` directory
+- [ ] `schema_version` table tracks applied migrations
+- [ ] Startup skips already-applied migrations
+
+**Docker Production:**
+- [ ] `docker-compose.prod.yml` with resource limits
+- [ ] No bind mounts in production config
+- [ ] Health checks on all services
+- [ ] `.env.prod.example` documented
+
+**ESP32 Firmware:**
+- [ ] PlatformIO project compiles for ESP32
+- [ ] WiFi connection with captive portal setup
+- [ ] Device self-registration working
+- [ ] Telemetry and heartbeat publishing
+- [ ] TLS connection to Mosquitto
+
+**Documentation:**
+- [ ] All docs listed above created
+- [ ] README updated with production instructions
+
+**Tests:**
+- [ ] All existing 116 tests still pass
+- [ ] New tests for TLS, reconnection, logging
 - [ ] `make check` passes
 
 ---
@@ -270,24 +460,41 @@ CREATE TABLE alerts (
 
 ## Implementation Order
 
-1. **Feature 1** (Core Platform) - This is the foundation
+1. **Feature 1** (Core Platform) - Foundation ✅ COMPLETE (run/003)
    - Device provisioning + MQTT auth
    - Plant CRUD + telemetry pipeline
    - Dashboard + alerts
 
-2. **Feature 2** (LLM Care Advisor) - Enhancement after core works
+2. **Feature 2** (LLM Care Advisor) - Enhancement ✅ COMPLETE (run/003)
    - Settings page for API keys
    - Care plan generation
    - Per-plant care pages
 
+3. **Feature 3** (Production Hardening) - Real deployment (run/004)
+   - MQTT TLS security
+   - Connection resilience
+   - Structured logging
+   - Database migrations
+   - Docker production config
+   - ESP32 firmware
+   - Documentation
+
 ## Success Criteria
 
-The system is complete when:
-1. A new device can self-register and start sending authenticated telemetry
-2. Plants are created dynamically via UI (no seed data)
-3. Dashboard shows live plant status with working alerts
-4. User can add their LLM API key and get AI care recommendations
-5. All tests pass: `make check`
+**Features 1 & 2 (COMPLETE):**
+1. ✅ A new device can self-register and start sending authenticated telemetry
+2. ✅ Plants are created dynamically via UI (no seed data)
+3. ✅ Dashboard shows live plant status with working alerts
+4. ✅ User can add their LLM API key and get AI care recommendations
+5. ✅ All tests pass: `make check` (116 tests)
+
+**Feature 3 (run/004):**
+6. Real ESP32 connects via TLS and sends telemetry
+7. System recovers automatically from MQTT/WiFi disconnections
+8. Logs are structured JSON, queryable for debugging
+9. Database migrations are versioned and repeatable
+10. Production Docker deployment documented and tested
+11. All tests pass: `make check` (116+ tests)
 
 ---
 
