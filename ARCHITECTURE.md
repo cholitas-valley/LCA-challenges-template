@@ -471,6 +471,23 @@ lca-recorder → code-simplifier → lca-gitops
   changes         code             changes
 ```
 
+**When to include:**
+
+| Role | Post Array |
+|------|------------|
+| `lca-backend` | `[lca-recorder, code-simplifier, lca-gitops]` |
+| `lca-frontend` | `[lca-recorder, code-simplifier, lca-gitops]` |
+| `lca-qa` | `[lca-recorder, lca-gitops]` |
+| `lca-docs` | `[lca-recorder, lca-gitops]` |
+
+Only coding roles (backend, frontend) get code-simplifier. QA and docs skip it.
+
+**Invocation:**
+Unlike subagents (Task tool), plugins are invoked via Skill tool:
+```
+Skill tool with skill: "code-simplifier"
+```
+
 **Note:** Unlike other post agents, `code-simplifier` does not write a handoff file. It's a plugin that operates on the working tree directly.
 
 ---
