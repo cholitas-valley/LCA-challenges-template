@@ -1,17 +1,17 @@
 """Telemetry handler service for processing incoming sensor data."""
 import asyncio
 import json
-import logging
 from datetime import datetime
 
 from src.db.connection import get_pool
+from src.logging_config import get_logger
 from src.models.plant import PlantThresholds
 from src.models.telemetry import TelemetryPayload
 from src.repositories import device as device_repo
 from src.repositories import plant as plant_repo
 from src.repositories import telemetry as telemetry_repo
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class TelemetryHandler:
@@ -52,15 +52,15 @@ class TelemetryHandler:
             pool = get_pool()
             async with pool.acquire() as conn:
                 device_record = await device_repo.get_device_by_id(conn, device_id)
-                
+
                 if device_record is None:
-                    logger.warning(f"Received telemetry from unknown device: {device_id}")
+                    logger.warning("telemetry_unknown_device", device_id=device_id)
                     # Store with null plant_id for unregistered devices
                     plant_id = None
                 else:
                     plant_id = device_record.get("plant_id")
                     if plant_id is None:
-                        logger.debug(f"Device {device_id} is not assigned to a plant")
+                        logger.debug("device_unassigned", device_id=device_id)
                 
                 # 3. Store in database
                 await telemetry_repo.insert_telemetry(
@@ -75,8 +75,13 @@ class TelemetryHandler:
                 )
 
                 logger.info(
-                    f"Stored telemetry for device {device_id} "
-                    f"(plant: {plant_id or 'unassigned'})"
+                    "telemetry_stored",
+                    device_id=device_id,
+                    plant_id=plant_id,
+                    soil_moisture=telemetry.soil_moisture,
+                    temperature=telemetry.temperature,
+                    humidity=telemetry.humidity,
+                    light_level=telemetry.light_level,
                 )
 
                 # 4. Evaluate thresholds if device is assigned to plant
@@ -105,9 +110,12 @@ class TelemetryHandler:
                                 if await self.threshold_evaluator.should_alert(violation):
                                     await self.threshold_evaluator.record_alert(violation)
                                     logger.info(
-                                        f"Alert recorded for {plant_id}: "
-                                        f"{violation.metric}={violation.value} "
-                                        f"({violation.direction} threshold {violation.threshold})"
+                                        "threshold_alert_recorded",
+                                        plant_id=plant_id,
+                                        metric=violation.metric,
+                                        value=violation.value,
+                                        direction=violation.direction,
+                                        threshold=violation.threshold,
                                     )
 
                                     # Queue alert for Discord if queue is configured
@@ -116,8 +124,8 @@ class TelemetryHandler:
                                         violation.plant_name = plant_record.get('name', 'Unknown')
                                         await self.alert_queue.put(violation)
                         except Exception as e:
-                            logger.error(f"Error evaluating thresholds for {plant_id}: {e}")
-        
+                            logger.error("threshold_evaluation_error", plant_id=plant_id, error=str(e))
+
         except Exception as e:
-            logger.error(f"Error processing telemetry from {device_id}: {e}")
+            logger.error("telemetry_processing_error", device_id=device_id, error=str(e))
             # Don't raise - we want to continue processing other messages

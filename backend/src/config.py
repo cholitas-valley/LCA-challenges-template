@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     discord_webhook_url: str | None = None
     encryption_key: str
 
+    # Logging settings
+    log_level: str = "INFO"
+    log_format: str = "console"
+
     model_config = SettingsConfigDict(env_file=[".env.test", ".env"])
 
 

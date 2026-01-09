@@ -14,6 +14,8 @@ from src.db.connection import close_pool, init_pool
 from src.db.health import check_database_health
 from src.db.migration_runner import run_migrations
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
+from src.logging_config import get_logger, setup_logging
+from src.middleware.correlation import CorrelationMiddleware
 from src.models import ErrorResponse
 from src.models.health_check import ComponentStatus, HealthResponse, ReadyResponse
 from src.routers import devices, plants, settings as settings_router
@@ -26,7 +28,9 @@ from src.services.telemetry_handler import TelemetryHandler
 from src.services.threshold_evaluator import ThresholdEvaluator
 from src.routers import plants as plants_router
 
-logger = logging.getLogger(__name__)
+# Setup logging early
+setup_logging()
+logger = get_logger(__name__)
 
 # Initialize alert queue and Discord service
 alert_queue = asyncio.Queue()
@@ -224,6 +228,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Add correlation middleware (before CORS)
+app.add_middleware(CorrelationMiddleware)
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -308,6 +315,8 @@ async def health() -> HealthResponse:
         overall = "degraded"
     else:
         overall = "unhealthy"
+
+    logger.info("health_check", status=overall, database=db_ok, mqtt=mqtt_connected)
 
     return HealthResponse(
         status=overall,

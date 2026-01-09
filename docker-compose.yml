@@ -53,6 +53,8 @@ services:
       MQTT_CA_CERT: ${MQTT_CA_CERT:-}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FORMAT: ${LOG_FORMAT:-console}
     depends_on:
       db:
         condition: service_healthy
