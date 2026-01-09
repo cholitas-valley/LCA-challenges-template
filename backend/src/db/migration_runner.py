@@ -50,13 +50,16 @@ def get_migration_files() -> List[Tuple[str, Path]]:
     migrations_dir = Path(__file__).parent / "migrations"
     if not migrations_dir.exists():
         return []
-    
+
     files = []
     for filepath in sorted(migrations_dir.glob("*.py")):
+        # Skip __init__.py and other non-migration files
+        if filepath.name.startswith("_"):
+            continue
         # Extract version from filename (e.g., "001_create_plants.py" -> "001")
         version = filepath.stem.split("_")[0]
         files.append((version, filepath))
-    
+
     return files
 
 

@@ -3,3 +3,4 @@ export type { Plant, PlantThresholds, ThresholdConfig, PlantListResponse, PlantC
 export type { TelemetryRecord, TelemetryHistoryResponse } from './telemetry';
 export type { LLMProvider, LLMSettingsResponse, LLMSettingsUpdate, LLMTestResponse } from './settings';
 export type { CarePlan, CarePlanWatering, CarePlanMetric, CarePlanResponse } from './care';
+export type { HealthStatus, HealthIssue, HealthRecommendation, PlantHealthCheckResponse } from './health';

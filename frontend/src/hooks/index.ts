@@ -6,6 +6,7 @@ export {
   useDeletePlant,
   usePlantHistory,
   usePlantDevices,
+  usePlantHealthCheck,
 } from './usePlants';
 
 export {

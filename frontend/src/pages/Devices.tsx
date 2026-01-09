@@ -4,12 +4,14 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { EmptyState } from '../components/EmptyState';
 import { DeviceTable } from '../components/DeviceTable';
+import { RegisterDeviceModal } from '../components/RegisterDeviceModal';
 import { useDevices, useProvisionDevice, useDeleteDevice } from '../hooks';
 
 type StatusFilter = 'all' | 'online' | 'offline' | 'unassigned';
 
 export function Devices() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, isLoading, isError, refetch } = useDevices();
   const provisionMutation = useProvisionDevice();
   const deleteMutation = useDeleteDevice();
@@ -51,6 +53,13 @@ export function Devices() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Devices</h1>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <span className="mr-2">+</span>
+            Register Device
+          </button>
         </div>
 
         {isLoading && <LoadingSpinner />}
@@ -94,7 +103,8 @@ export function Devices() {
             {filteredDevices && filteredDevices.length === 0 ? (
               <EmptyState
                 title={statusFilter === 'all' ? 'No devices registered' : 'No devices match this filter'}
-                action={statusFilter === 'all' ? undefined : { label: 'Clear Filter', onClick: () => setStatusFilter('all') }}
+                description={statusFilter === 'all' ? 'Register your first device to start monitoring.' : undefined}
+                action={statusFilter === 'all' ? { label: 'Register Device', onClick: () => setIsModalOpen(true) } : { label: 'Clear Filter', onClick: () => setStatusFilter('all') }}
               />
             ) : (
               <div className="bg-white rounded-lg shadow">
@@ -109,6 +119,11 @@ export function Devices() {
             )}
           </>
         )}
+
+        <RegisterDeviceModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </div>
     </Layout>
   );

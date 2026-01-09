@@ -43,6 +43,7 @@ services:
       MQTT_HOST: ${MQTT_HOST:-mosquitto}
       MQTT_PORT: ${MQTT_PORT:-1883}
       MQTT_PASSWD_FILE: ${MQTT_PASSWD_FILE:-/mosquitto/passwd}
+      MQTT_BACKEND_PASSWORD: ${MQTT_BACKEND_PASSWORD:-backend_secret_pass}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
     depends_on:

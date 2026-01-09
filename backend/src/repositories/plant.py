@@ -5,6 +5,15 @@ import json
 import asyncpg
 
 
+def _parse_plant_row(row: asyncpg.Record) -> dict:
+    """Parse a plant row, deserializing JSONB fields."""
+    data = dict(row)
+    # Parse thresholds if it's a string (JSONB comes back as string)
+    if data.get("thresholds") and isinstance(data["thresholds"], str):
+        data["thresholds"] = json.loads(data["thresholds"])
+    return data
+
+
 async def create_plant(
     conn: asyncpg.Connection,
     plant_id: str,
@@ -25,9 +34,9 @@ async def create_plant(
     Returns:
         Plant record as dict
     """
-    # Convert thresholds dict to JSONB
+    # Serialize thresholds to JSON string for JSONB column
     thresholds_json = json.dumps(thresholds) if thresholds else None
-    
+
     row = await conn.fetchrow(
         """
         INSERT INTO plants (id, name, species, thresholds, created_at)
@@ -40,7 +49,7 @@ async def create_plant(
         thresholds_json,
         datetime.now(),
     )
-    return dict(row)
+    return _parse_plant_row(row)
 
 
 async def get_plant_by_id(conn: asyncpg.Connection, plant_id: str) -> dict | None:
@@ -58,7 +67,7 @@ async def get_plant_by_id(conn: asyncpg.Connection, plant_id: str) -> dict | Non
         "SELECT * FROM plants WHERE id = $1",
         plant_id,
     )
-    return dict(row) if row else None
+    return _parse_plant_row(row) if row else None
 
 
 async def list_plants(
@@ -91,7 +100,7 @@ async def list_plants(
         offset,
     )
     
-    plants = [dict(row) for row in rows]
+    plants = [_parse_plant_row(row) for row in rows]
     return plants, total
 
 
@@ -150,7 +159,7 @@ async def update_plant(
     """
     
     row = await conn.fetchrow(query, *params)
-    return dict(row) if row else None
+    return _parse_plant_row(row) if row else None
 
 
 async def delete_plant(conn: asyncpg.Connection, plant_id: str) -> bool:

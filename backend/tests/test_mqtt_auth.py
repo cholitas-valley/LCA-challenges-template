@@ -64,15 +64,16 @@ def test_add_user_success(mock_run, temp_passwd_file):
     """Test adding a user to the password file."""
     # Mock successful mosquitto_passwd execution
     mock_run.return_value = MagicMock(returncode=0, stderr="", stdout="")
-    
+
     service = MQTTAuthService(temp_passwd_file)
-    
+
     # Add user
     service.add_user("test_user", "test_password")
-    
-    # Verify mosquitto_passwd was called correctly
-    mock_run.assert_called_once()
-    call_args = mock_run.call_args[0][0]
+
+    # Verify mosquitto_passwd was called (first call is add_user, second is reload)
+    assert mock_run.call_count == 2
+    # First call should be mosquitto_passwd
+    call_args = mock_run.call_args_list[0][0][0]
     assert call_args[0] == "mosquitto_passwd"
     assert "-b" in call_args
     assert temp_passwd_file in call_args
@@ -105,16 +106,16 @@ def test_multiple_users_can_be_added(mock_run, temp_passwd_file):
     """Test that multiple users can be added to the password file."""
     # Mock successful mosquitto_passwd execution
     mock_run.return_value = MagicMock(returncode=0, stderr="", stdout="")
-    
+
     service = MQTTAuthService(temp_passwd_file)
-    
+
     # Add multiple users
     service.add_user("user1", "pass1")
     service.add_user("user2", "pass2")
     service.add_user("user3", "pass3")
-    
-    # Verify mosquitto_passwd was called 3 times
-    assert mock_run.call_count == 3
+
+    # Verify mosquitto_passwd was called 3 times (plus 3 reload calls = 6 total)
+    assert mock_run.call_count == 6
 
 
 @patch("subprocess.run")

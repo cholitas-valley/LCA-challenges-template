@@ -1,107 +1,153 @@
-# LCA Challenge: 001 — PlantOps
+# PlantOps - IoT Plant Monitoring System
 
-> **[Liga Cholita Autonoma](https://github.com/cholitas-valley/liga-cholita-autonoma) challenge submission.**
->
-> **Challenge Spec:** [challenge-001-plantops.md](https://github.com/cholitas-valley/liga-cholita-autonoma/blob/main/challenges/challenge-001-plantops.md)
+An IoT platform for monitoring plant health with real-time sensor data, automated alerts, and AI-powered care recommendations.
 
-Build a self-hosted system that ingests plant sensor data via MQTT, stores it, displays it live in a dashboard, and sends alerts when a plant needs attention.
+## Quick Start
 
----
+```bash
+# Start all services (migrations run automatically)
+make up
 
-## Setup Prompt
-
-Replace `CHALLENGE_ID` and pass to Claude CLI (or another AI tool):
-
-```
-CHALLENGE_ID=001-plantops
-
-Set up this repo for Liga Cholita Autonoma challenge ${CHALLENGE_ID}.
-
-Challenge spec: https://github.com/cholitas-valley/liga-cholita-autonoma/blob/main/challenges/challenge-${CHALLENGE_ID}.md
-
-DO NOT rewrite this README. Only replace the placeholders:
-- [CHALLENGE_NAME] → challenge name
-- [CHALLENGE_LINK] → link to challenge spec
-- [CHALLENGE_DESCRIPTION] → one-line description from spec
-
-Then update:
-- docs/architecture.md → fill placeholders with challenge context
-- docs/score.md → add challenge name reference
+# Open the app
+open http://localhost:5173
 ```
 
----
+## Services
 
-## Deliverables Checklist
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost:5173 | React dashboard |
+| Backend API | http://localhost:8000 | FastAPI REST API |
+| MQTT Broker | localhost:1883 | Mosquitto for device telemetry |
+| Database | localhost:5432 | TimescaleDB (PostgreSQL) |
 
-### Required by competition
+## Features
 
-- [ ] Working implementation
-- [ ] `docker compose up` (or equivalent one-command run)
-- [ ] Commands that pass: `lint`, `typecheck`, `test`, `e2e`
-- [ ] `.env.example` with required variables
-- [ ] `README.md` with run instructions
-- [ ] `docs/architecture.md`
-- [ ] `docs/score.md` (tokens, queries, interventions)
-- [ ] `docs/evidence/` with terminal output proofs
+### Feature 1: Core Platform
+- Device registration with auto-provisioned MQTT credentials
+- Plant management with configurable thresholds
+- Real-time telemetry ingestion and storage
+- Dashboard with live charts
+- Threshold alerts with Discord notifications
+- Device offline detection
 
-### Challenge-specific
+See: [docs/feature-1-core-platform.md](docs/feature-1-core-platform.md)
 
-Review your challenge spec for additional requirements:
-[liga-cholita-autonoma/challenges/](https://github.com/cholitas-valley/liga-cholita-autonoma/tree/main/challenges)
+### Feature 2: LLM Care Advisor
+- AI-powered care plan generation
+- Anthropic Claude and OpenAI GPT support
+- Encrypted API key storage
+- Per-plant care recommendations
 
----
+See: [docs/feature-2-llm-care-advisor.md](docs/feature-2-llm-care-advisor.md)
 
-## Recommended Architecture
+## Testing with Sample Data
 
-```
-.
-├── Makefile              # Single entrypoints for AI agent
-├── docker-compose.yml    # Challenge environment
-├── scripts/
-│   └── check.sh          # "Done" gate (lint, typecheck, test, e2e)
-├── rules/
-│   └── agent.md          # Instructions for AI agent
-├── tasks/
-│   └── task-001.md       # Task definitions
-├── docs/
-│   ├── architecture.md
-│   ├── score.md
-│   └── evidence/
-├── .env.example
-└── README.md
-```
+### Quick Start (Recommended)
 
-### Makefile
+```bash
+# 1. Start all services
+make up
 
-```make
-up:
-	docker compose up -d
+# 2. Seed with test data (creates 3 plants, 3 devices, sends telemetry)
+make seed
 
-down:
-	docker compose down -v
-
-logs:
-	docker compose logs -f --tail=200
-
-check:
-	./scripts/check.sh
+# 3. Open the dashboard
+open http://localhost:5173
 ```
 
-### scripts/check.sh
+The seed script automatically:
+- Creates 3 sample plants (Monstera, Snake Plant, Pothos)
+- Registers 3 IoT devices with MQTT credentials
+- Assigns each device to a plant
+- Sends 5 telemetry readings per device
+- Restarts Mosquitto to load credentials
 
-Per-template "done" gate. AI loops against this until it passes.
+### Continuous Simulation
 
-### rules/agent.md
+To keep sending telemetry data:
 
-Agent instructions (work on new branch, run `make check` before done, update docs, commit after check passes).
+```bash
+# Run simulator (new device, continuous readings every 10s)
+make simulate
 
-### tasks/
+# Or with custom interval
+python3 scripts/simulator.py --interval 5
+```
 
-Task files for the AI to work through sequentially.
+### Manual Testing
 
----
+```bash
+# Register a device manually
+curl -X POST http://localhost:8000/api/devices/register \
+  -H "Content-Type: application/json" \
+  -d '{"mac_address": "aa:bb:cc:dd:ee:ff"}'
 
-## Competition Links
+# Create a plant
+curl -X POST http://localhost:8000/api/plants \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My Plant", "species": "Test species"}'
 
-- [Competition Rules](https://github.com/cholitas-valley/liga-cholita-autonoma/blob/main/README.md)
-- [Challenges](https://github.com/cholitas-valley/liga-cholita-autonoma/tree/main/challenges)
+# Assign device to plant
+curl -X POST http://localhost:8000/api/devices/{device_id}/provision \
+  -H "Content-Type: application/json" \
+  -d '{"plant_id": "{plant_id}"}'
+```
+
+## Environment Variables
+
+Create a `.env` file (optional):
+
+```bash
+# Discord webhook for alerts
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+# Encryption key for LLM API keys (generate with: python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')
+ENCRYPTION_KEY=your-fernet-key-here
+```
+
+## Development
+
+```bash
+# View logs
+make logs
+
+# Stop services
+make down
+
+# Run tests
+make check
+
+# Backend tests only
+cd backend && python3 -m pytest tests/ -v
+
+# Frontend build
+cd frontend && npm run build
+```
+
+## Architecture
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Devices   │────▶│  Mosquitto  │────▶│   Backend   │
+│   (MQTT)    │     │   Broker    │     │  (FastAPI)  │
+└─────────────┘     └─────────────┘     └──────┬──────┘
+                                               │
+                    ┌─────────────┐     ┌──────▼──────┐
+                    │  Frontend   │◀────│ TimescaleDB │
+                    │   (React)   │     │ (PostgreSQL)│
+                    └─────────────┘     └─────────────┘
+```
+
+## API Documentation
+
+- Health: `GET /api/health`
+- Devices: `GET/POST /api/devices`
+- Plants: `GET/POST/PUT/DELETE /api/plants`
+- Telemetry: `GET /api/plants/{id}/history`
+- LLM Settings: `GET/PUT /api/settings/llm`
+- Care Plans: `POST /api/plants/{id}/analyze`
+
+## License
+
+MIT

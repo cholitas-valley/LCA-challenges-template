@@ -14,7 +14,8 @@ import {
   usePlantHistory,
   usePlantDevices,
   useUpdatePlant,
-  useDeletePlant
+  useDeletePlant,
+  usePlantHealthCheck
 } from '../hooks';
 import { useProvisionDevice } from '../hooks/useDevices';
 import type { PlantThresholds } from '../types';
@@ -30,6 +31,7 @@ export function PlantDetail() {
   const { data: plant, isLoading: plantLoading, error: plantError } = usePlant(id!);
   const { data: history, isLoading: historyLoading } = usePlantHistory(id!, 24);
   const { data: devices, isLoading: devicesLoading } = usePlantDevices(id!);
+  const { data: healthCheck, isLoading: healthLoading } = usePlantHealthCheck(id!);
 
   // Mutations
   const updateMutation = useUpdatePlant();
@@ -87,20 +89,6 @@ export function PlantDetail() {
 
   const latestTelemetry = plant.latest_telemetry;
   const historyRecords = history?.records ?? [];
-
-  const getStatusColor = (value: number | null, min: number | null, max: number | null) => {
-    if (value === null) return 'text-gray-400';
-    if (min !== null && value < min) return 'text-red-600';
-    if (max !== null && value > max) return 'text-red-600';
-    return 'text-green-600';
-  };
-
-  const formatThresholdRange = (min: number | null, max: number | null) => {
-    if (min === null && max === null) return 'Not set';
-    if (min === null) return `< ${max}`;
-    if (max === null) return `> ${min}`;
-    return `${min}-${max}`;
-  };
 
   return (
     <Layout>
@@ -183,74 +171,123 @@ export function PlantDetail() {
           </div>
         </div>
 
+        {/* Health Check Section */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Plant Health Status</h2>
+
+          {healthLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : healthCheck ? (
+            <div>
+              {/* Status Badge */}
+              <div className="flex items-center gap-3 mb-4">
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  healthCheck.status === 'optimal' ? 'bg-green-100 text-green-800' :
+                  healthCheck.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                  healthCheck.status === 'critical' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {healthCheck.status.toUpperCase()}
+                </span>
+              </div>
+
+              {/* 24-Hour Trends */}
+              {healthCheck.trends && healthCheck.trends.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="font-medium text-gray-700 mb-2">24-Hour Trends:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {healthCheck.trends.map((trend) => (
+                      <div key={trend.metric} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                        <span className={`w-2 h-2 rounded-full ${
+                          trend.direction === 'rising' ? 'bg-blue-500' :
+                          trend.direction === 'falling' ? 'bg-orange-500' :
+                          'bg-green-500'
+                        }`} />
+                        <span>{trend.summary}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Issues */}
+              {healthCheck.issues.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="font-medium text-gray-700 mb-2">Issues:</h3>
+                  <ul className="space-y-2">
+                    {healthCheck.issues.map((issue, idx) => (
+                      <li key={idx} className={`flex items-start gap-2 p-2 rounded ${
+                        issue.severity === 'critical' ? 'bg-red-50' : 'bg-yellow-50'
+                      }`}>
+                        <span className={`mt-0.5 w-2 h-2 rounded-full ${
+                          issue.severity === 'critical' ? 'bg-red-500' : 'bg-yellow-500'
+                        }`} />
+                        <span className="text-sm">{issue.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Recommendations */}
+              {healthCheck.recommendations.length > 0 && (
+                <div>
+                  <h3 className="font-medium text-gray-700 mb-2">Recommendations:</h3>
+                  <ul className="space-y-2">
+                    {healthCheck.recommendations.map((rec, idx) => (
+                      <li key={idx} className={`flex items-start gap-2 p-2 rounded ${
+                        rec.priority === 'high' ? 'bg-red-50' :
+                        rec.priority === 'medium' ? 'bg-orange-50' :
+                        'bg-gray-50'
+                      }`}>
+                        <span className="text-sm">{rec.action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {healthCheck.issues.length === 0 && healthCheck.recommendations.length === 0 && healthCheck.trends.length === 0 && (
+                <p className="text-gray-500">No data available yet.</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              Unable to check plant health
+            </p>
+          )}
+        </div>
+
         {/* Current Readings */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Readings</h2>
           {latestTelemetry ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className={'text-4xl font-bold mb-2 ' + getStatusColor(
-                  latestTelemetry.soil_moisture,
-                  plant.thresholds?.soil_moisture?.min ?? null,
-                  plant.thresholds?.soil_moisture?.max ?? null
-                )}>
+                <div className="text-4xl font-bold mb-2 text-gray-900">
                   {latestTelemetry.soil_moisture !== null ? `${latestTelemetry.soil_moisture}%` : 'N/A'}
                 </div>
                 <div className="text-sm text-gray-600 font-medium">Soil Moisture</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  ({formatThresholdRange(
-                    plant.thresholds?.soil_moisture?.min ?? null,
-                    plant.thresholds?.soil_moisture?.max ?? null
-                  )})
-                </div>
               </div>
               <div className="text-center">
-                <div className={'text-4xl font-bold mb-2 ' + getStatusColor(
-                  latestTelemetry.temperature,
-                  plant.thresholds?.temperature?.min ?? null,
-                  plant.thresholds?.temperature?.max ?? null
-                )}>
+                <div className="text-4xl font-bold mb-2 text-gray-900">
                   {latestTelemetry.temperature !== null ? `${latestTelemetry.temperature}°C` : 'N/A'}
                 </div>
                 <div className="text-sm text-gray-600 font-medium">Temperature</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  ({formatThresholdRange(
-                    plant.thresholds?.temperature?.min ?? null,
-                    plant.thresholds?.temperature?.max ?? null
-                  )})
-                </div>
               </div>
               <div className="text-center">
-                <div className={'text-4xl font-bold mb-2 ' + getStatusColor(
-                  latestTelemetry.humidity,
-                  plant.thresholds?.humidity?.min ?? null,
-                  plant.thresholds?.humidity?.max ?? null
-                )}>
+                <div className="text-4xl font-bold mb-2 text-gray-900">
                   {latestTelemetry.humidity !== null ? `${latestTelemetry.humidity}%` : 'N/A'}
                 </div>
                 <div className="text-sm text-gray-600 font-medium">Humidity</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  ({formatThresholdRange(
-                    plant.thresholds?.humidity?.min ?? null,
-                    plant.thresholds?.humidity?.max ?? null
-                  )})
-                </div>
               </div>
               <div className="text-center">
-                <div className={'text-4xl font-bold mb-2 ' + getStatusColor(
-                  latestTelemetry.light_level,
-                  plant.thresholds?.light_level?.min ?? null,
-                  plant.thresholds?.light_level?.max ?? null
-                )}>
-                  {latestTelemetry.light_level !== null ? latestTelemetry.light_level : 'N/A'}
+                <div className="text-4xl font-bold mb-2 text-gray-900">
+                  {latestTelemetry.light_level !== null ? `${latestTelemetry.light_level} lux` : 'N/A'}
                 </div>
                 <div className="text-sm text-gray-600 font-medium">Light Level</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  ({formatThresholdRange(
-                    plant.thresholds?.light_level?.min ?? null,
-                    plant.thresholds?.light_level?.max ?? null
-                  )})
-                </div>
               </div>
             </div>
           ) : (

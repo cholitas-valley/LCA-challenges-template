@@ -11,15 +11,18 @@ from fastapi.responses import JSONResponse
 
 from src.config import settings
 from src.db.connection import close_pool, init_pool
+from src.db.migration_runner import run_migrations
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
 from src.models import ErrorResponse, HealthResponse
 from src.routers import devices, plants, settings as settings_router
 from src.services.alert_worker import AlertWorker
+from src.services.care_plan_worker import CarePlanWorker
 from src.services.discord import DiscordService
 from src.services.heartbeat_handler import HeartbeatHandler
 from src.services.mqtt_subscriber import MQTTSubscriber, parse_device_id
 from src.services.telemetry_handler import TelemetryHandler
 from src.services.threshold_evaluator import ThresholdEvaluator
+from src.routers import plants as plants_router
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +40,13 @@ heartbeat_handler = HeartbeatHandler(alert_queue=alert_queue)
 
 # Initialize alert worker
 alert_worker = AlertWorker(discord=discord_service, queue=alert_queue)
+
+# Initialize care plan queue and worker
+care_plan_queue = asyncio.Queue(maxsize=100)
+care_plan_worker = CarePlanWorker(queue=care_plan_queue)
+
+# Set queue reference in plants router for auto-generation on create
+plants_router.set_care_plan_queue(care_plan_queue)
 
 
 async def handle_telemetry(topic: str, payload: bytes) -> None:
@@ -123,6 +133,13 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize database pool
     await init_pool()
 
+    # Startup: Run database migrations
+    try:
+        await run_migrations(settings.database_url)
+        logger.info("Database migrations completed")
+    except Exception as e:
+        logger.error(f"Migration error (may already be applied): {e}")
+
     # Startup: Initialize MQTT subscriber
     mqtt = MQTTSubscriber(
         host=settings.mqtt_host,
@@ -148,11 +165,16 @@ async def lifespan(app: FastAPI):
         alert_task = asyncio.create_task(alert_worker.run())
         logger.info("Alert worker started")
 
+        # Start care plan worker in background
+        care_plan_task = asyncio.create_task(care_plan_worker.run())
+        logger.info("Care plan worker started")
+
         # Store instances in app state for potential access
         app.state.mqtt = mqtt
         app.state.mqtt_task = mqtt_task
         app.state.offline_task = offline_task
         app.state.alert_task = alert_task
+        app.state.care_plan_task = care_plan_task
 
         yield
 
@@ -161,6 +183,14 @@ async def lifespan(app: FastAPI):
         alert_task.cancel()
         try:
             await alert_task
+        except asyncio.CancelledError:
+            pass
+
+        # Shutdown: Stop care plan worker
+        care_plan_worker.stop()
+        care_plan_task.cancel()
+        try:
+            await care_plan_task
         except asyncio.CancelledError:
             pass
 

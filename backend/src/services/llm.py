@@ -241,3 +241,129 @@ Please provide a comprehensive care plan in the following JSON format. Return ON
             return data
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON response from LLM: {e}")
+
+    async def generate_health_recommendations(
+        self,
+        plant_name: str,
+        species: str | None,
+        issues: list[dict],
+        current_readings: dict,
+        trends: dict | None = None,
+    ) -> list[dict]:
+        """
+        Generate health recommendations using LLM with trend analysis.
+
+        Args:
+            plant_name: Name of the plant
+            species: Plant species (optional)
+            issues: List of current health issues
+            current_readings: Current sensor readings
+            trends: 24-hour trend data for each metric
+
+        Returns:
+            List of recommendation dicts with priority and action
+        """
+        prompt = self._build_health_check_prompt(
+            plant_name=plant_name,
+            species=species,
+            issues=issues,
+            current_readings=current_readings,
+            trends=trends,
+        )
+
+        try:
+            response_text = await asyncio.wait_for(
+                self._call_llm(prompt),
+                timeout=15.0,
+            )
+            return self._parse_health_recommendations(response_text)
+        except asyncio.TimeoutError:
+            raise TimeoutError("Health check LLM request timed out after 15 seconds")
+
+    def _build_health_check_prompt(
+        self,
+        plant_name: str,
+        species: str | None,
+        issues: list[dict],
+        current_readings: dict,
+        trends: dict | None = None,
+    ) -> str:
+        """Build prompt for health check with trend analysis."""
+        species_text = species if species else "Unknown species"
+
+        # Format issues
+        issues_text = "\n".join([
+            f"- {i['metric']}: {i['message']} (severity: {i['severity']})"
+            for i in issues
+        ]) if issues else "None"
+
+        # Format 24-hour trends
+        trend_lines = []
+        if trends:
+            for metric, data in trends.items():
+                label = metric.replace("_", " ").title()
+                unit = "%" if metric in ["soil_moisture", "humidity"] else "°C" if metric == "temperature" else " lux"
+                direction = data.get("direction", "stable")
+                change = data.get("change_percent", 0)
+                avg = data.get("avg", 0)
+                min_v = data.get("min", 0)
+                max_v = data.get("max", 0)
+                trend_lines.append(
+                    f"- {label}: {direction} ({change:+.1f}%), "
+                    f"range {min_v}-{max_v}{unit}, avg {avg}{unit}"
+                )
+        trends_text = "\n".join(trend_lines) if trend_lines else "Insufficient historical data"
+
+        return f"""You are a plant care expert. Analyze this {species_text} and provide specific, actionable recommendations.
+
+Plant: {plant_name} ({species_text})
+
+24-Hour Trends:
+{trends_text}
+
+Threshold Violations:
+{issues_text}
+
+Based on the trends and your knowledge of {species_text} care requirements:
+1. Identify any concerning patterns (e.g., soil drying too fast, temperature fluctuations)
+2. Provide specific actions the owner should take
+3. Consider the species' specific needs
+
+RESPOND ONLY with a valid JSON array (no markdown, no explanation):
+
+[
+  {{"priority": "high", "action": "Specific action to take"}},
+  {{"priority": "medium", "action": "Another specific action"}}
+]
+
+Priority: "high" = do now, "medium" = do soon, "low" = general tip"""
+
+    def _parse_health_recommendations(self, response_text: str) -> list[dict]:
+        """Parse health check LLM response."""
+        try:
+            text = response_text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.startswith("```"):
+                text = text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+
+            data = json.loads(text)
+
+            # Validate structure
+            if not isinstance(data, list):
+                return []
+
+            valid_recommendations = []
+            for item in data:
+                if isinstance(item, dict) and "priority" in item and "action" in item:
+                    valid_recommendations.append({
+                        "priority": item["priority"],
+                        "action": item["action"],
+                    })
+
+            return valid_recommendations
+        except json.JSONDecodeError:
+            return []

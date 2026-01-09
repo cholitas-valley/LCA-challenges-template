@@ -83,7 +83,8 @@ async def test_create_plant_with_species_and_thresholds(async_client: AsyncClien
 async def test_list_plants_returns_created_plants(async_client: AsyncClient) -> None:
     """Test listing plants returns created plants."""
     with patch("src.repositories.plant.list_plants") as mock_list, \
-         patch("src.repositories.plant.get_plant_device_count") as mock_count:
+         patch("src.repositories.plant.get_plant_device_count") as mock_count, \
+         patch("src.repositories.telemetry.get_latest_by_plant") as mock_telemetry:
         # Mock database response with 2 plants
         mock_list.return_value = (
             [
@@ -105,6 +106,7 @@ async def test_list_plants_returns_created_plants(async_client: AsyncClient) -> 
             2,
         )
         mock_count.return_value = 0
+        mock_telemetry.return_value = None
 
         response = await async_client.get("/api/plants")
 
@@ -120,7 +122,8 @@ async def test_list_plants_returns_created_plants(async_client: AsyncClient) -> 
 async def test_get_single_plant_by_id(async_client: AsyncClient) -> None:
     """Test getting a single plant by ID."""
     with patch("src.repositories.plant.get_plant_by_id") as mock_get, \
-         patch("src.repositories.plant.get_plant_device_count") as mock_count:
+         patch("src.repositories.plant.get_plant_device_count") as mock_count, \
+         patch("src.repositories.telemetry.get_latest_by_plant") as mock_telemetry:
         # Mock database response
         mock_get.return_value = {
             "id": "plant-mint",
@@ -130,6 +133,7 @@ async def test_get_single_plant_by_id(async_client: AsyncClient) -> None:
             "created_at": datetime.now(),
         }
         mock_count.return_value = 0
+        mock_telemetry.return_value = None
 
         response = await async_client.get("/api/plants/plant-mint")
 

@@ -65,3 +65,13 @@ export function usePlantDevices(id: string) {
     enabled: !!id,
   });
 }
+
+export function usePlantHealthCheck(id: string) {
+  return useQuery({
+    queryKey: ['plants', id, 'health-check'],
+    queryFn: () => plantApi.healthCheck(id),
+    enabled: !!id,
+    staleTime: 60 * 60 * 1000, // 1 hour cache
+    refetchOnWindowFocus: false,
+  });
+}

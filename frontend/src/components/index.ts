@@ -8,6 +8,7 @@ export { SensorReading } from './SensorReading';
 export { PlantCard } from './PlantCard';
 export { CreatePlantModal } from './CreatePlantModal';
 export { DeviceTable } from './DeviceTable';
+export { RegisterDeviceModal } from './RegisterDeviceModal';
 export { AssignDeviceModal } from './AssignDeviceModal';
 export { ConfirmDialog } from './ConfirmDialog';
 export { TelemetryChart } from './TelemetryChart';

@@ -100,13 +100,13 @@ class MQTTAuthService:
     def add_user(self, username: str, password: str) -> None:
         """
         Add user to Mosquitto password file.
-        
+
         Uses file locking to handle concurrent writes safely.
-        
+
         Args:
             username: MQTT username
             password: Plain text password
-            
+
         Raises:
             RuntimeError: If mosquitto_passwd command fails
         """
@@ -119,6 +119,8 @@ class MQTTAuthService:
                 text=True,
                 check=True,
             )
+            # Reload Mosquitto to pick up new credentials
+            self.reload_mosquitto()
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Failed to add user to password file: {e.stderr}")
         except FileNotFoundError:
@@ -164,13 +166,24 @@ class MQTTAuthService:
         """
         Send SIGHUP to Mosquitto to reload password file.
 
-        This is optional and can be deferred. In containerized environments,
-        Mosquitto may automatically reload or we may need to use docker exec.
+        In containerized environments, uses docker exec to signal mosquitto.
 
         Args:
             pid_file: Path to Mosquitto PID file (optional)
         """
-        # Mosquitto 2.0+ automatically reloads password file on change
-        # If manual reload needed, use: docker exec plantops-mosquitto kill -HUP 1
-        # For now, rely on auto-reload functionality
-        pass
+        import logging
+        logger = logging.getLogger(__name__)
+        try:
+            result = subprocess.run(
+                ["docker", "exec", "plantops-mosquitto", "kill", "-HUP", "1"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0:
+                logger.info("Mosquitto reloaded successfully")
+            else:
+                logger.warning(f"Failed to reload Mosquitto: {result.stderr}")
+        except Exception as e:
+            # Non-fatal - Mosquitto may still pick up changes
+            logger.warning(f"Could not reload Mosquitto: {e}")
