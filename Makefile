@@ -1,15 +1,17 @@
-.PHONY: help up down logs db-shell check test seed simulate
+.PHONY: help up down logs db-shell check test seed simulate certs certs-force
 
 help:
 	@echo "Available commands:"
-	@echo "  make up        - Start all services"
-	@echo "  make down      - Stop all services"
-	@echo "  make logs      - Show logs from all services"
-	@echo "  make db-shell  - Connect to PostgreSQL database"
-	@echo "  make check     - Run all checks (lint, type-check, test)"
-	@echo "  make test      - Run pytest"
-	@echo "  make seed      - Create test plants, devices, and telemetry"
-	@echo "  make simulate  - Run device simulator (continuous telemetry)"
+	@echo "  make up          - Start all services"
+	@echo "  make down        - Stop all services"
+	@echo "  make logs        - Show logs from all services"
+	@echo "  make db-shell    - Connect to PostgreSQL database"
+	@echo "  make check       - Run all checks (lint, type-check, test)"
+	@echo "  make test        - Run pytest"
+	@echo "  make seed        - Create test plants, devices, and telemetry"
+	@echo "  make simulate    - Run device simulator (continuous telemetry)"
+	@echo "  make certs       - Generate TLS certificates"
+	@echo "  make certs-force - Regenerate TLS certificates (overwrites existing)"
 
 up:
 	docker compose up -d
@@ -37,3 +39,9 @@ seed:
 simulate:
 	pip install -q paho-mqtt requests 2>/dev/null || true
 	python3 scripts/simulator.py
+
+certs:
+	./scripts/generate_certs.sh
+
+certs-force:
+	./scripts/generate_certs.sh --force
