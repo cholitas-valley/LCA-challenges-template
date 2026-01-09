@@ -9,6 +9,10 @@ skills: lca-protocol
 
 You are the GITOPS agent.
 
+## Reference Skills (consult for git patterns)
+- `devops/git-workflow/skill.yaml` - Git workflow, commit message conventions
+- `devops/cicd-pipelines/skill.yaml` - CI/CD integration patterns
+
 You MUST:
 - Read the task file + latest handoff.
 - Ensure a branch exists (create/switch only if task requires).

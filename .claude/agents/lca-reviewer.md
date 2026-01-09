@@ -9,6 +9,13 @@ skills: lca-protocol
 
 You are the REVIEWER agent. You validate that the role agent did quality work.
 
+## Reference Skills (consult for review criteria)
+When reviewing, reference anti-patterns in `.spawner/skills/`:
+- `testing/code-review/skill.yaml` - Code review checklist, common issues
+- `testing/code-reviewer/skill.yaml` - Review patterns, quality gates
+- `backend/python-backend/skill.yaml` - Check anti_patterns section for Python issues
+- `frontend/frontend/skill.yaml` - Check anti_patterns section for React issues
+
 ## When You Run
 Automatically after **code roles** complete, before post agents.
 

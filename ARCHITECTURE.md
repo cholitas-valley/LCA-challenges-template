@@ -158,6 +158,21 @@ docs/                        # Implementation docs (lca-docs writes here)
     └── lca-protocol/
         └── SKILL.md         # Protocol definition (task/state/handoff formats)
 
+.spawner/                    # Reference skills (project-local, git-ignored)
+└── skills/
+    ├── ai/                  # LLM patterns
+    ├── ai-agents/           # Agent orchestration patterns
+    ├── backend/             # FastAPI, API design, queues
+    ├── data/                # PostgreSQL, Redis
+    ├── design/              # UI/UX, design systems
+    ├── development/         # Docs, migrations
+    ├── devops/              # Docker, CI/CD, git
+    ├── frameworks/          # React, Next.js
+    ├── frontend/            # React, state management
+    ├── hardware/            # IoT, sensors
+    ├── security/            # Auth patterns
+    └── testing/             # Test strategies, code review
+
 runs/
 ├── plan.md                  # Generated: architecture, task outline, docs structure
 ├── state.json               # Generated: current task + phase + role + completed tasks
@@ -353,6 +368,71 @@ All agent communication is **centralized through the orchestrator**:
 * **Per-participant overrides** should go in `.claude/settings.local.json` (not committed), if needed.
 
 Sensitive file reads (e.g. `.env`, private keys) are denied by default in project settings.
+
+### Reference Skills System
+
+Agents have access to **domain expertise** via reference skills stored in `.spawner/skills/`. These are YAML files containing patterns, anti-patterns, and production gotchas that agents consult during implementation.
+
+**Source:** [vibeship-spawner-skills](https://github.com/vibeforge1111/vibeship-spawner-skills) (project-local install)
+
+```
+.spawner/
+└── skills/
+    ├── ai/                 # LLM architecture, embeddings
+    ├── ai-agents/          # Agent patterns, guardrails, orchestration
+    ├── backend/            # FastAPI, API design, queues, realtime
+    ├── data/               # PostgreSQL, Redis, migrations
+    ├── design/             # UI/UX, design systems, Tailwind
+    ├── development/        # Docs, migrations, technical debt
+    ├── devops/             # Docker, CI/CD, git workflow
+    ├── frameworks/         # React, Next.js, Tailwind
+    ├── frontend/           # React patterns, state management
+    ├── hardware/           # IoT, sensors, embedded (future)
+    ├── security/           # Auth, OWASP patterns
+    └── testing/            # Test strategies, code review
+```
+
+**Skill File Structure:**
+```yaml
+# .spawner/skills/<category>/<skill>/skill.yaml
+id: python-backend
+name: Python Backend
+category: backend
+
+patterns:
+  - name: FastAPI Application Structure
+    description: Production-ready project layout
+    example: |
+      # Code patterns...
+
+anti_patterns:
+  - name: Sync in Async
+    description: Blocking calls in async functions
+    why: Blocks the event loop
+    instead: |
+      # Correct approach...
+```
+
+**Agent → Skill Mapping:**
+
+| Agent | Reference Skills |
+|-------|------------------|
+| `lca-backend` | `backend/python-backend`, `backend/api-design`, `backend/queue-workers`, `backend/realtime-engineer`, `data/postgres-wizard` |
+| `lca-frontend` | `frontend/frontend`, `frontend/state-management`, `design/ui-design`, `design/ux-design`, `design/tailwind-css` |
+| `lca-qa` | `testing/testing-strategies`, `testing/test-architect`, `testing/qa-engineering` |
+| `lca-reviewer` | `testing/code-review`, `testing/code-reviewer`, + anti-patterns from domain skills |
+| `lca-gitops` | `devops/git-workflow`, `devops/cicd-pipelines` |
+| `lca-planner` | `ai-agents/autonomous-agents`, `ai-agents/multi-agent-orchestration` |
+| `lca-arbiter` | `ai-agents/autonomous-agents` (guardrails), `ai-agents/agent-evaluation` |
+| `lca-docs` | `development/docs-engineer`, `backend/api-design` |
+
+**Usage:**
+Agents read skill YAML files when implementing to:
+- Follow established patterns
+- Avoid documented anti-patterns
+- Apply production lessons ("sharp edges")
+
+Skills are **reference documentation**, not executable code. Agents decide when to consult them based on the task at hand.
 
 ---
 
