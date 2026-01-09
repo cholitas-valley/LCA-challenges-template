@@ -1,0 +1,6 @@
+# Production override - TLS only
+services:
+  mosquitto:
+    ports:
+      - "8883:8883"   # TLS only in production
+    # Port 1883 not exposed
