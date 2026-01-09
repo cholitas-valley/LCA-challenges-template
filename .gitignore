@@ -70,3 +70,8 @@ mosquitto/passwd
 # TLS Certificates
 *.key
 *.csr
+
+# Firmware
+firmware/.pio/
+firmware/.vscode/
+firmware/include/secrets.h
