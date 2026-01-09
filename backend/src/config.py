@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     mqtt_passwd_file: str = "/mosquitto/passwd"
     mqtt_backend_username: str = "plantops_backend"
     mqtt_backend_password: str
+    mqtt_use_tls: bool = False
+    mqtt_tls_port: int = 8883
+    mqtt_ca_cert: str | None = None
     discord_webhook_url: str | None = None
     encryption_key: str
 

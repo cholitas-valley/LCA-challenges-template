@@ -1,6 +1,7 @@
 """MQTT subscriber service for receiving device telemetry and heartbeat messages."""
 import asyncio
 import logging
+import ssl
 from collections.abc import Callable
 from typing import Any
 
@@ -11,34 +12,55 @@ logger = logging.getLogger(__name__)
 
 class MQTTSubscriber:
     """MQTT subscriber that listens for device telemetry and heartbeat messages."""
-    
-    def __init__(self, host: str, port: int, username: str, password: str):
+
+    def __init__(
+        self,
+        host: str,
+        port: int,
+        username: str,
+        password: str,
+        use_tls: bool = False,
+        ca_cert: str | None = None,
+    ):
         """
         Initialize MQTT subscriber.
-        
+
         Args:
             host: MQTT broker hostname
             port: MQTT broker port
             username: MQTT username for authentication
             password: MQTT password for authentication
+            use_tls: Enable TLS encryption
+            ca_cert: Path to CA certificate for TLS verification
         """
         self.host = host
         self.port = port
         self.username = username
         self.password = password
+        self.use_tls = use_tls
+        self.ca_cert = ca_cert
         self.client: aiomqtt.Client | None = None
         self.handlers: dict[str, Callable] = {}
         self._running = False
         self._task: asyncio.Task | None = None
     
     async def connect(self) -> None:
-        """Connect to MQTT broker with credentials."""
-        logger.info(f"Connecting to MQTT broker at {self.host}:{self.port}")
+        """Connect to MQTT broker with optional TLS."""
+        tls_context = None
+        if self.use_tls:
+            tls_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+            if self.ca_cert:
+                tls_context.load_verify_locations(self.ca_cert)
+            logger.info(f"Connecting to MQTT broker with TLS at {self.host}:{self.port}")
+        else:
+            logger.info(f"Connecting to MQTT broker at {self.host}:{self.port}")
+
         self.client = aiomqtt.Client(
             hostname=self.host,
             port=self.port,
             username=self.username,
             password=self.password,
+            tls_context=tls_context,
         )
         try:
             await self.client.__aenter__()

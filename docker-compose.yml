@@ -48,6 +48,9 @@ services:
       MQTT_PORT: ${MQTT_PORT:-1883}
       MQTT_PASSWD_FILE: ${MQTT_PASSWD_FILE:-/mosquitto/passwd}
       MQTT_BACKEND_PASSWORD: ${MQTT_BACKEND_PASSWORD:-backend_secret_pass}
+      MQTT_USE_TLS: ${MQTT_USE_TLS:-false}
+      MQTT_TLS_PORT: ${MQTT_TLS_PORT:-8883}
+      MQTT_CA_CERT: ${MQTT_CA_CERT:-}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
     depends_on:
@@ -58,6 +61,7 @@ services:
     volumes:
       - ./backend:/app
       - ./mosquitto/passwd:/mosquitto/passwd
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
     restart: unless-stopped
 
   frontend:

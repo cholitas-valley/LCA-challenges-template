@@ -143,9 +143,11 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize MQTT subscriber
     mqtt = MQTTSubscriber(
         host=settings.mqtt_host,
-        port=settings.mqtt_port,
+        port=settings.mqtt_tls_port if settings.mqtt_use_tls else settings.mqtt_port,
         username=settings.mqtt_backend_username,
         password=settings.mqtt_backend_password,
+        use_tls=settings.mqtt_use_tls,
+        ca_cert=settings.mqtt_ca_cert,
     )
 
     try:

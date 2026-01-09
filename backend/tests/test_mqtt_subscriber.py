@@ -139,8 +139,35 @@ def test_topic_matches_exact():
         username="test",
         password="test",
     )
-    
+
     # Test exact match
     assert subscriber._topic_matches("devices/abc123/telemetry", "devices/abc123/telemetry")
     assert not subscriber._topic_matches("devices/xyz789/telemetry", "devices/abc123/telemetry")
     assert not subscriber._topic_matches("devices/abc123/heartbeat", "devices/abc123/telemetry")
+
+
+def test_mqtt_subscriber_tls_config():
+    """Test MQTT subscriber accepts TLS configuration."""
+    subscriber = MQTTSubscriber(
+        host="localhost",
+        port=8883,
+        username="test",
+        password="test",
+        use_tls=True,
+        ca_cert="/path/to/ca.crt",
+    )
+    assert subscriber.use_tls is True
+    assert subscriber.ca_cert == "/path/to/ca.crt"
+    assert subscriber.port == 8883
+
+
+def test_mqtt_subscriber_default_no_tls():
+    """Test MQTT subscriber defaults to no TLS."""
+    subscriber = MQTTSubscriber(
+        host="localhost",
+        port=1883,
+        username="test",
+        password="test",
+    )
+    assert subscriber.use_tls is False
+    assert subscriber.ca_cert is None
