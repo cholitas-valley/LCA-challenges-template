@@ -1,4 +1,4 @@
-.PHONY: help up down logs db-shell check test seed simulate certs certs-force
+.PHONY: help up down logs db-shell check test seed simulate certs certs-force prod-up prod-down prod-logs prod-build prod-restart
 
 help:
 	@echo "Available commands:"
@@ -12,6 +12,11 @@ help:
 	@echo "  make simulate    - Run device simulator (continuous telemetry)"
 	@echo "  make certs       - Generate TLS certificates"
 	@echo "  make certs-force - Regenerate TLS certificates (overwrites existing)"
+	@echo "  make prod-up     - Start production stack"
+	@echo "  make prod-down   - Stop production stack"
+	@echo "  make prod-logs   - View production logs"
+	@echo "  make prod-build  - Build production images"
+	@echo "  make prod-restart - Restart production stack"
 
 up:
 	docker compose up -d
@@ -45,3 +50,19 @@ certs:
 
 certs-force:
 	./scripts/generate_certs.sh --force
+
+# Production commands
+prod-up: ## Start production stack
+	docker compose -f docker-compose.prod.yml up -d
+
+prod-down: ## Stop production stack
+	docker compose -f docker-compose.prod.yml down
+
+prod-logs: ## View production logs
+	docker compose -f docker-compose.prod.yml logs -f
+
+prod-build: ## Build production images
+	docker compose -f docker-compose.prod.yml build
+
+prod-restart: ## Restart production stack
+	docker compose -f docker-compose.prod.yml restart
