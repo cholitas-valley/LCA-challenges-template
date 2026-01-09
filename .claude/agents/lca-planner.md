@@ -43,7 +43,10 @@ Example:
 Task generation rules:
 - Each task file MUST use the Task File Format in the lca-protocol skill.
 - Each task MUST name one primary `role` (backend|frontend|docs|gitops|qa).
-- **ALWAYS include `post: [lca-recorder, lca-gitops]`** for implementation tasks.
+- **Post agents by role:**
+  - `lca-backend` / `lca-frontend` tasks: `post: [lca-recorder, code-simplifier, lca-gitops]`
+  - `lca-qa` / `lca-docs` tasks: `post: [lca-recorder, lca-gitops]`
+  - `code-simplifier` runs on Opus and refines code for clarity (only for coding roles)
   - `lca-recorder` records changes in handoffs (every task)
   - `lca-gitops` commits changes (every task)
   - Add `lca-docs` for milestone tasks that need reader documentation

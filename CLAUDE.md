@@ -129,6 +129,15 @@ For EACH agent in `post` (e.g., `[lca-recorder, lca-gitops]`):
 - Focuses on recently modified files in the task
 - Does NOT write a handoff file (it's a plugin, not a subagent)
 
+**How to invoke code-simplifier:**
+Unlike subagents (invoked via Task tool), plugins are invoked via the Skill tool:
+```
+Use Skill tool with skill: "code-simplifier"
+```
+Or equivalently: `/code-simplifier`
+
+The plugin will automatically identify recently modified files and simplify them.
+
 ### 4b) Verify post agents completed
 Before advancing to step 5, verify:
 - All agents in `post` array were invoked
