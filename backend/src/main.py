@@ -5,15 +5,17 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.config import settings
 from src.db.connection import close_pool, init_pool
+from src.db.health import check_database_health
 from src.db.migration_runner import run_migrations
 from src.exceptions import AuthenticationError, NotFoundError, PlantOpsError, ValidationError
-from src.models import ErrorResponse, HealthResponse
+from src.models import ErrorResponse
+from src.models.health_check import ComponentStatus, HealthResponse, ReadyResponse
 from src.routers import devices, plants, settings as settings_router
 from src.services.alert_worker import AlertWorker
 from src.services.care_plan_worker import CarePlanWorker
@@ -278,9 +280,69 @@ app.include_router(settings_router.router)
 # Health endpoint
 @app.get("/api/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    """Health check endpoint."""
+    """
+    Health check endpoint with component status.
+
+    Returns overall health based on component states:
+    - healthy: All components connected
+    - degraded: Some components disconnected
+    - unhealthy: Critical components disconnected
+    """
+    # Check database
+    db_ok, db_error = await check_database_health()
+    db_status = ComponentStatus(
+        status="connected" if db_ok else "disconnected",
+        message=db_error,
+    )
+
+    # Check MQTT
+    mqtt_connected = app.state.mqtt.is_connected if hasattr(app.state, 'mqtt') else False
+    mqtt_status = ComponentStatus(
+        status="connected" if mqtt_connected else "disconnected",
+    )
+
+    # Determine overall status
+    if db_ok and mqtt_connected:
+        overall = "healthy"
+    elif db_ok or mqtt_connected:
+        overall = "degraded"
+    else:
+        overall = "unhealthy"
+
     return HealthResponse(
-        status="healthy",
+        status=overall,
         timestamp=datetime.now(),
         version="0.1.0",
+        components={
+            "database": db_status,
+            "mqtt": mqtt_status,
+        },
+    )
+
+
+@app.get("/api/ready", response_model=ReadyResponse)
+async def ready(response: Response) -> ReadyResponse:
+    """
+    Readiness probe for orchestration (k8s, Docker).
+
+    Returns 200 if ready to serve traffic, 503 if not.
+    Both database and MQTT must be connected for readiness.
+    """
+    # Check database
+    db_ok, _ = await check_database_health()
+
+    # Check MQTT
+    mqtt_ok = app.state.mqtt.is_connected if hasattr(app.state, 'mqtt') else False
+
+    ready_status = db_ok and mqtt_ok
+
+    if not ready_status:
+        response.status_code = 503
+
+    return ReadyResponse(
+        ready=ready_status,
+        checks={
+            "database": db_ok,
+            "mqtt": mqtt_ok,
+        },
     )

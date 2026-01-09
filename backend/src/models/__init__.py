@@ -5,7 +5,7 @@ from .care_plan import (
     CarePlanResponse,
     CarePlanWatering,
 )
-from .common import ErrorResponse, HealthResponse
+from .common import ErrorResponse
 from .device import (
     DeviceListResponse,
     DeviceProvisionRequest,
@@ -35,7 +35,6 @@ from .telemetry import (
 )
 
 __all__ = [
-    "HealthResponse",
     "ErrorResponse",
     "CarePlan",
     "CarePlanWatering",

@@ -12,7 +12,7 @@ def test_mqtt_subscriber_instantiation():
         username="test_user",
         password="test_password",
     )
-    
+
     assert subscriber.host == "localhost"
     assert subscriber.port == 1883
     assert subscriber.username == "test_user"
@@ -20,6 +20,7 @@ def test_mqtt_subscriber_instantiation():
     assert subscriber.client is None
     assert subscriber.handlers == {}
     assert subscriber._running is False
+    assert subscriber._connected is False
 
 
 def test_parse_device_id_telemetry():
@@ -171,3 +172,16 @@ def test_mqtt_subscriber_default_no_tls():
     )
     assert subscriber.use_tls is False
     assert subscriber.ca_cert is None
+
+
+def test_mqtt_subscriber_is_connected_property():
+    """Test is_connected property tracks connection state."""
+    subscriber = MQTTSubscriber(
+        host="localhost",
+        port=1883,
+        username="test",
+        password="test",
+    )
+    # Should be disconnected initially
+    assert subscriber.is_connected is False
+    assert subscriber._connected is False

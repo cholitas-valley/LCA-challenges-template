@@ -55,3 +55,23 @@ class PlantHealthCheckResponse(BaseModel):
     checked_at: datetime
     has_care_plan: bool
     care_plan_age_hours: float | None  # Hours since care plan generated
+
+
+class ComponentStatus(BaseModel):
+    """Status of a single component."""
+    status: str  # "connected", "disconnected", "error"
+    message: str | None = None
+
+
+class HealthResponse(BaseModel):
+    """Health check response with component status."""
+    status: str  # "healthy", "degraded", "unhealthy"
+    timestamp: datetime
+    version: str
+    components: dict[str, ComponentStatus]
+
+
+class ReadyResponse(BaseModel):
+    """Readiness check response."""
+    ready: bool
+    checks: dict[str, bool]

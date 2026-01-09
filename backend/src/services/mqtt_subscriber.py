@@ -42,7 +42,13 @@ class MQTTSubscriber:
         self.client: aiomqtt.Client | None = None
         self.handlers: dict[str, Callable] = {}
         self._running = False
+        self._connected = False
         self._task: asyncio.Task | None = None
+
+    @property
+    def is_connected(self) -> bool:
+        """Return current connection state."""
+        return self._connected
     
     async def connect(self) -> None:
         """Connect to MQTT broker with optional TLS."""
@@ -64,8 +70,10 @@ class MQTTSubscriber:
         )
         try:
             await self.client.__aenter__()
+            self._connected = True
             logger.info("Connected to MQTT broker")
         except Exception as e:
+            self._connected = False
             logger.error(f"Failed to connect to MQTT broker: {e}")
             raise
     
@@ -73,7 +81,8 @@ class MQTTSubscriber:
         """Disconnect from MQTT broker."""
         logger.info("Disconnecting from MQTT broker")
         self._running = False
-        
+        self._connected = False
+
         # Cancel listening task if running
         if self._task and not self._task.done():
             self._task.cancel()
@@ -81,7 +90,7 @@ class MQTTSubscriber:
                 await self._task
             except asyncio.CancelledError:
                 pass
-        
+
         if self.client:
             try:
                 await self.client.__aexit__(None, None, None)
@@ -169,28 +178,31 @@ class MQTTSubscriber:
                 if not self._running:
                     # Expected during shutdown
                     break
-                
+
+                self._connected = False
                 logger.error(f"MQTT error: {e}. Reconnecting in {reconnect_delay}s...")
                 await asyncio.sleep(reconnect_delay)
-                
+
                 # Exponential backoff
                 reconnect_delay = min(reconnect_delay * 2, max_delay)
-                
+
                 try:
                     # Reconnect
                     await self.disconnect()
                     await self.connect()
-                    
+
                     # Re-subscribe to all topics
                     for topic_pattern in self.handlers.keys():
                         await self.client.subscribe(topic_pattern)
                         logger.info(f"Re-subscribed to: {topic_pattern}")
-                    
+
                 except Exception as reconnect_error:
+                    self._connected = False
                     logger.error(f"Reconnection failed: {reconnect_error}")
                     continue
-            
+
             except Exception as e:
+                self._connected = False
                 logger.error(f"Unexpected error in MQTT listener: {e}")
                 if self._running:
                     await asyncio.sleep(reconnect_delay)
