@@ -72,11 +72,11 @@ function calculatePlantStatus(plant: Plant): PlantStatus {
 function getStatusColor(status: PlantStatus): string {
   switch (status) {
     case 'healthy':
-      return 'text-green-600';
+      return 'text-status-success-text';
     case 'warning':
-      return 'text-yellow-600';
+      return 'text-status-warning-text';
     case 'critical':
-      return 'text-red-600';
+      return 'text-status-error-text';
   }
 }
 
@@ -165,7 +165,7 @@ export function PlantCard({ plant }: PlantCardProps) {
         </span>
         <Link
           to={`/plants/${plant.id}`}
-          className="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1"
+          className="text-sm font-medium text-action-primary hover:text-action-primary-hover flex items-center gap-1"
         >
           View →
         </Link>

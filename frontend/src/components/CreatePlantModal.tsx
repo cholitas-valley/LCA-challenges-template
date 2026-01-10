@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCreatePlant } from '../hooks';
+import { Button } from './ui';
 
 interface CreatePlantModalProps {
   isOpen: boolean;
@@ -68,7 +69,7 @@ export function CreatePlantModal({ isOpen, onClose }: CreatePlantModalProps) {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="plant-name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Plant Name <span className="text-red-500">*</span>
+                    Plant Name <span className="text-status-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -97,8 +98,8 @@ export function CreatePlantModal({ isOpen, onClose }: CreatePlantModalProps) {
                 </div>
 
                 {createPlant.isError && (
-                  <div className="rounded-md bg-red-50 p-3 border border-red-200">
-                    <p className="text-sm text-red-600">
+                  <div className="rounded-md bg-status-error-light p-3 border border-status-error">
+                    <p className="text-sm text-status-error-text">
                       Failed to create plant. Please try again.
                     </p>
                   </div>
@@ -108,21 +109,24 @@ export function CreatePlantModal({ isOpen, onClose }: CreatePlantModalProps) {
 
             {/* Footer */}
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
-              <button
+              <Button
                 type="submit"
-                disabled={createPlant.isPending || !name.trim()}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="primary"
+                loading={createPlant.isPending}
+                disabled={!name.trim()}
+                className="w-full sm:w-auto"
               >
                 {createPlant.isPending ? 'Creating...' : 'Create Plant'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={handleClose}
                 disabled={createPlant.isPending}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-3 sm:mt-0 w-full sm:w-auto"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         </div>

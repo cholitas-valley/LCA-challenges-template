@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { PlantThresholds } from '../types';
+import { Button } from './ui';
 
 interface ThresholdFormProps {
   thresholds: PlantThresholds | null;
@@ -182,13 +183,9 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
         </div>
 
         <div className="mt-6">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+          <Button type="submit" variant="primary" loading={isLoading}>
             {isLoading ? 'Saving...' : 'Save Thresholds'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

@@ -9,6 +9,8 @@ import {
   PlantDeviceList,
   ConfirmDialog
 } from '../components';
+import { Button, StatusBadge } from '../components/ui';
+import type { StatusType } from '../components/ui';
 import {
   usePlant,
   usePlantHistory,
@@ -19,6 +21,15 @@ import {
 } from '../hooks';
 import { useProvisionDevice } from '../hooks/useDevices';
 import type { PlantThresholds } from '../types';
+
+function mapHealthStatus(health: string): StatusType {
+  switch (health) {
+    case 'optimal': return 'online';
+    case 'warning': return 'warning';
+    case 'critical': return 'error';
+    default: return 'info';
+  }
+}
 
 export function PlantDetail() {
   const { id } = useParams<{ id: string }>();
@@ -95,11 +106,11 @@ export function PlantDetail() {
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/" className="text-green-600 hover:text-green-700 text-sm font-medium">
+          <Link to="/" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
             Dashboard
           </Link>
           <span className="text-gray-500 mx-2">/</span>
-          <Link to="/plants" className="text-green-600 hover:text-green-700 text-sm font-medium">
+          <Link to="/plants" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
             Plants
           </Link>
           <span className="text-gray-500 mx-2">/</span>
@@ -116,21 +127,15 @@ export function PlantDetail() {
                     type="text"
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
-                    className="text-3xl font-bold text-gray-900 border-b-2 border-green-500 focus:outline-none"
+                    className="text-3xl font-bold text-gray-900 border-b-2 border-action-primary focus:outline-none"
                     autoFocus
                   />
-                  <button
-                    onClick={handleNameSave}
-                    className="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
-                  >
+                  <Button variant="primary" size="sm" onClick={handleNameSave}>
                     Save
-                  </button>
-                  <button
-                    onClick={handleNameCancel}
-                    className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-400"
-                  >
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={handleNameCancel}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
@@ -156,17 +161,17 @@ export function PlantDetail() {
             <div className="flex gap-2">
               <Link
                 to={`/plants/${id}/care`}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-action-primary text-action-primary-text hover:bg-action-primary-hover transition-colors"
               >
                 View Care Plan
               </Link>
-              <button
+              <Button
+                variant="danger"
                 onClick={handleDeletePlant}
-                disabled={deleteMutation.isPending}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                loading={deleteMutation.isPending}
               >
                 Delete Plant
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -183,14 +188,10 @@ export function PlantDetail() {
             <div>
               {/* Status Badge */}
               <div className="flex items-center gap-3 mb-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  healthCheck.status === 'optimal' ? 'bg-green-100 text-green-800' :
-                  healthCheck.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                  healthCheck.status === 'critical' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {healthCheck.status.toUpperCase()}
-                </span>
+                <StatusBadge
+                  status={mapHealthStatus(healthCheck.status)}
+                  label={healthCheck.status.toUpperCase()}
+                />
               </div>
 
               {/* 24-Hour Trends */}

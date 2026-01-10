@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout, LoadingSpinner, ErrorMessage, EmptyState, CreatePlantModal } from '../components';
+import { Button } from '../components/ui';
 import { usePlants, useDeletePlant } from '../hooks';
 
 export function Plants() {
@@ -30,13 +31,10 @@ export function Plants() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Plants</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
             <span className="mr-2">+</span>
             Add Plant
-          </button>
+          </Button>
         </div>
 
         {isLoading && (
@@ -95,7 +93,7 @@ export function Plants() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link
                         to={`/plants/${plant.id}`}
-                        className="text-green-600 hover:text-green-800 font-medium"
+                        className="text-action-primary hover:text-action-primary-hover font-medium"
                       >
                         {plant.name}
                       </Link>
@@ -110,19 +108,22 @@ export function Plants() {
                       {new Date(plant.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <Link
-                        to={`/plants/${plant.id}`}
-                        className="text-gray-600 hover:text-gray-900 mr-4"
-                      >
-                        View
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(plant.id, plant.name)}
-                        disabled={deleteMutation.isPending}
-                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <Link
+                          to={`/plants/${plant.id}`}
+                          className="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md text-action-ghost-text bg-action-ghost hover:bg-action-ghost-hover transition-colors"
+                        >
+                          View
+                        </Link>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDelete(plant.id, plant.name)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
