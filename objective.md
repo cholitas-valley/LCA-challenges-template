@@ -1039,6 +1039,28 @@ interface PlantSpot {
 - Visible pot/planter matching Scandinavian aesthetic
 - Species should be identifiable at a glance
 
+**Sourcing (use free resources):**
+Rather than creating illustrations, source from free/open-licensed artwork:
+
+| Resource | License | Notes |
+|----------|---------|-------|
+| [Unsplash](https://unsplash.com) | Free commercial use | High-quality photos, remove background |
+| [Pexels](https://pexels.com) | Free commercial use | Plant photos for cutouts |
+| [Freepik](https://freepik.com) | Free with attribution | Vector plant illustrations |
+| [unDraw](https://undraw.co) | MIT License | Simple plant vectors |
+| [Humaaans](https://humaaans.com) style libs | Free | Mix-and-match illustration style |
+| [Blush.design](https://blush.design) | Free tier | Customizable illustration packs |
+| [Storyset](https://storyset.com) | Free with attribution | Animated/static illustrations |
+| [OpenGameArt](https://opengameart.org) | Various open licenses | 2D sprite-style plants |
+| [Biodiversity Heritage Library](https://flickr.com/photos/biodivlibrary) | Public domain | Vintage botanical illustrations |
+
+**Recommended approach:**
+1. Search "[plant name] illustration PNG transparent" or "[plant name] vector"
+2. Use remove.bg or similar to extract plants from photos
+3. Apply consistent filter/style to unify different sources
+4. Add matching pot/planter overlay for consistency
+5. Store attribution in `frontend/src/assets/plants/CREDITS.md`
+
 ### 6.4 Updated Hover/Tooltip
 
 **Requirement:** Tooltip matches cozy aesthetic.
@@ -1093,11 +1115,12 @@ interface PlantSpot {
 - [ ] Position assignment persists to backend
 
 **Plant Illustrations:**
-- [ ] 20 plant species illustrated
+- [ ] 20 plant species sourced (from free resources listed above)
 - [ ] Multiple sizes per species (small/medium/large)
 - [ ] Botanically accurate, detailed style
 - [ ] Contrast with minimalist room background
 - [ ] Fallback for unknown species
+- [ ] Attribution file created (`frontend/src/assets/plants/CREDITS.md`)
 
 **UI Polish:**
 - [ ] Tooltip matches cozy aesthetic
