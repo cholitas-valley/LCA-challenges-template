@@ -17,3 +17,12 @@ export type { StatusBadgeProps, StatusType } from './StatusBadge';
 
 export { FilterPills } from './FilterPills';
 export type { FilterPillsProps, FilterOption } from './FilterPills';
+
+export {
+  Skeleton,
+  SkeletonCard,
+  SkeletonTableRow,
+  SkeletonTable,
+  SkeletonCardGrid
+} from './Skeleton';
+export type { SkeletonProps } from './Skeleton';
