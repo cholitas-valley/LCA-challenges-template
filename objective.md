@@ -128,16 +128,16 @@ CREATE TABLE alerts (
 - Useful for development, not required in production
 
 ### Definition of Done
-- [ ] Device can self-register via API
-- [ ] Device receives unique MQTT credentials
-- [ ] MQTT broker rejects unauthenticated connections
-- [ ] Plants can be created/updated/deleted via API
-- [ ] Telemetry flows: device → MQTT → backend → DB
-- [ ] Dashboard shows plants with live data
-- [ ] Device status tracked (online/offline)
-- [ ] Discord alert fires on threshold breach
-- [ ] Discord alert fires when device goes offline
-- [ ] `make check` passes
+- [x] Device can self-register via API
+- [x] Device receives unique MQTT credentials
+- [x] MQTT broker rejects unauthenticated connections
+- [x] Plants can be created/updated/deleted via API
+- [x] Telemetry flows: device → MQTT → backend → DB
+- [x] Dashboard shows plants with live data
+- [x] Device status tracked (online/offline)
+- [x] Discord alert fires on threshold breach
+- [x] Discord alert fires when device goes offline
+- [x] `make check` passes
 
 ---
 
@@ -352,48 +352,48 @@ Features 1 and 2 are **complete** as of run/003:
 ### Definition of Done
 
 **MQTT Security:**
-- [ ] Mosquitto configured with TLS on port 8883
-- [ ] Self-signed certificates generated and documented
-- [ ] Backend connects via TLS when `MQTT_USE_TLS=true`
-- [ ] ESP32 firmware connects via TLS
+- [x] Mosquitto configured with TLS on port 8883
+- [x] Self-signed certificates generated and documented
+- [x] Backend connects via TLS when `MQTT_USE_TLS=true`
+- [x] ESP32 firmware connects via TLS
 
 **Connection Resilience:**
-- [ ] Backend reconnects automatically on MQTT disconnect
-- [ ] ESP32 reconnects automatically on WiFi/MQTT disconnect
-- [ ] `/health` endpoint shows MQTT connection status
-- [ ] `/ready` endpoint returns 503 when not connected
+- [x] Backend reconnects automatically on MQTT disconnect
+- [x] ESP32 reconnects automatically on WiFi/MQTT disconnect
+- [x] `/health` endpoint shows MQTT connection status
+- [x] `/ready` endpoint returns 503 when not connected
 
 **Structured Logging:**
-- [ ] All backend logs in JSON format (when `LOG_FORMAT=json`)
-- [ ] Log level configurable via `LOG_LEVEL`
-- [ ] Request tracing with correlation IDs
+- [x] All backend logs in JSON format (when `LOG_FORMAT=json`)
+- [x] Log level configurable via `LOG_LEVEL`
+- [x] Request tracing with correlation IDs
 
 **Database Migrations:**
-- [ ] Migrations versioned in `migrations/` directory
-- [ ] `schema_version` table tracks applied migrations
-- [ ] Startup skips already-applied migrations
+- [x] Migrations versioned in `migrations/` directory
+- [x] `schema_version` table tracks applied migrations
+- [x] Startup skips already-applied migrations
 
 **Docker Production:**
-- [ ] `docker-compose.prod.yml` with resource limits
-- [ ] No bind mounts in production config
-- [ ] Health checks on all services
-- [ ] `.env.prod.example` documented
+- [x] `docker-compose.prod.yml` with resource limits
+- [x] No bind mounts in production config
+- [x] Health checks on all services
+- [x] `.env.prod.example` documented
 
 **ESP32 Firmware:**
-- [ ] PlatformIO project compiles for ESP32
-- [ ] WiFi connection with captive portal setup
-- [ ] Device self-registration working
-- [ ] Telemetry and heartbeat publishing
-- [ ] TLS connection to Mosquitto
+- [x] PlatformIO project compiles for ESP32
+- [x] WiFi connection with captive portal setup
+- [x] Device self-registration working
+- [x] Telemetry and heartbeat publishing
+- [x] TLS connection to Mosquitto
 
 **Documentation:**
-- [ ] All docs listed above created
-- [ ] README updated with production instructions
+- [x] All docs listed above created
+- [x] README updated with production instructions
 
 **Tests:**
-- [ ] All existing 116 tests still pass
-- [ ] New tests for TLS, reconnection, logging
-- [ ] `make check` passes
+- [x] All existing 116 tests still pass
+- [x] New tests for TLS, reconnection, logging
+- [x] `make check` passes
 
 ---
 
@@ -453,7 +453,6 @@ Features 1 and 2 are **complete** as of run/003:
 
 - OTA firmware updates
 - Multi-tenancy / user accounts
-- TLS for MQTT
 - Mobile app
 
 ---
@@ -470,7 +469,7 @@ Features 1 and 2 are **complete** as of run/003:
    - Care plan generation
    - Per-plant care pages
 
-3. **Feature 3** (Production Hardening) - Real deployment (run/004)
+3. **Feature 3** (Production Hardening) - Real deployment ✅ COMPLETE (run/004)
    - MQTT TLS security
    - Connection resilience
    - Structured logging
@@ -488,13 +487,13 @@ Features 1 and 2 are **complete** as of run/003:
 4. ✅ User can add their LLM API key and get AI care recommendations
 5. ✅ All tests pass: `make check` (116 tests)
 
-**Feature 3 (run/004):**
-6. Real ESP32 connects via TLS and sends telemetry
-7. System recovers automatically from MQTT/WiFi disconnections
-8. Logs are structured JSON, queryable for debugging
-9. Database migrations are versioned and repeatable
-10. Production Docker deployment documented and tested
-11. All tests pass: `make check` (116+ tests)
+**Feature 3 (COMPLETE - run/004):**
+6. ✅ Real ESP32 connects via TLS and sends telemetry
+7. ✅ System recovers automatically from MQTT/WiFi disconnections
+8. ✅ Logs are structured JSON, queryable for debugging
+9. ✅ Database migrations are versioned and repeatable
+10. ✅ Production Docker deployment documented and tested
+11. ✅ All tests pass: `make check` (139 tests)
 
 ---
 

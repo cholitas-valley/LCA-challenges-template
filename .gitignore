@@ -70,6 +70,7 @@ mosquitto/passwd
 # TLS Certificates
 *.key
 *.csr
+backend/certs/
 
 # Firmware
 firmware/.pio/

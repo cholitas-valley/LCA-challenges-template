@@ -805,64 +805,68 @@ async def _generate_recommendations_with_llm(
     ]
     """
     # Try LLM first if configured
+    llm_configured = False
     try:
-        settings = await settings_repo.get_llm_settings(db)
-        if settings and settings.get("api_key"):
+        llm_config_str = await settings_repo.get_setting(db, "llm_config")
+        if llm_config_str:
             encryption = EncryptionService(os.getenv("ENCRYPTION_KEY", "dev-key-change-in-prod"))
-            decrypted_key = encryption.decrypt(settings["api_key"])
+            llm_config = json.loads(encryption.decrypt(llm_config_str))
 
-            llm_service = LLMService(
-                provider=settings["provider"],
-                api_key=decrypted_key,
-                model=settings.get("model"),
-            )
+            if llm_config.get("api_key"):
+                llm_configured = True
+                llm_service = LLMService(
+                    provider=llm_config["provider"],
+                    api_key=llm_config["api_key"],
+                    model=llm_config.get("model"),
+                )
 
-            # Build current readings dict
-            current_readings = {}
-            if telemetry:
-                for key in ["soil_moisture", "temperature", "humidity", "light_level"]:
-                    if telemetry.get(key) is not None:
-                        current_readings[key] = telemetry[key]
+                # Build current readings dict
+                current_readings = {}
+                if telemetry:
+                    for key in ["soil_moisture", "temperature", "humidity", "light_level"]:
+                        if telemetry.get(key) is not None:
+                            current_readings[key] = telemetry[key]
 
-            # Convert issues to dict format for LLM
-            issues_dict = [
-                {
-                    "metric": i.metric,
-                    "severity": i.severity,
-                    "message": i.message,
-                    "current_value": i.current_value,
-                }
-                for i in issues
-            ]
-
-            llm_recommendations = await llm_service.generate_health_recommendations(
-                plant_name=plant_name,
-                species=species,
-                issues=issues_dict,
-                current_readings=current_readings,
-                trends=trends,
-            )
-
-            if llm_recommendations:
-                return [
-                    HealthRecommendation(
-                        priority=r.get("priority", "medium"),
-                        action=r.get("action", ""),
-                    )
-                    for r in llm_recommendations
-                    if r.get("action")
+                # Convert issues to dict format for LLM
+                issues_dict = [
+                    {
+                        "metric": i.metric,
+                        "severity": i.severity,
+                        "message": i.message,
+                        "current_value": i.current_value,
+                    }
+                    for i in issues
                 ]
+
+                llm_recommendations = await llm_service.generate_health_recommendations(
+                    plant_name=plant_name,
+                    species=species,
+                    issues=issues_dict,
+                    current_readings=current_readings,
+                    trends=trends,
+                )
+
+                if llm_recommendations:
+                    return [
+                        HealthRecommendation(
+                            priority=r.get("priority", "medium"),
+                            action=r.get("action", ""),
+                        )
+                        for r in llm_recommendations
+                        if r.get("action")
+                    ]
     except Exception as e:
         logger.warning(f"LLM health recommendations failed, using rule-based: {e}")
 
     # Fall back to rule-based recommendations
-    return _generate_recommendations_rule_based(issues, care_plan, trends)
+    return _generate_recommendations_rule_based(issues, care_plan, trends, llm_configured)
 
 
 def _generate_recommendations_rule_based(
     issues: list[HealthIssue],
     care_plan: CarePlan | None,
     trends: dict | None,
+    llm_configured: bool = False,
 ) -> list[HealthRecommendation]:
     """
     Generate actionable recommendations based on trend analysis.
@@ -960,7 +964,7 @@ def _generate_recommendations_rule_based(
                 ))
 
     # If still nothing, suggest LLM for better advice
-    if not recommendations:
+    if not recommendations and not llm_configured:
         recommendations.append(HealthRecommendation(
             priority="info",
             action="Configure LLM in Settings for species-specific care recommendations",
