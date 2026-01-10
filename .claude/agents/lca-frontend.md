@@ -2,7 +2,7 @@
 name: lca-frontend
 description: Implements frontend tasks only. Use for UI, charts, client state, and frontend build tooling.
 tools: Read, Grep, Glob, LS, Edit, Bash
-model: sonnet
+model: opus
 permissionMode: acceptEdits
 skills: lca-protocol
 ---

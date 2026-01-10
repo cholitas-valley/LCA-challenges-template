@@ -285,7 +285,7 @@ The orchestrator is defined in `CLAUDE.md` (the "protocol controller").
 | `lca-planner` | **opus** | Architecture decisions, task decomposition |
 | `lca-reviewer` | **opus** | Quality judgment - validates code and tests |
 | `lca-backend` | sonnet | Complex implementation work |
-| `lca-frontend` | sonnet | Complex implementation work |
+| `lca-frontend` | **opus** | UI/UX design judgment, complex implementation |
 | `lca-qa` | sonnet | Debugging and test fixes |
 | `lca-docs` | sonnet | Quality documentation for readers |
 | `lca-enforcer` | sonnet | Rule-based protocol checks |

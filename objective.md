@@ -492,6 +492,10 @@ Features 1 and 2 are **complete** as of run/003:
 
 **Goal:** Clean up the frontend design for consistency, accessibility, and professional appearance.
 
+**Scope:** Frontend only (`frontend/` directory). No backend changes required.
+
+**Primary role:** `lca-frontend` for all implementation tasks.
+
 ### Current Problems
 
 1. **Color Chaos**
@@ -557,25 +561,87 @@ Status Colors (indicators):
 - Use tokens consistently throughout components
 - Theme changeable from one file
 
+**Token Architecture (3 layers):**
+```
+Layer 1: Primitives (raw values)
+  --green-500, --red-500, --blue-500
+
+Layer 2: Semantic (intent-based)
+  --color-primary, --color-danger, --color-success
+
+Layer 3: Component (specific use)
+  --button-primary-bg, --status-online-bg
+```
+
+### 4.5 Component Library
+
+**Requirement:** Reusable components with consistent styling.
+
+- **Button:** Primary (filled brand), Secondary (outlined), Ghost (text-only), Danger (filled red)
+- **StatusBadge:** Dot + text for status indicators (online/offline/error/warning)
+- **FilterPills:** Toggle pattern for filters (not action buttons)
+- **Card:** Consistent padding (p-4/p-6), shadows, borders
+- **Alert:** Info/Warning/Error banners with icon + color + text
+
+**Button Hierarchy:**
+```
+Primary   → Main CTA (1 per section max)
+Secondary → Alternative actions
+Ghost     → Tertiary/cancel actions
+Danger    → Destructive only (delete, remove)
+```
+
+### 4.6 Loading & Empty States
+
+**Requirement:** Proper loading and zero-state patterns.
+
+- **Skeleton screens:** For tables, cards during data fetch
+- **Loading spinners:** Consistent size/color across app
+- **Empty states:** Icon + message + clear CTA
+- **Error states:** Red banner with retry action
+
+### 4.7 Filter vs Action Distinction
+
+**Requirement:** Visual separation of toggles from actions.
+
+Current problem: Filter buttons (All/Online/Offline) look identical to action buttons (Register Device).
+
+Solution:
+- **Filters:** Use pill/chip toggle pattern (gray background, no shadow)
+- **Actions:** Use filled button pattern (brand color, shadow)
+
 ### Definition of Done
 
-- [ ] Semantic color tokens defined in tailwind.config.js
-- [ ] All buttons use consistent hierarchy (primary/secondary/danger)
-- [ ] Status indicators are visually distinct from action buttons
-- [ ] No raw color utilities (bg-green-600) - all semantic
-- [ ] Color contrast meets WCAG AA (4.5:1)
-- [ ] Components use design tokens consistently
+**Color System:**
+- [ ] 3-layer token architecture in tailwind.config.js (primitives → semantic → component)
+- [ ] No raw color utilities in components (no `bg-green-600`)
+- [ ] Status colors separate from action colors
+- [ ] Color contrast meets WCAG AA (4.5:1 for text)
+
+**Components:**
+- [ ] Button component with Primary/Secondary/Ghost/Danger variants
+- [ ] StatusBadge component for online/offline/error states
+- [ ] FilterPills component for filter toggles
+- [ ] All buttons use consistent hierarchy
+
+**States:**
+- [ ] Skeleton loading for tables and cards
+- [ ] Empty states with clear CTAs
+- [ ] Focus states visible on all interactive elements
+
+**Quality:**
 - [ ] `make check` passes (build + tests)
 - [ ] Visual review confirms professional appearance
+- [ ] No duplicate color definitions
 
 ### Skills Available
 
 Design skills in `.claude/skills/`:
-- `color-theory` - Semantic colors, contrast, accessibility
+- `color-theory` - Semantic colors, contrast, 60-30-10 rule
 - `design-systems` - Token architecture, consistency
-- `ui-design` - Component patterns, hierarchy
-- `tailwind-css` - Tailwind best practices
-- `accessibility-design` - WCAG compliance, color blindness
+- `ui-design` - Component patterns, hierarchy, 8pt grid
+- `ux-design` - User flows, loading states, error recovery
+- `tailwind-css` - Tailwind best practices, custom config
 
 ## Success Criteria
 
