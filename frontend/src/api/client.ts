@@ -79,4 +79,9 @@ export const plantApi = {
     fetchApi<PlantHealthCheckResponse>(`/plants/${id}/health-check`, {
       method: 'POST',
     }),
+  updatePosition: (id: string, position: { x: number; y: number }) =>
+    fetchApi<Plant>(`/plants/${id}/position`, {
+      method: 'PUT',
+      body: JSON.stringify(position),
+    }),
 };

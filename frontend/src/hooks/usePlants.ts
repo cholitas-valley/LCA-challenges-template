@@ -75,3 +75,15 @@ export function usePlantHealthCheck(id: string) {
     refetchOnWindowFocus: false,
   });
 }
+
+export function useUpdatePlantPosition() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, position }: { id: string; position: { x: number; y: number } }) =>
+      plantApi.updatePosition(id, position),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['plants'] });
+      queryClient.invalidateQueries({ queryKey: ['plants', variables.id] });
+    },
+  });
+}

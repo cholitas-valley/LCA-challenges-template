@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Dashboard, Plants, PlantDetail, PlantCare, Devices, Settings } from './pages';
+import { Dashboard, Plants, PlantDetail, PlantCare, Devices, Settings, Designer } from './pages';
 
 const queryClient = new QueryClient();
 
@@ -14,6 +14,7 @@ function App() {
           <Route path="/plants/:id" element={<PlantDetail />} />
           <Route path="/plants/:id/care" element={<PlantCare />} />
           <Route path="/devices" element={<Devices />} />
+          <Route path="/designer" element={<Designer />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Router>

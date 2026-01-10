@@ -4,6 +4,7 @@ const navLinks = [
   { to: '/', label: 'Dashboard' },
   { to: '/plants', label: 'Plants' },
   { to: '/devices', label: 'Devices' },
+  { to: '/designer', label: 'Designer' },
   { to: '/settings', label: 'Settings' },
 ];
 

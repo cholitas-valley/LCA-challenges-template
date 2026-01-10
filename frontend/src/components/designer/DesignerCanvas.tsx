@@ -32,6 +32,8 @@ export interface DesignerCanvasProps {
   onPositionChange?: (plantId: string, x: number, y: number) => void;
   /** Callback when plant is clicked (not dragged) */
   onPlantClick?: (plantId: string) => void;
+  /** Callback when plant is dropped from sidebar */
+  onDrop?: (plantId: string, x: number, y: number) => void;
   /** Snap-to-grid size in pixels. Set to 0 to disable. */
   gridSize?: number;
   /** Additional CSS classes */
@@ -293,6 +295,7 @@ export function DesignerCanvas({
   editMode,
   onPositionChange,
   onPlantClick,
+  onDrop,
   gridSize = 16,
   className,
 }: DesignerCanvasProps) {
@@ -300,6 +303,47 @@ export function DesignerCanvas({
 
   // Filter plants that have position data
   const positionedPlants = plants.filter((p) => p.position !== null);
+
+  /**
+   * Handle drop from sidebar - calculate position relative to SVG.
+   */
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const plantId = e.dataTransfer.getData('plantId');
+      if (!plantId || !onDrop) return;
+
+      const svg = svgRef.current;
+      if (!svg) return;
+
+      // Get SVG coordinates from mouse position
+      const rect = svg.getBoundingClientRect();
+      const scaleX = 800 / rect.width;
+      const scaleY = 600 / rect.height;
+
+      let x = (e.clientX - rect.left) * scaleX;
+      let y = (e.clientY - rect.top) * scaleY;
+
+      // Clamp to canvas bounds
+      x = Math.max(24, Math.min(776, x));
+      y = Math.max(24, Math.min(576, y));
+
+      // Snap to grid
+      x = snapToGrid(x, gridSize);
+      y = snapToGrid(y, gridSize);
+
+      onDrop(plantId, x, y);
+    },
+    [onDrop, gridSize]
+  );
+
+  /**
+   * Allow drop by preventing default on dragover.
+   */
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
 
   return (
     <svg
@@ -309,6 +353,8 @@ export function DesignerCanvas({
       className={'w-full h-auto max-h-[600px] border border-gray-200 bg-white ' + (className ?? '')}
       role="img"
       aria-label="Designer canvas showing plant positions"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
     >
       {/* Grid pattern */}
       <defs>
