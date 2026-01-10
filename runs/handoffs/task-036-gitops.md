@@ -6,9 +6,25 @@ Committed comprehensive documentation updates for Feature 3 (Production Hardenin
 
 ## Commit Information
 
-**Commit Hash**: Will be generated upon commit creation
+**Commit Hash**: `2ecad526770c361751d15ed26654ed227860631d`
+
+**Commit Message**:
+```
+task-036: Documentation Update
+
+Created comprehensive API reference (docs/api.md) covering all 20 endpoints
+with request/response examples. Enhanced deployment guide with environment
+variables reference, network configuration (firewall examples), and
+logging/monitoring sections.
+```
 
 **Branch**: run/004
+
+**Author**: Claude Haiku 4.5 <noreply@anthropic.com>
+
+**Timestamp**: 2026-01-10T01:36:50+01:00
+
+**Stats**: 5 files changed, 228 insertions(+), 41 deletions(-)
 
 ## Files Committed
 
