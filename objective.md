@@ -1039,27 +1039,61 @@ interface PlantSpot {
 - Visible pot/planter matching Scandinavian aesthetic
 - Species should be identifiable at a glance
 
-**Sourcing (use free resources):**
-Rather than creating illustrations, source from free/open-licensed artwork:
+**Asset Location:** `plants-png/` (root of repository)
 
-| Resource | License | Notes |
-|----------|---------|-------|
-| [Unsplash](https://unsplash.com) | Free commercial use | High-quality photos, remove background |
-| [Pexels](https://pexels.com) | Free commercial use | Plant photos for cutouts |
-| [Freepik](https://freepik.com) | Free with attribution | Vector plant illustrations |
-| [unDraw](https://undraw.co) | MIT License | Simple plant vectors |
-| [Humaaans](https://humaaans.com) style libs | Free | Mix-and-match illustration style |
-| [Blush.design](https://blush.design) | Free tier | Customizable illustration packs |
-| [Storyset](https://storyset.com) | Free with attribution | Animated/static illustrations |
-| [OpenGameArt](https://opengameart.org) | Various open licenses | 2D sprite-style plants |
-| [Biodiversity Heritage Library](https://flickr.com/photos/biodivlibrary) | Public domain | Vintage botanical illustrations |
+**Status: COMPLETE** - All 20 plant illustrations have been created.
 
-**Recommended approach:**
-1. Search "[plant name] illustration PNG transparent" or "[plant name] vector"
-2. Use remove.bg or similar to extract plants from photos
-3. Apply consistent filter/style to unify different sources
-4. Add matching pot/planter overlay for consistency
-5. Store attribution in `frontend/src/assets/plants/CREDITS.md`
+**How they were created:**
+- Generated using Google Gemini with consistent prompt template
+- Each plant generated individually to ensure botanical accuracy
+- Consistent style achieved through standardized prompt:
+  ```
+  Create a botanical illustration of a [PLANT_NAME] ([DESCRIPTION]) in a ceramic pot.
+
+  Style requirements:
+  - Highly detailed, botanically accurate illustration
+  - Soft, muted Scandinavian color palette
+  - Pot should be simple, modern ceramic in cream/white
+  - Clean white or very light grey background
+  - Soft natural lighting from top-left
+  - 2D illustration style, not photorealistic
+  ```
+
+**Generated files (20 plants):**
+
+| File | Plant Species |
+|------|---------------|
+| `monstera.png` | Monstera Deliciosa |
+| `snakeplant.png` | Snake Plant / Sansevieria |
+| `pothos.png` | Pothos |
+| `fiddle.png` | Fiddle Leaf Fig |
+| `spider.png` | Spider Plant |
+| `peacelily.png` | Peace Lily |
+| `rubber.png` | Rubber Plant |
+| `zzplant.png` | ZZ Plant |
+| `philondendron.png` | Philodendron |
+| `aloevera.png` | Aloe Vera |
+| `boston.png` | Boston Fern |
+| `chinese.png` | Chinese Evergreen |
+| `dracaena.png` | Dracaena |
+| `jade.png` | Jade Plant |
+| `stringofpearls.png` | String of Pearls |
+| `calathea.png` | Calathea |
+| `birdofparadise.png` | Bird of Paradise |
+| `englishivy.png` | English Ivy |
+| `succulenta.png` | Succulent Arrangement |
+| `cactus.png` | Cactus |
+
+**Style notes:**
+- All images have consistent soft muted green tones
+- Cream/white ceramic pots throughout
+- Light grey background (nearly white) - blends with Scandinavian aesthetic
+- No background removal needed - grey matches room design
+- High resolution PNG format (~6-9MB each)
+
+**Implementation task:**
+- Copy to `frontend/src/assets/plants/`
+- Create mapping component to match plant species to image file
 
 ### 6.4 Updated Hover/Tooltip
 
@@ -1115,12 +1149,12 @@ Rather than creating illustrations, source from free/open-licensed artwork:
 - [ ] Position assignment persists to backend
 
 **Plant Illustrations:**
-- [ ] 20 plant species sourced (from free resources listed above)
-- [ ] Multiple sizes per species (small/medium/large)
-- [ ] Botanically accurate, detailed style
-- [ ] Contrast with minimalist room background
+- [x] 20 plant species created (Gemini-generated, stored in `plants-png/`)
+- [ ] Multiple sizes per species (small/medium/large) - *optional, single size may suffice*
+- [x] Botanically accurate, detailed style
+- [x] Contrast with minimalist room background (soft grey blends with Scandinavian walls)
 - [ ] Fallback for unknown species
-- [ ] Attribution file created (`frontend/src/assets/plants/CREDITS.md`)
+- [ ] Copy assets to `frontend/src/assets/plants/`
 
 **UI Polish:**
 - [ ] Tooltip matches cozy aesthetic
