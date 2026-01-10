@@ -28,7 +28,7 @@ export function Designer() {
 
   // Get unassigned plants (no position set)
   const unassignedPlants = useMemo(() => {
-    return plants.filter(p => p.position === null || p.position === undefined);
+    return plants.filter(p => p.position == null);
   }, [plants]);
 
   /**

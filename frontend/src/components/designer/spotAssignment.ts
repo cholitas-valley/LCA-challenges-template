@@ -53,11 +53,11 @@ export function positionsToSpotAssignments(
 
   // Filter to plants with valid on-canvas positions
   const positionedPlants = plants.filter(
-    p => p.position !== null && !isOffCanvas(p.position)
+    (p): p is Plant & { position: PlantPosition } =>
+      p.position != null && !isOffCanvas(p.position)
   );
 
   for (const plant of positionedPlants) {
-    if (!plant.position) continue;
 
     // Convert position to percentage (assuming 800x600 canvas from Feature 5)
     const xPercent = (plant.position.x / 800) * 100;

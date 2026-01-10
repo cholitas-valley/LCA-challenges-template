@@ -41,7 +41,7 @@ export function ScandinavianCanvas({
   const [draggingPlantId, setDraggingPlantId] = useState<string | null>(null);
 
   // Get plants that have positions (are placed on canvas)
-  const placedPlants = plants.filter(p => p.position !== null && p.position !== undefined);
+  const placedPlants = plants.filter(p => p.position != null);
 
   /**
    * Calculate position as percentage from mouse/drop event

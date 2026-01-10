@@ -13,6 +13,7 @@
  */
 
 import { useState } from 'react';
+import { cn } from '../../lib/cn';
 
 // Static imports for plant images (optimized WebP format)
 import monsteraImg from '../../assets/plants/monstera.webp';
@@ -213,30 +214,18 @@ export function PlantImage({
   
   return (
     <div
-      className={`plant-image-container ${className}`}
+      className={cn('plant-image-container relative', className)}
       style={{
         width: dimensions.width,
         height: dimensions.height,
-        position: 'relative',
       }}
     >
       {isLoading && (
         <div
-          className="plant-image-placeholder"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: '#e5e7eb',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className="absolute inset-0 flex items-center justify-center bg-gray-200"
           aria-hidden="true"
         >
-          <span style={{ color: '#9ca3af', fontSize: '12px' }}>...</span>
+          <span className="text-gray-400 text-xs">...</span>
         </div>
       )}
       <img

@@ -59,7 +59,6 @@ export function CozyTooltip({
       className={cn(
         'absolute z-50 pointer-events-none',
         'transform -translate-x-1/2 transition-all duration-200',
-        visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
         className
       )}
       style={{
