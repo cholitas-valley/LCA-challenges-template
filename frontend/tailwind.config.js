@@ -95,6 +95,40 @@ export default {
             text: '#374151',         // gray-700 - WCAG AA on light bg
           },
         },
+
+        /**
+         * SCANDINAVIAN PALETTE
+         * Warm, muted colors inspired by Nordic design.
+         * Used for cozy tooltips and status indicators.
+         */
+        cream: {
+          50: '#FFFBF5',           // Warm cream - tooltip background
+          100: '#FFF7EB',          // Light cream
+          200: '#FFEFD6',          // Medium cream
+        },
+        sage: {
+          50: '#F2F7F2',           // Lightest sage
+          100: '#E3EFE3',          // Light sage
+          200: '#C7DFC7',          // Medium sage
+          300: '#A8CFA8',          // Sage for rings
+          500: '#6B8E6B',          // Standard sage
+          700: '#4A6B4A',          // Dark sage for text
+        },
+        birch: {
+          50: '#FAF9F7',           // Lightest birch
+          100: '#F5F3EF',          // Light birch
+          200: '#EBE7E0',          // Medium birch
+        },
+        /**
+         * COZY STATUS COLORS
+         * Muted versions of status colors for Scandinavian design.
+         */
+        'status-cozy': {
+          success: '#8BA888',      // Soft sage - healthy plants
+          warning: '#D4A574',      // Muted amber - needs attention
+          error: '#C88B8B',        // Dusty rose - critical
+          neutral: '#9CA3AF',      // Light grey - offline
+        },
       },
     },
   },

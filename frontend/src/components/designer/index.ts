@@ -40,3 +40,9 @@ export { positionsToSpotAssignments, spotToPosition } from './spotAssignment';
 
 export { PlantAssignmentModal } from './PlantAssignmentModal';
 export type { PlantAssignmentModalProps } from './PlantAssignmentModal';
+
+export { CozyTooltip } from './CozyTooltip';
+export type { CozyTooltipProps } from './CozyTooltip';
+
+export { StatusRing } from './StatusRing';
+export type { StatusRingProps } from './StatusRing';

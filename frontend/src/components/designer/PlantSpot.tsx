@@ -5,9 +5,12 @@
  * Shows empty state (dashed outline) or occupied state (plant image).
  */
 
+import { useState } from 'react';
 import { PlantSpot as SpotType, SpotSize } from './plantSpots';
 import { PlantImage } from './PlantImage';
+import { StatusRing } from './StatusRing';
 import { Plant } from '../../types/plant';
+import { getPlantStatus } from '../../utils/plantStatus';
 import { cn } from '../../lib/cn';
 
 export interface PlantSpotProps {
@@ -40,8 +43,20 @@ export function PlantSpot({
   onHover,
   className,
 }: PlantSpotProps) {
+  const [hovered, setHovered] = useState(false);
   const size = SPOT_SIZES[spot.size];
   const isEmpty = plant === null;
+  const status = plant ? getPlantStatus(plant) : 'offline';
+
+  const handleMouseEnter = () => {
+    setHovered(true);
+    onHover?.(true);
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    onHover?.(false);
+  };
 
   return (
     <div
@@ -59,8 +74,8 @@ export function PlantSpot({
         height: size.height,
       }}
       onClick={onClick}
-      onMouseEnter={() => onHover?.(true)}
-      onMouseLeave={() => onHover?.(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       role="button"
       aria-label={isEmpty ? `Empty spot: ${spot.label}` : `${plant.name} at ${spot.label}`}
       tabIndex={editMode ? 0 : -1}
@@ -81,13 +96,27 @@ export function PlantSpot({
           </div>
         )
       ) : (
-        // Plant image
-        <PlantImage
-          species={plant.species ?? 'unknown'}
-          size={spot.size}
-          alt={plant.name}
-          className="w-full h-full object-contain"
-        />
+        // Plant image with status ring
+        <div
+          className={cn(
+            'relative w-full h-full',
+            'transition-transform duration-200 ease-out',
+            hovered && !editMode && 'scale-105',
+            hovered && editMode && 'scale-110'
+          )}
+        >
+          <StatusRing status={status} size={spot.size} />
+          <PlantImage
+            species={plant.species ?? 'unknown'}
+            size={spot.size}
+            alt={plant.name}
+            className={cn(
+              'w-full h-full object-contain',
+              'transition-opacity duration-200',
+              status === 'offline' && 'opacity-60'
+            )}
+          />
+        </div>
       )}
     </div>
   );

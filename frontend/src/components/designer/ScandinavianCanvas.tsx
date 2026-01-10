@@ -9,6 +9,7 @@ import { useState } from 'react';
 import roomBackground from '../../assets/room.png';
 import { PLANT_SPOTS } from './plantSpots';
 import { PlantSpot } from './PlantSpot';
+import { CozyTooltip } from './CozyTooltip';
 import { Plant } from '../../types/plant';
 import { cn } from '../../lib/cn';
 
@@ -36,6 +37,10 @@ export function ScandinavianCanvas({
   className,
 }: ScandinavianCanvasProps) {
   const [hoveredSpot, setHoveredSpot] = useState<number | null>(null);
+  const [tooltipPlant, setTooltipPlant] = useState<{
+    plant: Plant;
+    position: { x: number; y: number };
+  } | null>(null);
 
   // Create a map of plantId -> Plant for quick lookup
   const plantMap = new Map(plants.map(p => [p.id, p]));
@@ -49,17 +54,17 @@ export function ScandinavianCanvas({
 
   const handleSpotHover = (spotId: number, hovered: boolean) => {
     setHoveredSpot(hovered ? spotId : null);
-    
-    if (onPlantHover) {
-      const plant = getPlantForSpot(spotId);
-      if (hovered && plant) {
-        const spot = PLANT_SPOTS.find(s => s.id === spotId);
-        if (spot) {
-          onPlantHover(plant.id, { x: spot.x, y: spot.y });
-        }
-      } else {
-        onPlantHover(null, null);
+
+    const plant = getPlantForSpot(spotId);
+    if (hovered && plant) {
+      const spot = PLANT_SPOTS.find(s => s.id === spotId);
+      if (spot) {
+        setTooltipPlant({ plant, position: { x: spot.x, y: spot.y } });
+        onPlantHover?.(plant.id, { x: spot.x, y: spot.y });
       }
+    } else {
+      setTooltipPlant(null);
+      onPlantHover?.(null, null);
     }
   };
 
@@ -95,6 +100,15 @@ export function ScandinavianCanvas({
           />
         ))}
       </div>
+
+      {/* Cozy tooltip for hovered plant */}
+      {tooltipPlant && (
+        <CozyTooltip
+          plant={tooltipPlant.plant}
+          visible={true}
+          position={tooltipPlant.position}
+        />
+      )}
 
       {/* Edit mode overlay hint */}
       {editMode && (
