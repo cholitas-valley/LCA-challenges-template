@@ -486,12 +486,18 @@ Features 1 and 2 are **complete** as of run/003:
    - Accessibility improvements (color blindness, contrast)
    - Design token architecture
 
-5. **Feature 5** (Designer Space) - Visual floor plan
+5. **Feature 5** (Designer Space) - Visual floor plan ✅ COMPLETE (run/006)
    - Minimalist "clean technical" aesthetic
    - 20 SVG plant icons (top-down line art)
    - Interactive canvas with drag-and-drop
    - Real-time status overlays
    - Backend position storage
+
+6. **Feature 6** (Scandinavian Room View) - Visual upgrade
+   - Cozy room diorama replacing blueprint style
+   - Botanically accurate plant illustrations
+   - 20 fixed placement spots (shelves, sideboard, floor)
+   - Soft Scandinavian color palette
 
 ---
 
@@ -881,38 +887,40 @@ Response: { ..., "position": { "x": 120, "y": 80 } }
 ### Definition of Done
 
 **Icons:**
-- [ ] 20 SVG plant icons created (top-down line art)
-- [ ] Icons accessible via `<PlantIcon species="monstera" />`
-- [ ] Fallback icon for unknown species
+- [x] 20 SVG plant icons created (top-down line art)
+- [x] Icons accessible via `<PlantIcon species="monstera" />`
+- [x] Fallback icon for unknown species
 
 **Canvas:**
-- [ ] DesignerCanvas component renders plants at positions
-- [ ] Drag-and-drop to reposition (edit mode)
-- [ ] Click plant navigates to plant detail
-- [ ] Responsive canvas sizing
+- [x] DesignerCanvas component renders plants at positions
+- [x] Drag-and-drop to reposition (edit mode)
+- [x] Click plant navigates to plant detail
+- [x] Responsive canvas sizing
 
 **Status:**
-- [ ] Status dots use semantic tokens
-- [ ] Real-time updates (polling or existing data)
-- [ ] Offline plants visually dimmed
-- [ ] Hover tooltip shows sensor readings (soil, temp, humidity, light)
-- [ ] Tooltip shows "last updated" timestamp
+- [x] Status dots use semantic tokens
+- [x] Real-time updates (polling or existing data)
+- [x] Offline plants visually dimmed
+- [x] Hover tooltip shows sensor readings (soil, temp, humidity, light)
+- [x] Tooltip shows "last updated" timestamp
 
 **Backend:**
-- [ ] `position` column added to plants table
-- [ ] `PUT /api/plants/{id}/position` endpoint
-- [ ] Position included in `GET /api/plants` response
+- [x] `position` column added to plants table
+- [x] `PUT /api/plants/{id}/position` endpoint
+- [x] Position included in `GET /api/plants` response
 
 **Page:**
-- [ ] `/designer` route added
-- [ ] Sidebar shows unplaced plants
-- [ ] Edit/View mode toggle
-- [ ] Integrates with existing navigation
+- [x] `/designer` route added
+- [x] Sidebar shows unplaced plants
+- [x] Edit/View mode toggle
+- [x] Integrates with existing navigation
 
 **Quality:**
-- [ ] `make check` passes
-- [ ] Visual matches "clean technical" aesthetic
-- [ ] Touch-friendly (works on tablet)
+- [x] `make check` passes
+- [x] Visual matches "clean technical" aesthetic
+- [x] Touch-friendly (works on tablet)
+
+**Completed:** run/006 (2026-01-10) — tests passing
 
 ### Skills Available
 
@@ -922,3 +930,192 @@ For Feature 5, relevant skills in `.claude/skills/`:
 - `tailwind-css` - Styling
 - `frontend` - React patterns
 - `design-systems` - Consistent tokens
+
+---
+
+## Feature 6: Scandinavian Room View (Visual Upgrade)
+
+**Goal:** Transform the Designer Space from a technical blueprint into a cozy, inviting Scandinavian-style room illustration with botanically accurate plant artwork.
+
+**Scope:** Frontend-only visual redesign of `/designer` page. Reuses existing backend (position storage).
+
+**Primary role:** `lca-frontend` for all implementation.
+
+### Design Philosophy
+
+**"Minimalist Scandinavian Plant Room" Style:**
+- 2D flat-lay illustration, viewed from the front like a diorama
+- Minimalist, clean lines with hand-drawn vector art feel
+- Cozy blueprint / children's book illustration aesthetic
+- Subtle paper-like texture for tactile, non-digital feel
+
+**Color Palette:**
+- Soft, muted, natural tones
+- Whites and creams (walls)
+- Light woods: birch, ash (furniture)
+- Soft greens (plants)
+- Touches of grey and pastel blue (accents)
+- NO harsh colors - everything soft and inviting
+
+### 6.1 Room Scene Illustration
+
+**Requirement:** Static room background SVG/image.
+
+**Scene Elements:**
+- **Sideboard:** Long, low Scandinavian buffet in light wood, handle-less doors, tapered legs (centerpiece)
+- **Shelves:** Two floating wooden shelves above sideboard
+- **Armchair:** Simple cozy chair with sheepskin throw (side element)
+- **Lighting:** Arc floor lamp with rounded shade, globe table lamp on sideboard
+- **Decor:** Stack of art books, ceramic vase with branch, framed abstract print, woven basket with blanket, fluffy cat on rug
+
+**Technical:**
+- SVG or high-quality PNG background
+- Layered so plants render on top
+- Responsive scaling
+
+### 6.2 Fixed Plant Positions (20 Spots)
+
+**Requirement:** 20 pre-defined placement spots instead of free positioning.
+
+**Distribution:**
+| Location | Spots | Plant Sizes |
+|----------|-------|-------------|
+| Floating shelves | 6 | Small to medium |
+| Sideboard surface | 8 | Varying sizes |
+| Floor (stands/pots) | 6 | Larger plants |
+
+**Position Data:**
+```typescript
+interface PlantSpot {
+  id: number;           // 1-20
+  location: 'shelf' | 'sideboard' | 'floor';
+  x: number;            // Fixed X coordinate
+  y: number;            // Fixed Y coordinate
+  maxSize: 'small' | 'medium' | 'large';
+  plantId: string | null;  // Assigned plant or empty
+}
+```
+
+**Interaction:**
+- Click empty spot → assign plant from sidebar
+- Click occupied spot → view plant details or reassign
+- Drag plant to different spot (edit mode)
+
+### 6.3 Botanically Accurate Plant Illustrations
+
+**Requirement:** Detailed, realistic plant artwork contrasting with minimalist room.
+
+**Style Contrast:**
+- Room/furniture: Simple, minimalist vector art
+- Plants: Highly detailed, botanically accurate illustrations
+- Plants should "pop" against the simple background
+
+**Plant Species (20 varieties):**
+1. Monstera Deliciosa (split leaves, iconic)
+2. Fiddle Leaf Fig (large violin-shaped leaves)
+3. Snake Plant / Sansevieria (upright sword leaves)
+4. Pothos (trailing heart leaves)
+5. ZZ Plant (glossy compound leaves)
+6. Calathea (striped oval leaves)
+7. Peace Lily (white flower, dark leaves)
+8. Rubber Plant (large glossy oval)
+9. Bird of Paradise (paddle leaves)
+10. Spider Plant (arching variegated)
+11. Boston Fern (feathery fronds)
+12. Philodendron (heart-shaped)
+13. Dracaena (sword-shaped cluster)
+14. Aloe Vera (pointed succulent rosette)
+15. String of Pearls (trailing beads)
+16. Chinese Evergreen (silver-green)
+17. English Ivy (trailing star leaves)
+18. Jade Plant (thick succulent leaves)
+19. Succulent Arrangement (mixed rosettes)
+20. Cactus (various shapes)
+
+**Illustration Specs:**
+- Multiple sizes per species (small/medium/large variants)
+- PNG with transparency OR detailed SVG
+- Consistent lighting direction (top-left)
+- Visible pot/planter matching Scandinavian aesthetic
+- Species should be identifiable at a glance
+
+### 6.4 Updated Hover/Tooltip
+
+**Requirement:** Tooltip matches cozy aesthetic.
+
+**Design:**
+- Soft rounded corners
+- Cream/white background with subtle shadow
+- Plant name in handwritten-style font (or soft sans-serif)
+- Sensor readings with small icons
+- "Last watered" style language
+
+```
+┌─────────────────────────┐
+│  🌿 Monstera            │
+│  ─────────────────────  │
+│  💧 Soil moisture: 45%  │
+│  🌡️ Temperature: 22°C   │
+│  💨 Humidity: 65%       │
+│  ☀️ Light: Good         │
+│  ─────────────────────  │
+│  Updated 2 min ago      │
+└─────────────────────────┘
+```
+
+### 6.5 Status Indicators (Subtle)
+
+**Requirement:** Status without breaking cozy aesthetic.
+
+**Options:**
+- Small colored ring around pot base (not harsh dot)
+- Subtle glow effect on plant
+- Small status icon in corner of plant
+
+**Status Colors (muted versions):**
+- Healthy: Soft sage green
+- Warning: Muted amber/gold
+- Critical: Dusty rose/coral (not harsh red)
+- Offline: Light grey, slightly faded plant
+
+### Definition of Done
+
+**Room Scene:**
+- [ ] Background illustration created (SVG or PNG)
+- [ ] Includes sideboard, shelves, armchair, lamps, decor
+- [ ] Matches Scandinavian aesthetic
+- [ ] Responsive scaling works
+
+**Plant Positions:**
+- [ ] 20 fixed spots defined (6 shelf, 8 sideboard, 6 floor)
+- [ ] Click-to-assign interaction
+- [ ] Visual indicator for empty vs occupied spots
+- [ ] Position assignment persists to backend
+
+**Plant Illustrations:**
+- [ ] 20 plant species illustrated
+- [ ] Multiple sizes per species (small/medium/large)
+- [ ] Botanically accurate, detailed style
+- [ ] Contrast with minimalist room background
+- [ ] Fallback for unknown species
+
+**UI Polish:**
+- [ ] Tooltip matches cozy aesthetic
+- [ ] Status indicators are subtle (not harsh colors)
+- [ ] Smooth transitions/animations
+- [ ] Works on desktop and tablet
+
+**Quality:**
+- [ ] `make check` passes
+- [ ] Visual review confirms cozy Scandinavian feel
+- [ ] Plants are identifiable by species
+- [ ] No visual clutter - maintains minimalism
+
+### Skills Available
+
+For Feature 6, relevant skills in `.claude/skills/`:
+- `ui-design` - Component patterns, illustration integration
+- `ux-design` - Interaction patterns, delight details
+- `tailwind-css` - Styling, color palette
+- `frontend` - React component structure
+- `design-systems` - Consistent visual language
