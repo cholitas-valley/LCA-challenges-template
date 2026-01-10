@@ -1,9 +1,8 @@
 /**
- * Designer Page
+ * Designer Page - Scandinavian Room View
  *
- * Interactive floor plan view for arranging plants in a visual space.
- * Supports view and edit modes, drag-and-drop from sidebar, and
- * position persistence.
+ * Interactive room view for arranging plants in fixed spots.
+ * Displays a cozy Scandinavian illustration with 20 plant placement spots.
  *
  * @example
  * ```tsx
@@ -12,10 +11,17 @@
  * ```
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, LoadingSpinner, EmptyState } from '../components';
-import { DesignerCanvas, DesignerSidebar, DesignerToolbar } from '../components/designer';
+import {
+  ScandinavianCanvas,
+  DesignerSidebar,
+  DesignerToolbar,
+  PlantAssignmentModal,
+  positionsToSpotAssignments,
+  spotToPosition,
+} from '../components/designer';
 import { usePlants, useUpdatePlantPosition } from '../hooks';
 
 /**
@@ -24,40 +30,70 @@ import { usePlants, useUpdatePlantPosition } from '../hooks';
 export function Designer() {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
+  const [selectedSpot, setSelectedSpot] = useState<number | null>(null);
   const { data, isLoading, isError } = usePlants();
   const updatePosition = useUpdatePlantPosition();
 
-  // Separate plants into placed and unplaced
   const plants = data?.plants ?? [];
-  const placedPlants = plants.filter(p => p.position !== null);
-  const unplacedPlants = plants.filter(p => p.position === null);
+
+  // Compute spot assignments from plant positions
+  const spotAssignments = useMemo(() => {
+    return positionsToSpotAssignments(plants);
+  }, [plants]);
+
+  // Get unassigned plants (not in any spot)
+  const assignedPlantIds = useMemo(() => {
+    return new Set(Object.values(spotAssignments));
+  }, [spotAssignments]);
+
+  const unassignedPlants = useMemo(() => {
+    return plants.filter(p => !assignedPlantIds.has(p.id));
+  }, [plants, assignedPlantIds]);
 
   /**
-   * Handle position change from canvas drag.
+   * Handle spot click.
+   * In view mode: navigate to plant detail if occupied.
+   * In edit mode: open assignment modal.
    */
-  const handlePositionChange = useCallback(
-    async (plantId: string, x: number, y: number) => {
-      await updatePosition.mutateAsync({ id: plantId, position: { x, y } });
+  const handleSpotClick = useCallback(
+    (spotId: number, currentPlantId: string | null) => {
+      if (!editMode) {
+        // In view mode, navigate to plant detail if occupied
+        if (currentPlantId) {
+          navigate(`/plants/${currentPlantId}`);
+        }
+        return;
+      }
+
+      // In edit mode, open assignment modal
+      setSelectedSpot(spotId);
     },
-    [updatePosition]
+    [editMode, navigate]
   );
 
   /**
-   * Handle plant click to navigate to detail.
+   * Handle plant assignment to spot.
    */
-  const handlePlantClick = useCallback(
-    (plantId: string) => {
-      navigate(`/plants/${plantId}`);
+  const handleAssignPlant = useCallback(
+    async (plantId: string) => {
+      if (selectedSpot === null) return;
+
+      const position = spotToPosition(selectedSpot);
+      await updatePosition.mutateAsync({ id: plantId, position });
+      setSelectedSpot(null);
     },
-    [navigate]
+    [selectedSpot, updatePosition]
   );
 
   /**
-   * Handle drop from sidebar.
+   * Handle removing plant from spot.
+   * Uses off-canvas position to unassign.
    */
-  const handleDropFromSidebar = useCallback(
-    async (plantId: string, x: number, y: number) => {
-      await updatePosition.mutateAsync({ id: plantId, position: { x, y } });
+  const handleRemovePlant = useCallback(
+    async (plantId: string) => {
+      // Set position to off-canvas to unassign
+      await updatePosition.mutateAsync({ id: plantId, position: null });
+      setSelectedSpot(null);
     },
     [updatePosition]
   );
@@ -98,7 +134,7 @@ export function Designer() {
         <div className="flex h-[calc(100vh-200px)] items-center justify-center">
           <EmptyState
             title="No Plants Yet"
-            description="Create some plants to arrange them in your space."
+            description="Create some plants to arrange them in your room."
             action={{
               label: 'Add Plants',
               onClick: () => navigate('/plants'),
@@ -112,34 +148,37 @@ export function Designer() {
   return (
     <Layout>
       <div className="flex h-[calc(100vh-140px)]">
-        {/* Sidebar */}
-        <DesignerSidebar plants={unplacedPlants} editMode={editMode} />
-        
+        {/* Sidebar with unassigned plants */}
+        <DesignerSidebar plants={unassignedPlants} editMode={editMode} />
+
         {/* Main canvas area */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Toolbar */}
           <DesignerToolbar editMode={editMode} onEditModeChange={setEditMode} />
-          
-          {/* Canvas */}
-          <div className="flex-1 p-4 overflow-auto">
-            <DesignerCanvas
-              plants={placedPlants}
+
+          {/* Scandinavian Room Canvas */}
+          <div className="flex-1 p-4 overflow-auto bg-stone-100">
+            <ScandinavianCanvas
+              plants={plants}
+              spotAssignments={spotAssignments}
               editMode={editMode}
-              onPositionChange={handlePositionChange}
-              onPlantClick={handlePlantClick}
-              onDrop={handleDropFromSidebar}
+              onSpotClick={handleSpotClick}
             />
-            
-            {/* Hint text when no plants are placed */}
-            {placedPlants.length === 0 && unplacedPlants.length > 0 && (
-              <div className="text-center mt-4 text-sm text-gray-500">
-                {editMode
-                  ? 'Drag plants from the sidebar to place them on the canvas.'
-                  : 'Switch to Edit mode to place plants on the canvas.'}
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Plant Assignment Modal */}
+        {selectedSpot !== null && (
+          <PlantAssignmentModal
+            isOpen={true}
+            spotId={selectedSpot}
+            currentPlantId={spotAssignments[selectedSpot] ?? null}
+            availablePlants={unassignedPlants}
+            onAssign={handleAssignPlant}
+            onRemove={handleRemovePlant}
+            onClose={() => setSelectedSpot(null)}
+          />
+        )}
       </div>
     </Layout>
   );

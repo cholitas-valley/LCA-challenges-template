@@ -3,9 +3,9 @@
  *
  * Re-exports all designer components for convenient importing:
  * ```tsx
- * import { PlantIcon, PlantImage, DesignerCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '@/components/designer';
+ * import { PlantIcon, PlantImage, ScandinavianCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '@/components/designer';
  * // or
- * import { PlantIcon, PlantImage, DesignerCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '../components/designer';
+ * import { PlantIcon, PlantImage, ScandinavianCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '../components/designer';
  * ```
  */
 
@@ -37,3 +37,6 @@ export { ScandinavianCanvas } from './ScandinavianCanvas';
 export type { ScandinavianCanvasProps } from './ScandinavianCanvas';
 
 export { positionsToSpotAssignments, spotToPosition } from './spotAssignment';
+
+export { PlantAssignmentModal } from './PlantAssignmentModal';
+export type { PlantAssignmentModalProps } from './PlantAssignmentModal';

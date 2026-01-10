@@ -76,11 +76,20 @@ export function usePlantHealthCheck(id: string) {
   });
 }
 
+/**
+ * Off-canvas position used to "unassign" a plant from any spot.
+ * Negative coordinates indicate the plant should not be displayed on canvas.
+ */
+const OFF_CANVAS_POSITION = { x: -1, y: -1 };
+
 export function useUpdatePlantPosition() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, position }: { id: string; position: { x: number; y: number } }) =>
-      plantApi.updatePosition(id, position),
+    mutationFn: ({ id, position }: { id: string; position: { x: number; y: number } | null }) => {
+      // If position is null, use off-canvas position to unassign
+      const effectivePosition = position ?? OFF_CANVAS_POSITION;
+      return plantApi.updatePosition(id, effectivePosition);
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['plants'] });
       queryClient.invalidateQueries({ queryKey: ['plants', variables.id] });

@@ -6,6 +6,14 @@ import { Plant, PlantPosition } from '../../types/plant';
 import { PLANT_SPOTS, PlantSpot } from './plantSpots';
 
 /**
+ * Check if a position is "off-canvas" (unassigned).
+ * Off-canvas positions have negative coordinates.
+ */
+function isOffCanvas(position: PlantPosition): boolean {
+  return position.x < 0 || position.y < 0;
+}
+
+/**
  * Find nearest spot that is not already used.
  */
 function findNearestSpotAvailable(
@@ -22,7 +30,7 @@ function findNearestSpotAvailable(
     const dx = spot.x - x;
     const dy = spot.y - y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (distance < minDistance) {
       minDistance = distance;
       nearest = spot;
@@ -35,6 +43,7 @@ function findNearestSpotAvailable(
 /**
  * Convert plant positions to spot assignments.
  * Maps existing position data to nearest fixed spots.
+ * Ignores plants with null or off-canvas positions.
  */
 export function positionsToSpotAssignments(
   plants: Plant[]
@@ -42,8 +51,10 @@ export function positionsToSpotAssignments(
   const assignments: Record<number, string> = {};
   const usedSpots = new Set<number>();
 
-  // Filter to plants with positions
-  const positionedPlants = plants.filter(p => p.position !== null);
+  // Filter to plants with valid on-canvas positions
+  const positionedPlants = plants.filter(
+    p => p.position !== null && !isOffCanvas(p.position)
+  );
 
   for (const plant of positionedPlants) {
     if (!plant.position) continue;

@@ -1,12 +1,12 @@
 /**
  * Designer Page Tests
  *
- * Tests for the Designer page component including sidebar, canvas,
- * mode toggling, and drag-and-drop functionality.
+ * Tests for the Designer page component using ScandinavianCanvas,
+ * including sidebar, mode toggling, and spot assignment.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Designer } from '../Designer';
@@ -24,14 +24,14 @@ import { usePlants, useUpdatePlantPosition } from '../../hooks';
 const mockUsePlants = usePlants as ReturnType<typeof vi.fn>;
 const mockUseUpdatePlantPosition = useUpdatePlantPosition as ReturnType<typeof vi.fn>;
 
-// Mock plants for testing
-const mockPlacedPlants: Plant[] = [
+// Mock plants with positions that map to spots (100,150 -> spot 1 area)
+const mockAssignedPlants: Plant[] = [
   {
     id: 'plant-1',
     name: 'Monstera',
     species: 'Monstera Deliciosa',
     thresholds: null,
-    position: { x: 100, y: 150 },
+    position: { x: 120, y: 108 }, // Maps near spot 1 (15%, 18%)
     created_at: '2024-01-01T00:00:00Z',
     device_count: 1,
     latest_telemetry: null,
@@ -41,14 +41,14 @@ const mockPlacedPlants: Plant[] = [
     name: 'Snake Plant',
     species: 'Sansevieria',
     thresholds: null,
-    position: { x: 300, y: 200 },
+    position: { x: 200, y: 108 }, // Maps near spot 2 (25%, 18%)
     created_at: '2024-01-01T00:00:00Z',
     device_count: 0,
     latest_telemetry: null,
   },
 ];
 
-const mockUnplacedPlants: Plant[] = [
+const mockUnassignedPlants: Plant[] = [
   {
     id: 'plant-3',
     name: 'Pothos',
@@ -109,43 +109,39 @@ describe('Designer', () => {
     render(<Designer />, { wrapper: createWrapper() });
 
     expect(screen.getByText('No Plants Yet')).toBeInTheDocument();
-    expect(screen.getByText('Create some plants to arrange them in your space.')).toBeInTheDocument();
+    expect(screen.getByText('Create some plants to arrange them in your room.')).toBeInTheDocument();
   });
 
-  it('renders canvas with placed plants', () => {
+  it('renders ScandinavianCanvas with room background', () => {
     mockUsePlants.mockReturnValue({
-      data: { plants: mockPlacedPlants },
+      data: { plants: mockAssignedPlants },
       isLoading: false,
       isError: false,
     });
 
     render(<Designer />, { wrapper: createWrapper() });
 
-    // Canvas should be visible
-    expect(screen.getByRole('img', { name: /designer canvas/i })).toBeInTheDocument();
-
-    // Placed plants should appear
-    expect(screen.getByText('Monstera')).toBeInTheDocument();
-    expect(screen.getByText('Snake Plant')).toBeInTheDocument();
+    // Scandinavian room background should be visible
+    expect(screen.getByAltText('Scandinavian living room')).toBeInTheDocument();
   });
 
-  it('renders sidebar with unplaced plants', () => {
+  it('renders sidebar with unassigned plants', () => {
     mockUsePlants.mockReturnValue({
-      data: { plants: [...mockPlacedPlants, ...mockUnplacedPlants] },
+      data: { plants: [...mockAssignedPlants, ...mockUnassignedPlants] },
       isLoading: false,
       isError: false,
     });
 
     render(<Designer />, { wrapper: createWrapper() });
 
-    // Sidebar should show unplaced plants
-    expect(screen.getByText('Unplaced Plants')).toBeInTheDocument();
+    // Sidebar should show unassigned plants
+    expect(screen.getByText('Unassigned Plants')).toBeInTheDocument();
     expect(screen.getByText('Pothos')).toBeInTheDocument();
   });
 
   it('toggles between view and edit modes', () => {
     mockUsePlants.mockReturnValue({
-      data: { plants: mockPlacedPlants },
+      data: { plants: mockAssignedPlants },
       isLoading: false,
       isError: false,
     });
@@ -155,44 +151,26 @@ describe('Designer', () => {
     const viewButton = screen.getByRole('button', { name: /view/i });
     const editButton = screen.getByRole('button', { name: /edit/i });
 
-    // Initially in view mode (View is primary)
-    expect(viewButton).toHaveClass('bg-action-primary');
-    expect(editButton).toHaveClass('bg-action-secondary');
+    // Initially in view mode (View button has white background)
+    expect(viewButton).toHaveClass('bg-white');
 
     // Click edit button
     fireEvent.click(editButton);
 
-    // Now in edit mode (Edit is primary)
-    expect(editButton).toHaveClass('bg-action-primary');
-    expect(viewButton).toHaveClass('bg-action-secondary');
+    // Now in edit mode (Edit button has amber background)
+    expect(editButton).toHaveClass('bg-amber-500');
   });
 
-  it('shows hint when no plants are placed but unplaced exist', () => {
+  it('renders Room Designer title', () => {
     mockUsePlants.mockReturnValue({
-      data: { plants: mockUnplacedPlants },
+      data: { plants: mockAssignedPlants },
       isLoading: false,
       isError: false,
     });
 
     render(<Designer />, { wrapper: createWrapper() });
 
-    expect(screen.getByText(/switch to edit mode/i)).toBeInTheDocument();
-  });
-
-  it('navigates to plant detail on click', () => {
-    mockUsePlants.mockReturnValue({
-      data: { plants: mockPlacedPlants },
-      isLoading: false,
-      isError: false,
-    });
-
-    render(<Designer />, { wrapper: createWrapper() });
-
-    const monsteraButton = screen.getByRole('button', { name: /monstera/i });
-    fireEvent.click(monsteraButton);
-
-    // Navigation should occur (check window location in integration test)
-    expect(window.location.pathname).toBe('/plants/plant-1');
+    expect(screen.getByText('Room Designer')).toBeInTheDocument();
   });
 
   it('renders error state', () => {
@@ -205,5 +183,22 @@ describe('Designer', () => {
     render(<Designer />, { wrapper: createWrapper() });
 
     expect(screen.getByText('Error Loading Plants')).toBeInTheDocument();
+  });
+
+  it('shows all plants placed message when sidebar is empty', () => {
+    mockUsePlants.mockReturnValue({
+      data: { plants: mockAssignedPlants },
+      isLoading: false,
+      isError: false,
+    });
+
+    // In edit mode, sidebar should show "All plants are placed"
+    render(<Designer />, { wrapper: createWrapper() });
+
+    // Click edit to show sidebar
+    const editButton = screen.getByRole('button', { name: /edit/i });
+    fireEvent.click(editButton);
+
+    expect(screen.getByText('All plants are placed!')).toBeInTheDocument();
   });
 });
