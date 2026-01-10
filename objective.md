@@ -973,6 +973,44 @@ For Feature 5, relevant skills in `.claude/skills/`:
 - Layered so plants render on top
 - Responsive scaling
 
+**Asset Location:** `plants-png/room.png`
+
+**Status: COMPLETE** - Room background illustration has been created.
+
+**How it was created:**
+- Generated using Google Gemini with prompt matching plant style
+- Consistent with plant illustrations (same soft muted Scandinavian palette)
+- Prompt used:
+  ```
+  Create a 2D illustration of a cozy Scandinavian living room scene,
+  viewed from the front like a diorama. Include:
+  - Long, low birch wood sideboard with tapered legs
+  - Two floating wooden shelves above
+  - Cozy armchair with sheepskin throw
+  - Arc floor lamp, globe table lamp
+  - Decor: books, ceramic vase with branch, abstract print, woven basket, fluffy cat on rug
+
+  Style: Minimalist, hand-drawn vector art, soft muted colors (cream, birch, soft grey)
+  Leave clear spots for plants on shelves, sideboard, and floor.
+  ```
+
+**Scene includes:**
+- Scandinavian sideboard (centerpiece) with clear surface for plants
+- Two floating shelves (empty, ready for plants)
+- Armchair with sheepskin + arc floor lamp
+- Globe lamp, books, vase with branch on sideboard
+- Framed abstract art on wall
+- Woven basket with blanket
+- Fluffy cat curled up on woven rug
+- Floor space for larger potted plants
+
+**Style notes:**
+- Matches plant illustrations perfectly (same Gemini style)
+- Soft cream/birch/grey Scandinavian palette
+- 2D flat illustration with hand-drawn feel
+- Clean lines, minimalist furniture
+- High resolution PNG (~10MB)
+
 ### 6.2 Fixed Plant Positions (20 Spots)
 
 **Requirement:** 20 pre-defined placement spots instead of free positioning.
@@ -1137,9 +1175,10 @@ interface PlantSpot {
 ### Definition of Done
 
 **Room Scene:**
-- [ ] Background illustration created (SVG or PNG)
-- [ ] Includes sideboard, shelves, armchair, lamps, decor
-- [ ] Matches Scandinavian aesthetic
+- [x] Background illustration created (`plants-png/room.png`)
+- [x] Includes sideboard, shelves, armchair, lamps, decor
+- [x] Matches Scandinavian aesthetic
+- [ ] Copy to `frontend/src/assets/room/`
 - [ ] Responsive scaling works
 
 **Plant Positions:**
