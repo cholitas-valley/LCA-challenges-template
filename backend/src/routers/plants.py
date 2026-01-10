@@ -20,6 +20,8 @@ from src.models.health_check import (
 from src.models.plant import (
     PlantCreate,
     PlantListResponse,
+    PlantPosition,
+    PlantPositionUpdate,
     PlantResponse,
     PlantUpdate,
 )
@@ -92,11 +94,17 @@ async def create_plant(
         except asyncio.QueueFull:
             logger.warning(f"Care plan queue full, skipping generation for {plant_id}")
 
+    # Parse position if present
+    position = None
+    if plant_data.get("position"):
+        position = PlantPosition(**plant_data["position"])
+
     return PlantResponse(
         id=plant_data["id"],
         name=plant_data["name"],
         species=plant_data["species"],
         thresholds=plant_data["thresholds"],
+        position=position,
         created_at=plant_data["created_at"],
         latest_telemetry=None,
         device_count=device_count,
@@ -123,12 +131,19 @@ async def list_plants(
     for p in plants_data:
         device_count = await plant_repo.get_plant_device_count(db, p["id"])
         latest = await telemetry_repo.get_latest_by_plant(db, p["id"])
+
+        # Parse position if present
+        position = None
+        if p.get("position"):
+            position = PlantPosition(**p["position"])
+
         plants.append(
             PlantResponse(
                 id=p["id"],
                 name=p["name"],
                 species=p["species"],
                 thresholds=p["thresholds"],
+                position=position,
                 created_at=p["created_at"],
                 latest_telemetry=latest,
                 device_count=device_count,
@@ -158,11 +173,17 @@ async def get_plant(
     device_count = await plant_repo.get_plant_device_count(db, plant_id)
     latest = await telemetry_repo.get_latest_by_plant(db, plant_id)
 
+    # Parse position if present
+    position = None
+    if plant_data.get("position"):
+        position = PlantPosition(**plant_data["position"])
+
     return PlantResponse(
         id=plant_data["id"],
         name=plant_data["name"],
         species=plant_data["species"],
         thresholds=plant_data["thresholds"],
+        position=position,
         created_at=plant_data["created_at"],
         latest_telemetry=latest,
         device_count=device_count,
@@ -200,15 +221,21 @@ async def update_plant(
     
     if not plant_data:
         raise HTTPException(status_code=404, detail="Plant not found")
-    
+
     # Get device count
     device_count = await plant_repo.get_plant_device_count(db, plant_id)
-    
+
+    # Parse position if present
+    position = None
+    if plant_data.get("position"):
+        position = PlantPosition(**plant_data["position"])
+
     return PlantResponse(
         id=plant_data["id"],
         name=plant_data["name"],
         species=plant_data["species"],
         thresholds=plant_data["thresholds"],
+        position=position,
         created_at=plant_data["created_at"],
         latest_telemetry=None,
         device_count=device_count,
@@ -234,6 +261,54 @@ async def delete_plant(
         raise HTTPException(status_code=404, detail="Plant not found")
 
     return Response(status_code=204)
+
+
+@router.put("/{plant_id}/position", response_model=PlantResponse)
+async def update_plant_position(
+    plant_id: str,
+    position: PlantPositionUpdate,
+    db: asyncpg.Connection = Depends(get_db),
+) -> PlantResponse:
+    """
+    Update plant position for designer canvas.
+
+    Args:
+        plant_id: Plant ID to update
+        position: Position update with x and y coordinates
+
+    Returns:
+        Updated plant response with new position
+    """
+    # Convert position model to dict for storage
+    position_dict = position.model_dump()
+
+    # Update plant position in database
+    plant_data = await plant_repo.update_plant_position(
+        db,
+        plant_id=plant_id,
+        position=position_dict,
+    )
+
+    if not plant_data:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Get device count and latest telemetry
+    device_count = await plant_repo.get_plant_device_count(db, plant_id)
+    latest = await telemetry_repo.get_latest_by_plant(db, plant_id)
+
+    # Parse position
+    position_obj = PlantPosition(**plant_data["position"])
+
+    return PlantResponse(
+        id=plant_data["id"],
+        name=plant_data["name"],
+        species=plant_data["species"],
+        thresholds=plant_data["thresholds"],
+        position=position_obj,
+        created_at=plant_data["created_at"],
+        latest_telemetry=latest,
+        device_count=device_count,
+    )
 
 
 @router.get("/{plant_id}/devices", response_model=DeviceListResponse)

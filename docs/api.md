@@ -293,6 +293,42 @@ Remove a plant profile.
 **Errors:**
 - 404: Plant not found
 
+### PUT /plants/{plant_id}/position
+
+Update plant position for the designer canvas.
+
+**Request:**
+```json
+{
+  "x": 120.0,
+  "y": 80.0
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `x` | float | Horizontal position in pixels from left |
+| `y` | float | Vertical position in pixels from top |
+
+**Response (200):** Full PlantResponse object with updated position.
+
+```json
+{
+  "id": "plant-123",
+  "name": "Monstera",
+  "species": "Monstera deliciosa",
+  "thresholds": {...},
+  "position": {"x": 120.0, "y": 80.0},
+  "device_count": 1,
+  "latest_telemetry": {...},
+  "created_at": "2026-01-09T12:00:00Z"
+}
+```
+
+**Errors:**
+- 404: Plant not found
+- 422: Invalid position data
+
 ### GET /plants/{plant_id}/devices
 
 List devices assigned to a plant.

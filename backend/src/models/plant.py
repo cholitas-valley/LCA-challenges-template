@@ -32,12 +32,25 @@ class PlantUpdate(BaseModel):
     thresholds: PlantThresholds | None = None
 
 
+class PlantPosition(BaseModel):
+    """Position on the designer canvas."""
+    x: float
+    y: float
+
+
+class PlantPositionUpdate(BaseModel):
+    """Request model for updating plant position."""
+    x: float
+    y: float
+
+
 class PlantResponse(BaseModel):
     """Response model for plant information."""
     id: str
     name: str
     species: str | None
     thresholds: PlantThresholds | None
+    position: PlantPosition | None = None
     created_at: datetime
     latest_telemetry: dict | None = None
     device_count: int = 0

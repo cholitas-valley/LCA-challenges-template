@@ -1,38 +1,34 @@
 # PlantOps Implementation Plan
 
-> Run 005 - Feature 4: UI/UX Refactor
+> Run 006 - Feature 5: Designer Space (Visual Floor Plan)
 
-## Run/005 Status: PLANNING
+## Run/006 Status: PLANNING
 
 ```
 ┌──────┬─────────────────────────────────────────┬────────┐
 │ Task │                  Title                  │ Status │
 ├──────┼─────────────────────────────────────────┼────────┤
-│ 038  │ Semantic Color Token Architecture       │ -      │
+│ 048  │ Backend: Position Column + API          │ -      │
 ├──────┼─────────────────────────────────────────┼────────┤
-│ 039  │ Button Component with Variants          │ -      │
+│ 049  │ Frontend: SVG Plant Icon Library        │ -      │
 ├──────┼─────────────────────────────────────────┼────────┤
-│ 040  │ StatusBadge Component                   │ -      │
+│ 050  │ Frontend: DesignerCanvas Component      │ -      │
 ├──────┼─────────────────────────────────────────┼────────┤
-│ 041  │ FilterPills Component                   │ -      │
+│ 051  │ Frontend: Status Overlays + Tooltips    │ -      │
 ├──────┼─────────────────────────────────────────┼────────┤
-│ 042  │ Loading States (Skeletons)              │ -      │
+│ 052  │ Frontend: Designer Page with Sidebar    │ -      │
 ├──────┼─────────────────────────────────────────┼────────┤
-│ 043  │ Page Migration (Dashboard, Devices)     │ -      │
-├──────┼─────────────────────────────────────────┼────────┤
-│ 044  │ Page Migration (Plants, PlantDetail)    │ -      │
-├──────┼─────────────────────────────────────────┼────────┤
-│ 045  │ Page Migration (Settings, PlantCare)    │ -      │
-├──────┼─────────────────────────────────────────┼────────┤
-│ 046  │ Accessibility Audit and Focus States    │ -      │
-├──────┼─────────────────────────────────────────┼────────┤
-│ 047  │ Feature 4 Final QA                      │ -      │
+│ 053  │ QA: Feature 5 Final Validation          │ -      │
 └──────┴─────────────────────────────────────────┴────────┘
 ```
 
 ---
 
 ## Previous Runs
+
+### Run/005 Status: COMPLETE
+- Feature 4: UI/UX Refactor (tasks 038-047)
+- 139 tests passing
 
 ### Run/004 Status: COMPLETE
 - Feature 3: Production Hardening (tasks 026-037)
@@ -46,218 +42,201 @@
 
 ## Overview
 
-This plan implements Feature 4: UI/UX Refactor for the PlantOps frontend. This is a **frontend-only** run with no backend changes. The goal is to establish a professional, accessible design system with semantic colors and consistent component patterns.
+This plan implements Feature 5: Designer Space for PlantOps. The feature adds a visual floor plan view where users can see plants spatially arranged with real-time status overlays.
 
-**Scope:** `frontend/` directory only
+**Scope:**
+- Backend: Position storage (`backend/`)
+- Frontend: SVG icons, canvas, designer page (`frontend/`)
 
-**Primary Role:** `lca-frontend` for all implementation tasks
+**Primary Roles:**
+- `lca-backend` for position API (task-048)
+- `lca-frontend` for all UI tasks (tasks 049-052)
+- `lca-qa` for final validation (task-053)
 
 **Test Baseline:** 139 tests passing (must not regress)
 
-## Current Problems Identified
+## Design Philosophy
 
-Analysis of the codebase reveals:
-
-1. **Color Chaos (60+ instances)**
-   - `bg-green-600` used for primary buttons, links, status indicators, and filters
-   - `bg-red-600` used for both delete buttons AND error status
-   - No semantic meaning to colors
-
-2. **Button Hierarchy Missing**
-   - All primary actions are `bg-green-600` (identical appearance)
-   - No visual distinction between primary/secondary/tertiary actions
-   - Delete and Assign buttons have same weight
-
-3. **Status vs Actions Confused**
-   - Status indicators use same color classes as action buttons
-   - "Online" status (green dot) and "Assign" button (green text) blur together
-   - Filter pills use button styling
-
-4. **Tailwind Tokens Unused**
-   - `tailwind.config.js` has `plant.healthy`, `plant.warning`, `plant.danger` defined
-   - Zero usage of these tokens in components
-   - All 60+ color references are raw utilities
+**"Clean Technical" Style:**
+- Top-down 2D view (architectural floor plan aesthetic)
+- Monochrome lines (black/dark grey) on white background
+- No shading, shadows, or 3D effects
+- Simple geometric plant outlines
+- Status colors (green/yellow/red) pop against monochrome base
 
 ## Architecture
 
-### Three-Tier Token Architecture
+### Backend Changes
 
 ```
-Layer 1: Primitives (raw values in tailwind.config.js)
-  colors.green.500, colors.red.500, colors.yellow.500, etc.
+Database:
+- ALTER TABLE plants ADD COLUMN position JSONB
+- Position format: { "x": 120, "y": 80 }
 
-Layer 2: Semantic (intent-based)
-  colors.action.primary      -> for main CTAs
-  colors.action.secondary    -> for alternative actions
-  colors.action.danger       -> for destructive actions
-  colors.status.success      -> for healthy/online indicators
-  colors.status.warning      -> for caution indicators
-  colors.status.error        -> for critical/offline indicators
-  colors.status.info         -> for informational indicators
-
-Layer 3: Component (Tailwind CSS classes via @layer)
-  btn-primary, btn-secondary, btn-ghost, btn-danger
-  status-badge-online, status-badge-offline, status-badge-error
-  filter-pill, filter-pill-active
+API:
+- PUT /api/plants/{id}/position - Set plant position
+- GET /api/plants - Returns position in response (existing endpoint)
 ```
 
-### Component Hierarchy
+### Frontend Components
 
 ```
 frontend/src/components/
-  ui/                          # NEW: Design system primitives
-    Button.tsx                 # Primary/Secondary/Ghost/Danger variants
-    StatusBadge.tsx            # Dot + text for status indicators
-    FilterPills.tsx            # Toggle pattern for filters
-    Skeleton.tsx               # Loading skeletons
-    cn.ts                      # Class name utility (clsx + tailwind-merge)
+  designer/
+    PlantIcon.tsx           # SVG icon component with species mapping
+    DesignerCanvas.tsx      # Interactive canvas with drag-drop
+    PlantTooltip.tsx        # Hover tooltip with sensor readings
+    DesignerSidebar.tsx     # Unplaced plants list
+  icons/
+    plants/                 # 20 SVG plant icons
+      monstera.svg
+      snake-plant.svg
+      ...
 
-  # Existing components (will use new ui/ primitives)
-  PlantCard.tsx
-  DeviceTable.tsx
-  CreatePlantModal.tsx
-  ...
+frontend/src/pages/
+  Designer.tsx              # /designer route
 ```
 
-## Design Decisions
+### Data Flow
 
-### Color Mapping
-
-| Current (Raw) | New (Semantic) | Usage |
-|---------------|----------------|-------|
-| `bg-green-600` (buttons) | `btn-primary` | Primary CTAs |
-| `bg-green-600` (filters) | `filter-pill-active` | Active filter state |
-| `text-green-600` (links) | `text-action-primary` | Action links |
-| `bg-green-500` (status) | `status-badge-online` | Online/healthy status |
-| `bg-red-600` (delete) | `btn-danger` | Destructive actions |
-| `text-red-600` (status) | `status-badge-error` | Error/offline status |
-| `bg-yellow-500` (status) | `status-badge-warning` | Warning status |
-
-### Button Variants
-
-```tsx
-<Button variant="primary">Add Plant</Button>      // Filled, brand color
-<Button variant="secondary">Cancel</Button>       // Outlined/subtle
-<Button variant="ghost">View Details</Button>     // Text-only
-<Button variant="danger">Delete</Button>          // Filled red, destructive
+```
+1. User opens /designer
+2. Fetch plants with positions from GET /api/plants
+3. Render placed plants on canvas, unplaced in sidebar
+4. User drags plant from sidebar → canvas
+5. PUT /api/plants/{id}/position saves position
+6. Real-time status from existing telemetry data
+7. Hover shows tooltip with sensor readings
 ```
 
-### StatusBadge vs Button
+## Implementation Tasks
 
-```tsx
-// STATUS: Shows state, not clickable
-<StatusBadge status="online" />      // Green dot + "Online"
-<StatusBadge status="offline" />     // Gray dot + "Offline"
-<StatusBadge status="error" />       // Red dot + "Error"
+### Task 048: Backend Position API
+- Add `position JSONB` column to plants table (migration 007)
+- Add `PUT /api/plants/{id}/position` endpoint
+- Update plant models to include position
+- Update GET /api/plants to return position
+- Tests for new endpoint
 
-// ACTION: Triggers behavior, clickable
-<Button variant="primary">Assign</Button>
-<Button variant="danger">Delete</Button>
-```
+### Task 049: SVG Plant Icon Library
+- Create 20 SVG plant icons (top-down line art)
+- PlantIcon component with species prop
+- Fallback icon for unknown species
+- Icons use stroke-only, monochrome style
 
-### FilterPills Pattern
+### Task 050: DesignerCanvas Component
+- SVG-based canvas rendering
+- Grid system with optional snap-to-grid
+- Render plants at their positions
+- Click plant to navigate to detail page
+- Responsive to container size
 
-```tsx
-// Toggle pattern, NOT action buttons
-<FilterPills
-  options={['All', 'Online', 'Offline', 'Unassigned']}
-  value={filter}
-  onChange={setFilter}
-/>
-```
+### Task 051: Status Overlays + Hover Tooltips
+- Status dots on each plant (uses semantic tokens)
+- Hover tooltip showing sensor readings:
+  - Soil moisture, temperature, humidity, light
+  - Last updated timestamp
+  - "No data" for offline plants
+- Offline plants visually dimmed
 
-## Implementation Phases
+### Task 052: Designer Page with Sidebar
+- New `/designer` route
+- Sidebar with unplaced plants
+- Drag-and-drop from sidebar to canvas
+- Edit/View mode toggle
+- Navigation integration
 
-### Phase 19: Design System Foundation (Tasks 038-041)
-- Semantic color tokens in tailwind.config.js
-- Button component with variants
-- StatusBadge component
-- FilterPills component
-
-### Phase 20: Page Migration (Tasks 042-045)
-- Loading skeletons for tables and cards
-- Dashboard and Devices page migration
-- Plants and PlantDetail page migration
-- Settings and PlantCare page migration
-
-### Phase 21: Accessibility and QA (Tasks 046-047)
-- Focus states on all interactive elements
-- Contrast ratio verification
-- Final visual review
-- Test validation
+### Task 053: Feature 5 Final QA
+- Verify all Definition of Done items
+- Test drag-and-drop functionality
+- Verify tooltips on all plants
+- Test position persistence
+- Visual review of "clean technical" aesthetic
 
 ## Documentation
 
 Documentation updates for `docs/`:
 
-- `docs/design-system.md` - Design system documentation (NEW)
-  - Sections: Color Tokens, Button Variants, Status Indicators, Loading States
-  - Created by: task-047
+- `docs/designer.md` - Designer Space documentation (NEW)
+  - Sections: Overview, Plant Icons, Canvas Usage, Keyboard Shortcuts
+  - Created by: task-053
 
-No updates needed for existing docs (backend unchanged).
+- `docs/api.md` - API documentation update
+  - Add: PUT /api/plants/{id}/position endpoint
+  - Updated by: task-048
 
 ## Task Outline
 
-### Feature 4: UI/UX Refactor
+### Feature 5: Designer Space
 
 | ID | Title | Role | Depends On |
 |----|-------|------|------------|
-| 038 | Semantic Color Token Architecture | frontend | - |
-| 039 | Button Component with Variants | frontend | 038 |
-| 040 | StatusBadge Component | frontend | 038 |
-| 041 | FilterPills Component | frontend | 038 |
-| 042 | Loading States (Skeletons) | frontend | 038 |
-| 043 | Page Migration (Dashboard, Devices) | frontend | 039, 040, 041, 042 |
-| 044 | Page Migration (Plants, PlantDetail) | frontend | 043 |
-| 045 | Page Migration (Settings, PlantCare) | frontend | 044 |
-| 046 | Accessibility Audit and Focus States | frontend | 045 |
-| 047 | Feature 4 Final QA | qa | 046 |
+| 048 | Backend: Position Column + API | backend | - |
+| 049 | Frontend: SVG Plant Icon Library | frontend | - |
+| 050 | Frontend: DesignerCanvas Component | frontend | 048, 049 |
+| 051 | Frontend: Status Overlays + Tooltips | frontend | 050 |
+| 052 | Frontend: Designer Page with Sidebar | frontend | 051 |
+| 053 | QA: Feature 5 Final Validation | qa | 052 |
+
+**Parallelization:** Tasks 048 and 049 can run in parallel (no dependencies).
 
 ## Risks and Mitigations
 
 | Risk | Mitigation |
 |------|------------|
-| Visual regression | Take screenshots before/after each page migration |
-| Breaking existing tests | Run `make check` after each task |
-| Inconsistent migration | Complete page-by-page, not partial |
-| Color contrast failures | Use contrast checker tool during implementation |
-| Scope creep | Strictly frontend-only, no backend changes |
+| Drag-and-drop complexity | Use proven library (react-dnd or native HTML5 drag) |
+| SVG performance with many plants | Limit to reasonable count (100 max), virtualize if needed |
+| Position API conflicts | Use PUT (idempotent), handle concurrent updates |
+| Icon consistency | Define strict style guide before creating icons |
+| Touch device support | Test on tablet, ensure touch-friendly drag handles |
 
-## Success Criteria (Feature 4)
+## Success Criteria (Feature 5)
 
 From objective.md Definition of Done:
 
-**Color System:**
-- [ ] 3-layer token architecture in tailwind.config.js
-- [ ] No raw color utilities in components (no `bg-green-600`)
-- [ ] Status colors separate from action colors
-- [ ] Color contrast meets WCAG AA (4.5:1 for text)
+**Icons:**
+- [ ] 20 SVG plant icons created (top-down line art)
+- [ ] Icons accessible via `<PlantIcon species="monstera" />`
+- [ ] Fallback icon for unknown species
 
-**Components:**
-- [ ] Button component with Primary/Secondary/Ghost/Danger variants
-- [ ] StatusBadge component for online/offline/error states
-- [ ] FilterPills component for filter toggles
-- [ ] All buttons use consistent hierarchy
+**Canvas:**
+- [ ] DesignerCanvas component renders plants at positions
+- [ ] Drag-and-drop to reposition (edit mode)
+- [ ] Click plant navigates to plant detail
+- [ ] Responsive canvas sizing
 
-**States:**
-- [ ] Skeleton loading for tables and cards
-- [ ] Empty states with clear CTAs
-- [ ] Focus states visible on all interactive elements
+**Status:**
+- [ ] Status dots use semantic tokens
+- [ ] Real-time updates (polling or existing data)
+- [ ] Offline plants visually dimmed
+- [ ] Hover tooltip shows sensor readings (soil, temp, humidity, light)
+- [ ] Tooltip shows "last updated" timestamp
+
+**Backend:**
+- [ ] `position` column added to plants table
+- [ ] `PUT /api/plants/{id}/position` endpoint
+- [ ] Position included in `GET /api/plants` response
+
+**Page:**
+- [ ] `/designer` route added
+- [ ] Sidebar shows unplaced plants
+- [ ] Edit/View mode toggle
+- [ ] Integrates with existing navigation
 
 **Quality:**
-- [ ] `make check` passes (build + 139 tests)
-- [ ] Visual review confirms professional appearance
-- [ ] No duplicate color definitions
+- [ ] `make check` passes
+- [ ] Visual matches "clean technical" aesthetic
+- [ ] Touch-friendly (works on tablet)
 
 ## Skills Reference
 
-Design skills available in `.claude/skills/`:
-- `color-theory` - Semantic colors, contrast, 60-30-10 rule
-- `design-systems` - Token architecture, three-tier structure
-- `ui-design` - Component patterns, hierarchy, 8pt grid
-- `ux-design` - Loading states, error recovery, zero-state design
-- `tailwind-css` - Custom config, cn utility, component extraction
+Available skills in `.claude/skills/`:
+- `ui-design` - Component patterns, visual hierarchy
+- `ux-design` - Interaction patterns, drag-and-drop
+- `tailwind-css` - Styling approach
+- `frontend` - React patterns
+- `design-systems` - Consistent token usage
 
 ---
 
-*Generated by lca-planner for run/005*
+*Generated by lca-planner for run/006*

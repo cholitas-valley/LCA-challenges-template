@@ -11,6 +11,9 @@ def _parse_plant_row(row: asyncpg.Record) -> dict:
     # Parse thresholds if it's a string (JSONB comes back as string)
     if data.get("thresholds") and isinstance(data["thresholds"], str):
         data["thresholds"] = json.loads(data["thresholds"])
+    # Parse position if it's a string (JSONB comes back as string)
+    if data.get("position") and isinstance(data["position"], str):
+        data["position"] = json.loads(data["position"])
     return data
 
 
@@ -191,11 +194,11 @@ async def delete_plant(conn: asyncpg.Connection, plant_id: str) -> bool:
 async def get_plant_device_count(conn: asyncpg.Connection, plant_id: str) -> int:
     """
     Get count of devices assigned to a plant.
-    
+
     Args:
         conn: Database connection
         plant_id: Plant ID
-        
+
     Returns:
         Number of devices assigned to this plant
     """
@@ -204,3 +207,34 @@ async def get_plant_device_count(conn: asyncpg.Connection, plant_id: str) -> int
         plant_id,
     )
     return count or 0
+
+
+async def update_plant_position(
+    conn: asyncpg.Connection,
+    plant_id: str,
+    position: dict,
+) -> dict | None:
+    """
+    Update plant position on the designer canvas.
+
+    Args:
+        conn: Database connection
+        plant_id: Plant ID
+        position: Position dict with x and y coordinates
+
+    Returns:
+        Updated plant record as dict or None if not found
+    """
+    position_json = json.dumps(position)
+
+    row = await conn.fetchrow(
+        """
+        UPDATE plants
+        SET position = $1
+        WHERE id = $2
+        RETURNING *
+        """,
+        position_json,
+        plant_id,
+    )
+    return _parse_plant_row(row) if row else None

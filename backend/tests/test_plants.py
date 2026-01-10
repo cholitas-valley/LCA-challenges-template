@@ -268,3 +268,94 @@ async def test_delete_nonexistent_plant_returns_404(async_client: AsyncClient) -
         response = await async_client.delete("/api/plants/nonexistent-id")
 
         assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_update_plant_position(async_client: AsyncClient) -> None:
+    """Test setting plant position."""
+    with patch("src.repositories.plant.update_plant_position") as mock_update_position, \
+         patch("src.repositories.plant.get_plant_device_count") as mock_count, \
+         patch("src.repositories.telemetry.get_latest_by_plant") as mock_telemetry:
+        # Mock database response
+        mock_update_position.return_value = {
+            "id": "plant-positioned",
+            "name": "Positioned Plant",
+            "species": None,
+            "thresholds": None,
+            "position": {"x": 120.0, "y": 80.0},
+            "created_at": datetime.now(),
+        }
+        mock_count.return_value = 0
+        mock_telemetry.return_value = None
+
+        response = await async_client.put(
+            "/api/plants/plant-positioned/position",
+            json={"x": 120.0, "y": 80.0},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == "plant-positioned"
+        assert data["position"]["x"] == 120.0
+        assert data["position"]["y"] == 80.0
+
+
+@pytest.mark.asyncio
+async def test_update_position_nonexistent_plant(async_client: AsyncClient) -> None:
+    """Test 404 for updating position of non-existent plant."""
+    with patch("src.repositories.plant.update_plant_position") as mock_update_position:
+        # Mock plant not found
+        mock_update_position.return_value = None
+
+        response = await async_client.put(
+            "/api/plants/nonexistent-id/position",
+            json={"x": 100.0, "y": 200.0},
+        )
+
+        assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_plants_includes_position(async_client: AsyncClient) -> None:
+    """Test GET /api/plants returns position field."""
+    with patch("src.repositories.plant.list_plants") as mock_list, \
+         patch("src.repositories.plant.get_plant_device_count") as mock_count, \
+         patch("src.repositories.telemetry.get_latest_by_plant") as mock_telemetry:
+        # Mock database response with one plant with position, one without
+        mock_list.return_value = (
+            [
+                {
+                    "id": "plant-1",
+                    "name": "Plant With Position",
+                    "species": None,
+                    "thresholds": None,
+                    "position": {"x": 150.0, "y": 100.0},
+                    "created_at": datetime.now(),
+                },
+                {
+                    "id": "plant-2",
+                    "name": "Plant Without Position",
+                    "species": None,
+                    "thresholds": None,
+                    "position": None,
+                    "created_at": datetime.now(),
+                },
+            ],
+            2,
+        )
+        mock_count.return_value = 0
+        mock_telemetry.return_value = None
+
+        response = await async_client.get("/api/plants")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["plants"]) == 2
+
+        # First plant should have position
+        assert data["plants"][0]["position"] is not None
+        assert data["plants"][0]["position"]["x"] == 150.0
+        assert data["plants"][0]["position"]["y"] == 100.0
+
+        # Second plant should have null position
+        assert data["plants"][1]["position"] is None
