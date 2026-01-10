@@ -1,0 +1,29 @@
+{
+  "ts": "2026-01-10T00:41:00.199871Z",
+  "hook_event_name": "SubagentStop",
+  "current_task_id": "task-036",
+  "completed_task_ids_count": 10,
+  "tokens_total": 22123563,
+  "tokens_since_last_checkpoint": 3758943,
+  "minutes_since_last_checkpoint": 35.1,
+  "tasks_since_last_checkpoint": 1,
+  "trigger_reason": "tokens",
+  "git": {
+    "branch": "run/004",
+    "head": "a5d42358fadd8e0a77c031548e311bb44037992c",
+    "status_porcelain_lines": 5,
+    "diff_stat": "runs/state.json        |  12 ++---\n runs/tools/usage.jsonl | 117 +++++++++++++++++++++++++++++++++++++++++++++++++\n runs/usage/usage.jsonl |   5 +++\n 3 files changed, 128 insertions(+), 6 deletions(-)"
+  },
+  "diff_metrics": {
+    "files": 3,
+    "lines_added": 128,
+    "lines_removed": 6
+  },
+  "tool_invocations_since_last_checkpoint": 289,
+  "permission_prompts_since_last_checkpoint": 0,
+  "thresholds": {
+    "max_files_changed_without_human": 25,
+    "max_lines_changed_without_human": 800,
+    "max_permission_prompts_between_checkpoints": 3
+  }
+}

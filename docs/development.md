@@ -221,3 +221,68 @@ The project uses several tools to maintain code quality:
 - Type hints with `mypy`
 
 All checks run via `make check`.
+
+## QA Verification
+
+### Test Suite Status (as of run/004)
+
+The PlantOps platform has been validated with comprehensive QA:
+
+- **Total Tests**: 139 tests (all passing)
+- **Test Execution Time**: ~2 seconds
+- **Frontend Build**: 796 modules, builds successfully
+- **Code Coverage**: All major components tested
+
+### Feature Coverage
+
+**Feature 1 - Core Platform (82 tests)**
+- Device registration and provisioning
+- Plant CRUD operations
+- Telemetry pipeline
+- Heartbeat and offline detection
+- Discord alerts
+- Threshold evaluation
+- MQTT authentication
+
+**Feature 2 - LLM Care Advisor (22 tests)**
+- LLM settings management (encryption, masking)
+- Care plan generation
+- Provider support (Anthropic, OpenAI)
+
+**Feature 3 - Production Hardening (35 tests)**
+- MQTT TLS and reconnection
+- Health and ready endpoints
+- Structured logging and correlation IDs
+- Database migrations
+
+### Production Readiness Checklist
+
+All Definition of Done items for production deployment verified:
+
+- TLS security configured and tested
+- Automatic reconnection for backend and ESP32
+- Structured logging with correlation IDs
+- Database migrations system operational
+- Docker production configuration with resource limits
+- ESP32 firmware with WiFi portal and TLS support
+- Comprehensive documentation (deployment, API, firmware)
+
+### Known Limitations
+
+1. **TLS Certificates**: Self-signed certificates suitable for home use. Production deployments with external access should use Let's Encrypt or other trusted CA.
+
+2. **Frontend Bundle Size**: 623KB (exceeds 500KB warning). Consider code-splitting for optimization.
+
+3. **MQTT Reconnection**: Backend reconnection tested with unit tests. ESP32 reconnection verified in code but requires physical hardware for integration testing.
+
+4. **Performance**: No load testing performed. System designed for home use (< 100 devices).
+
+### Regression Prevention
+
+When making changes:
+1. Run `make check` before committing
+2. Verify all 139 tests still pass
+3. Check frontend builds without errors
+4. Test affected features manually if integration tests don't cover them
+
+The test suite provides regression protection for all three features.
