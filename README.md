@@ -56,6 +56,7 @@ pio run -t upload
 - [API Reference](docs/api.md)
 - [Firmware Setup](docs/firmware.md)
 - [Development Guide](docs/development.md)
+- [Design System](docs/design-system.md) - UI components and tokens
 
 ## Architecture
 
