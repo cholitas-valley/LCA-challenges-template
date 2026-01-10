@@ -3,14 +3,17 @@
  *
  * Re-exports all designer components for convenient importing:
  * ```tsx
- * import { PlantIcon, DesignerCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '@/components/designer';
+ * import { PlantIcon, PlantImage, DesignerCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '@/components/designer';
  * // or
- * import { PlantIcon, DesignerCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '../components/designer';
+ * import { PlantIcon, PlantImage, DesignerCanvas, PlantTooltip, DesignerSidebar, DesignerToolbar } from '../components/designer';
  * ```
  */
 
 export { PlantIcon } from './PlantIcon';
 export type { PlantIconProps } from './PlantIcon';
+
+export { PlantImage } from './PlantImage';
+export type { PlantImageProps } from './PlantImage';
 
 export { DesignerCanvas } from './DesignerCanvas';
 export type { DesignerCanvasProps } from './DesignerCanvas';
