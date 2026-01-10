@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLLMSettings, useUpdateLLMSettings, useTestLLMSettings } from '../hooks';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
+import { Button } from './ui/Button';
 import type { LLMProvider } from '../types';
 
 const ANTHROPIC_MODELS = [
@@ -120,7 +121,7 @@ export function LLMSettings() {
               value="anthropic"
               checked={provider === 'anthropic'}
               onChange={() => handleProviderChange('anthropic')}
-              className="h-4 w-4 text-green-600 focus:ring-green-500"
+              className="h-4 w-4 text-action-primary focus:ring-action-primary"
             />
             <div className="ml-3">
               <span className="block text-sm font-medium text-gray-900">Anthropic</span>
@@ -134,7 +135,7 @@ export function LLMSettings() {
               value="openai"
               checked={provider === 'openai'}
               onChange={() => handleProviderChange('openai')}
-              className="h-4 w-4 text-green-600 focus:ring-green-500"
+              className="h-4 w-4 text-action-primary focus:ring-action-primary"
             />
             <div className="ml-3">
               <span className="block text-sm font-medium text-gray-900">OpenAI</span>
@@ -163,7 +164,7 @@ export function LLMSettings() {
                 {settings.api_key_set ? (
                   <span className="font-mono">{settings.api_key_masked}</span>
                 ) : (
-                  <span className="text-red-600">Not configured</span>
+                  <span className="text-status-error">Not configured</span>
                 )}
               </dd>
             </div>
@@ -188,7 +189,7 @@ export function LLMSettings() {
           id="model"
           value={selectedModel}
           onChange={(e) => setModel(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-action-primary focus:border-action-primary"
         >
           {currentModels.map((m) => (
             <option key={m.value} value={m.value}>
@@ -209,7 +210,7 @@ export function LLMSettings() {
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder={settings?.api_key_set ? 'Enter new API key to update' : 'Enter your API key'}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-action-primary focus:border-action-primary"
         />
         <p className="mt-1 text-sm text-gray-500">
           Your API key is encrypted and stored securely. It will never be shown in full.
@@ -218,10 +219,10 @@ export function LLMSettings() {
 
       {/* Success/Error Messages */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-status-success-light border border-status-success rounded-lg p-4">
           <div className="flex items-start">
             <svg
-              className="w-5 h-5 text-green-600 mt-0.5"
+              className="w-5 h-5 text-status-success mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -233,16 +234,16 @@ export function LLMSettings() {
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            <p className="ml-3 text-sm text-green-700">{successMessage}</p>
+            <p className="ml-3 text-sm text-status-success-text">{successMessage}</p>
           </div>
         </div>
       )}
 
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-status-error-light border border-status-error rounded-lg p-4">
           <div className="flex items-start">
             <svg
-              className="w-5 h-5 text-red-600 mt-0.5"
+              className="w-5 h-5 text-status-error mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -254,27 +255,31 @@ export function LLMSettings() {
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <p className="ml-3 text-sm text-red-700">{errorMsg}</p>
+            <p className="ml-3 text-sm text-status-error-text">{errorMsg}</p>
           </div>
         </div>
       )}
 
       {/* Action Buttons */}
       <div className="flex space-x-3 pt-4">
-        <button
+        <Button
+          variant="secondary"
           onClick={handleTest}
-          disabled={testMutation.isPending || !apiKey.trim()}
-          className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          disabled={!apiKey.trim()}
+          loading={testMutation.isPending}
+          className="flex-1"
         >
           {testMutation.isPending ? 'Testing...' : 'Test Connection'}
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="primary"
           onClick={handleSave}
-          disabled={updateMutation.isPending || !apiKey.trim()}
-          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          disabled={!apiKey.trim()}
+          loading={updateMutation.isPending}
+          className="flex-1"
         >
           {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { usePlants, useProvisionDevice } from '../hooks';
+import { Button } from './ui/Button';
 import type { Device } from '../types';
 
 interface AssignDeviceModalProps {
@@ -66,7 +67,7 @@ export function AssignDeviceModal({ isOpen, onClose, device }: AssignDeviceModal
                 value={selectedPlantId}
                 onChange={(e) => setSelectedPlantId(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary"
               >
                 <option value="">-- Select a plant --</option>
                 {plantsData?.plants.map((plant) => (
@@ -79,27 +80,28 @@ export function AssignDeviceModal({ isOpen, onClose, device }: AssignDeviceModal
           </div>
 
           {provisionMutation.isError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div className="mb-4 p-3 bg-status-error-light border border-status-error rounded text-status-error-text text-sm">
               Failed to assign device. Please try again.
             </div>
           )}
 
           <div className="flex justify-end gap-3">
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={onClose}
               disabled={provisionMutation.isPending}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={provisionMutation.isPending || !selectedPlantId}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+              variant="primary"
+              disabled={!selectedPlantId}
+              loading={provisionMutation.isPending}
             >
               {provisionMutation.isPending ? 'Assigning...' : 'Assign Device'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

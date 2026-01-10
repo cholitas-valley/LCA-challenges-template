@@ -1,3 +1,5 @@
+import { Button } from './ui/Button';
+
 interface ConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -5,7 +7,10 @@ interface ConfirmDialogProps {
   title: string;
   message: string;
   confirmText?: string;
+  /** @deprecated Use variant prop instead. Kept for backwards compatibility. */
   confirmButtonClass?: string;
+  /** Button variant for the confirm action. Defaults to 'danger'. */
+  variant?: 'primary' | 'danger';
   isLoading?: boolean;
 }
 
@@ -16,10 +21,14 @@ export function ConfirmDialog({
   title,
   message,
   confirmText = 'Confirm',
-  confirmButtonClass = 'bg-red-600 hover:bg-red-700',
+  confirmButtonClass,
+  variant = 'danger',
   isLoading = false,
 }: ConfirmDialogProps) {
   if (!isOpen) return null;
+
+  // Determine button variant: if confirmButtonClass contains green, use primary
+  const buttonVariant = confirmButtonClass?.includes('green') ? 'primary' : variant;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
@@ -27,20 +36,20 @@ export function ConfirmDialog({
         <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>
         <p className="text-gray-600 mb-6">{message}</p>
         <div className="flex justify-end gap-3">
-          <button
+          <Button
+            variant="secondary"
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={buttonVariant}
             onClick={onConfirm}
-            disabled={isLoading}
-            className={`px-4 py-2 text-white rounded-md transition-colors disabled:opacity-50 ${confirmButtonClass}`}
+            loading={isLoading}
           >
             {isLoading ? 'Processing...' : confirmText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

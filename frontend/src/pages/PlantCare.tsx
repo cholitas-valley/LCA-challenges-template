@@ -5,6 +5,7 @@ import {
   ErrorMessage,
   CarePlanDisplay,
 } from '../components';
+import { Button } from '../components/ui/Button';
 import {
   usePlant,
   useCarePlan,
@@ -51,15 +52,15 @@ export function PlantCare() {
     <Layout>
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <Link to="/" className="text-green-600 hover:text-green-700 text-sm font-medium">
+          <Link to="/" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
             Dashboard
           </Link>
           <span className="text-gray-500 mx-2">/</span>
-          <Link to="/plants" className="text-green-600 hover:text-green-700 text-sm font-medium">
+          <Link to="/plants" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
             Plants
           </Link>
           <span className="text-gray-500 mx-2">/</span>
-          <Link to={`/plants/${id}`} className="text-green-600 hover:text-green-700 text-sm font-medium">
+          <Link to={`/plants/${id}`} className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
             {plant.name}
           </Link>
           <span className="text-gray-500 mx-2">/</span>
@@ -105,20 +106,20 @@ export function PlantCare() {
         )}
 
         {generateMutation.error && !isLLMNotConfigured && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+          <div className="bg-status-error-light border-l-4 border-status-error p-4 mb-6">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-status-error" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-700">
+                <p className="text-sm text-status-error-text">
                   Error generating care plan: {(generateMutation.error as Error).message}
                 </p>
                 <button
                   onClick={handleGenerate}
-                  className="mt-2 text-sm font-medium text-red-700 underline hover:text-red-600"
+                  className="mt-2 text-sm font-medium text-status-error-text underline hover:text-status-error"
                 >
                   Try again
                 </button>
@@ -128,13 +129,13 @@ export function PlantCare() {
         )}
 
         {generateMutation.isPending && (
-          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+          <div className="bg-status-info-light border-l-4 border-status-info p-4 mb-6">
             <div className="flex">
               <div className="flex-shrink-0">
                 <LoadingSpinner />
               </div>
               <div className="ml-3">
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-status-info-text">
                   Generating care plan... This may take up to 30 seconds.
                 </p>
               </div>
@@ -168,13 +169,15 @@ export function PlantCare() {
               Generate an AI-powered care plan based on your plant's current conditions and sensor data.
               The AI will analyze your plant's health and provide personalized recommendations.
             </p>
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               onClick={handleGenerate}
               disabled={!!isLLMNotConfigured}
-              className="mt-6 px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 disabled:bg-gray-400"
+              className="mt-6"
             >
               Generate Care Plan
-            </button>
+            </Button>
             {isLLMNotConfigured && (
               <p className="mt-2 text-xs text-gray-500">
                 Configure LLM settings first

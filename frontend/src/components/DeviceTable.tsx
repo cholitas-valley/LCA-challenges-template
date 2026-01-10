@@ -147,7 +147,7 @@ export function DeviceTable({ devices, onUnassign, onDelete, isUnassigning, isDe
         title="Unassign Device"
         message={'Are you sure you want to unassign this device from ' + getPlantName(unassignDevice?.plant_id ?? null) + '?'}
         confirmText="Unassign"
-        confirmButtonClass="bg-yellow-600 hover:bg-yellow-700"
+        variant="primary"
         isLoading={isUnassigning}
       />
 
@@ -158,7 +158,7 @@ export function DeviceTable({ devices, onUnassign, onDelete, isUnassigning, isDe
         title="Delete Device"
         message="Are you sure you want to delete this device? This action cannot be undone."
         confirmText="Delete"
-        confirmButtonClass="bg-red-600 hover:bg-red-700"
+        variant="danger"
         isLoading={isDeleting}
       />
     </>

@@ -1,4 +1,5 @@
 import type { CarePlan } from '../types';
+import { Button } from './ui/Button';
 
 interface CarePlanDisplayProps {
   carePlan: CarePlan;
@@ -46,13 +47,13 @@ export function CarePlanDisplay({ carePlan, onRegenerate, isRegenerating }: Care
               Generated: {getTimeAgo(carePlan.generated_at)}
             </p>
           </div>
-          <button
+          <Button
+            variant="primary"
             onClick={onRegenerate}
-            disabled={isRegenerating}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400"
+            loading={isRegenerating}
           >
             {isRegenerating ? 'Generating...' : 'Regenerate'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -152,7 +153,7 @@ export function CarePlanDisplay({ carePlan, onRegenerate, isRegenerating }: Care
           </h3>
           <ul className="list-disc list-inside space-y-1">
             {carePlan.alerts.map((alert, index) => (
-              <li key={index} className="text-red-700">
+              <li key={index} className="text-status-error-text">
                 {alert}
               </li>
             ))}

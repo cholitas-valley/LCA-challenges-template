@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRegisterDevice } from '../hooks';
+import { Button } from './ui/Button';
 
 interface RegisterDeviceModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export function RegisterDeviceModal({ isOpen, onClose }: RegisterDeviceModalProp
               <div className="space-y-4">
                 <div>
                   <label htmlFor="mac-address" className="block text-sm font-medium text-gray-700 mb-1">
-                    MAC Address <span className="text-red-500">*</span>
+                    MAC Address <span className="text-status-error">*</span>
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -70,7 +71,7 @@ export function RegisterDeviceModal({ isOpen, onClose }: RegisterDeviceModalProp
                       id="mac-address"
                       value={macAddress}
                       onChange={(e) => setMacAddress(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-action-primary focus:border-action-primary"
                       placeholder="e.g., aa:bb:cc:dd:ee:ff"
                       required
                       autoFocus
@@ -89,8 +90,8 @@ export function RegisterDeviceModal({ isOpen, onClose }: RegisterDeviceModalProp
                 </div>
 
                 {registerDevice.isError && (
-                  <div className="rounded-md bg-red-50 p-3 border border-red-200">
-                    <p className="text-sm text-red-600">
+                  <div className="rounded-md bg-status-error-light p-3 border border-status-error">
+                    <p className="text-sm text-status-error-text">
                       Failed to register device. Please try again.
                     </p>
                   </div>
@@ -99,21 +100,24 @@ export function RegisterDeviceModal({ isOpen, onClose }: RegisterDeviceModalProp
             </div>
 
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
-              <button
+              <Button
                 type="submit"
-                disabled={registerDevice.isPending || !macAddress.trim()}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="primary"
+                disabled={!macAddress.trim()}
+                loading={registerDevice.isPending}
+                className="w-full sm:w-auto"
               >
                 {registerDevice.isPending ? 'Registering...' : 'Register Device'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={handleClose}
                 disabled={registerDevice.isPending}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-3 w-full sm:mt-0 sm:w-auto"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         </div>
