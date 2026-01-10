@@ -159,9 +159,28 @@ docs/                        # Implementation docs (lca-docs writes here)
 │   ├── usage-record.py      # Stop: token tracking (no LLM overhead)
 │   ├── permission-record.py # PermissionRequest: permission prompt logging
 │   └── arbiter-scheduler.py # Stop: triggers arbiter on token/time thresholds
-└── skills/
-    └── lca-protocol/
-        └── SKILL.md         # Protocol definition (task/state/handoff formats)
+└── skills/                  # Active skills (copied from .spawner/ per feature)
+    ├── lca-protocol/        # Protocol definition (task/state/handoff formats)
+    ├── lca-feature-setup/   # Interactive feature setup checklist
+    ├── color-theory/        # Design: color systems, semantic tokens
+    ├── design-systems/      # Design: component patterns, consistency
+    ├── ui-design/           # Design: layout, hierarchy, spacing
+    ├── ux-design/           # Design: UX patterns, user flows
+    ├── tailwind-css/        # Design: Tailwind patterns, utilities
+    ├── python-backend/      # Backend: FastAPI, async patterns
+    ├── api-design/          # Backend: REST/GraphQL design
+    ├── error-handling/      # Backend: error strategies
+    ├── queue-workers/       # Backend: async job processing
+    ├── postgres-wizard/     # Data: PostgreSQL patterns
+    ├── database-migrations/ # Data: schema evolution
+    ├── docker/              # DevOps: containerization
+    ├── logging-strategies/  # DevOps: structured logging
+    ├── security/            # Security: auth, OWASP patterns
+    ├── embedded-systems/    # Hardware: IoT patterns
+    ├── sensor-fusion/       # Hardware: sensor data processing
+    ├── testing-strategies/  # Testing: test patterns
+    ├── frontend/            # Frontend: React patterns
+    └── state-management/    # Frontend: state patterns
 
 .spawner/                    # Reference skills (project-local, git-ignored)
 └── skills/
@@ -503,6 +522,53 @@ Agents read skill YAML files when implementing to:
 - Apply production lessons ("sharp edges")
 
 Skills are **reference documentation**, not executable code. Agents decide when to consult them based on the task at hand.
+
+### Active Skills
+
+Skills copied to `.claude/skills/` for the current feature. Unlike `.spawner/skills/` (reference library), these are actively available to agents during execution.
+
+**Current Active Skills:**
+
+| Category | Skills |
+|----------|--------|
+| Protocol | `lca-protocol`, `lca-feature-setup` |
+| Design | `color-theory`, `design-systems`, `ui-design`, `ux-design`, `tailwind-css` |
+| Backend | `python-backend`, `api-design`, `error-handling`, `queue-workers` |
+| Data | `postgres-wizard`, `database-migrations` |
+| DevOps | `docker`, `logging-strategies` |
+| Security | `security` |
+| Hardware | `embedded-systems`, `sensor-fusion` |
+| Testing | `testing-strategies` |
+| Frontend | `frontend`, `state-management` |
+
+**Copying Skills:**
+```bash
+cp -r .spawner/skills/<category>/<skill> .claude/skills/
+```
+
+### Interactive Skills
+
+Skills for human+Claude interactive sessions (not autonomous execution).
+
+**lca-feature-setup:**
+Interactive checklist for setting up a new feature. Triggered by "start feature X" or "new feature".
+
+Steps:
+1. Define feature in `objective.md`
+2. Prepare skills (copy from `.spawner/skills/`)
+3. Create run branch (`run/<NNN>`)
+4. Clean previous run artifacts (arbiter pending.json, notes.md)
+5. Update `runs/state.json` with `phase=PLANNING`
+6. Verify setup
+7. Handoff to user for autonomous session
+
+**Usage:**
+```
+User: "start feature 5"
+Claude: [follows lca-feature-setup checklist interactively]
+```
+
+After setup, user starts a new session where the autonomous orchestrator takes over.
 
 ### Code Simplifier Plugin
 

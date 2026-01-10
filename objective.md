@@ -478,6 +478,105 @@ Features 1 and 2 are **complete** as of run/003:
    - ESP32 firmware
    - Documentation
 
+4. **Feature 4** (UI/UX Refactor) - Design cleanup
+   - Semantic color system (fix red/green button chaos)
+   - Consistent component patterns
+   - Proper button hierarchy (primary/secondary/danger)
+   - Status indicators vs action buttons separation
+   - Accessibility improvements (color blindness, contrast)
+   - Design token architecture
+
+---
+
+## Feature 4: UI/UX Refactor
+
+**Goal:** Clean up the frontend design for consistency, accessibility, and professional appearance.
+
+### Current Problems
+
+1. **Color Chaos**
+   - `bg-green-600` used for everything (buttons, links, status, filters)
+   - `bg-red-600` used for both delete buttons AND error status
+   - No semantic color system despite tokens defined in tailwind.config.js
+
+2. **Button Hierarchy Missing**
+   - All buttons look the same (green)
+   - No visual distinction between primary/secondary/tertiary actions
+   - Destructive actions not clearly differentiated
+
+3. **Status vs Actions Confused**
+   - Same colors for status indicators and action buttons
+   - "Online" status and "Assign" button both green
+   - "Error" status and "Delete" button both red
+
+4. **Tailwind Tokens Unused**
+   - `plant.healthy`, `plant.warning`, `plant.danger` defined but ignored
+   - Raw color utilities used instead (`bg-green-600`)
+
+### 4.1 Semantic Color System
+
+**Requirement:** Implement proper semantic colors.
+
+```
+Action Colors (buttons):
+- primary    → Brand color for main actions
+- secondary  → Muted for alternative actions
+- danger     → Red, destructive actions only
+
+Status Colors (indicators):
+- success    → Green for healthy/online/good
+- warning    → Yellow/amber for caution
+- error      → Red for critical/offline/bad
+- info       → Blue for informational
+```
+
+### 4.2 Component Patterns
+
+**Requirement:** Consistent component styling.
+
+- **Buttons:** Primary (filled), Secondary (outlined), Ghost (text), Danger (red filled)
+- **Status Badges:** Colored dots/pills for status, never buttons
+- **Cards:** Consistent padding, shadows, borders
+- **Forms:** Consistent input styling, error states
+- **Links:** Consistent hover states, not confused with buttons
+
+### 4.3 Accessibility
+
+**Requirement:** WCAG 2.1 AA compliance.
+
+- Contrast ratios meet 4.5:1 for text
+- Color is not the only indicator (add icons/text)
+- Focus states visible
+- Screen reader friendly
+
+### 4.4 Design Tokens
+
+**Requirement:** Single source of truth for design values.
+
+- Update tailwind.config.js with proper semantic tokens
+- Use tokens consistently throughout components
+- Theme changeable from one file
+
+### Definition of Done
+
+- [ ] Semantic color tokens defined in tailwind.config.js
+- [ ] All buttons use consistent hierarchy (primary/secondary/danger)
+- [ ] Status indicators are visually distinct from action buttons
+- [ ] No raw color utilities (bg-green-600) - all semantic
+- [ ] Color contrast meets WCAG AA (4.5:1)
+- [ ] Components use design tokens consistently
+- [ ] `make check` passes (build + tests)
+- [ ] Visual review confirms professional appearance
+
+### Skills Available
+
+Design skills in `.claude/skills/`:
+- `color-theory` - Semantic colors, contrast, accessibility
+- `design-systems` - Token architecture, consistency
+- `ui-design` - Component patterns, hierarchy
+- `tailwind-css` - Tailwind best practices
+- `accessibility-design` - WCAG compliance, color blindness
+
 ## Success Criteria
 
 **Features 1 & 2 (COMPLETE):**

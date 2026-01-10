@@ -1,0 +1,112 @@
+id: lca-feature-setup
+name: LCA Feature Setup
+version: 1.0.0
+category: protocol
+
+description: |
+  Interactive checklist for setting up a new feature in the LCA protocol.
+  Use this when the user says "start feature X" or "new feature" in an interactive session.
+  This is NOT for autonomous execution - it guides the human+Claude conversation.
+
+triggers:
+  - "start feature"
+  - "new feature"
+  - "setup feature"
+  - "begin feature"
+  - "feature setup"
+
+checklist:
+  1_define_feature:
+    description: "Define the feature in objective.md"
+    steps:
+      - "Read current objective.md to understand existing features"
+      - "Discuss with user what Feature N should include"
+      - "Add Feature N section to objective.md with:"
+      - "  - Goal statement"
+      - "  - Current problems (if refactor)"
+      - "  - Requirements (numbered sections)"
+      - "  - Definition of Done (checkboxes)"
+      - "  - Skills available (if relevant)"
+
+  2_prepare_skills:
+    description: "Copy relevant skills to .claude/skills/"
+    steps:
+      - "Check .spawner/skills/ for relevant domain skills"
+      - "Copy needed skills: cp -r .spawner/skills/<category>/<skill> .claude/skills/"
+      - "Verify skills are accessible: ls .claude/skills/"
+
+  3_create_branch:
+    description: "Create new run branch"
+    steps:
+      - "Determine next run number (current + 1)"
+      - "git checkout -b run/<NNN>"
+      - "Verify: git branch --show-current"
+
+  4_clean_artifacts:
+    description: "Clean previous run artifacts"
+    steps:
+      - "Check runs/arbiter/pending.json - delete if exists (stale trigger from previous run)"
+      - "Check runs/notes.md for unresolved blockers from previous run"
+      - "Find last handoff: ls -t runs/handoffs/ | head -1"
+    notes:
+      - "pending.json triggers arbiter - stale file will cause unnecessary check"
+      - "last_handoff provides continuity between runs"
+
+  5_update_state:
+    description: "Update runs/state.json for new run"
+    template: |
+      {
+        "protocol": "lca-v1",
+        "run_branch": "run/<NNN>",
+        "phase": "PLANNING",
+        "current_task_id": null,
+        "current_role": null,
+        "completed_task_ids": [],
+        "last_handoff": "runs/handoffs/<previous-run-final-handoff>",
+        "updated_at": "<ISO-8601 timestamp>"
+      }
+    notes:
+      - "last_handoff provides context continuity from the previous run"
+
+  6_verify_setup:
+    description: "Verify everything is ready"
+    checks:
+      - "objective.md has Feature N section"
+      - "Skills copied to .claude/skills/"
+      - "On correct branch (run/<NNN>)"
+      - "state.json has phase=PLANNING"
+      - "No stale arbiter pending.json"
+      - "CLAUDE.md is up to date"
+
+  7_handoff:
+    description: "Inform user they can start autonomous session"
+    message: |
+      Feature N setup complete. Start a new Claude Code session and say
+      "continue" or "start" to begin autonomous execution.
+
+      The orchestrator will:
+      1. See phase=PLANNING
+      2. Invoke lca-planner to create tasks
+      3. Execute tasks via role agents
+
+notes:
+  - "This is an INTERACTIVE skill - Claude follows it WITH the user"
+  - "The autonomous orchestrator loop starts in a NEW session"
+  - "User defines features conversationally, not via agents"
+  - "After setup, user starts fresh session for autonomous work"
+
+preconfigured:
+  description: "Already installed - no per-feature setup needed"
+  hooks:
+    - session-start.py: "LCA state + arbiter alerts on resume"
+    - session-summary.py: "Session summary for easier resume"
+    - tool-record.py: "Tool outcomes logging"
+    - usage-record.py: "Token tracking"
+    - arbiter-scheduler.py: "Triggers arbiter on thresholds"
+  plugins:
+    - security-guidance: "Warns on security patterns (XSS, injection, etc.)"
+    - code-simplifier: "Post agent for code clarity (runs on Opus)"
+  directories:
+    - "runs/: state, tasks, handoffs, arbiter, sessions, usage, tools"
+    - ".claude/agents/: all role agents (backend, frontend, qa, docs, gitops, etc.)"
+    - ".claude/hooks/: all hook scripts"
