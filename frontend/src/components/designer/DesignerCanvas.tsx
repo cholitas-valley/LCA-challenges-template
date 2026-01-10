@@ -19,6 +19,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Plant, PlantPosition } from '../../types/plant';
 import { PlantIcon } from './PlantIcon';
+import { PlantTooltip } from './PlantTooltip';
+import { getPlantStatus, PlantStatusType } from '../../utils/plantStatus';
+import { cn } from '../../lib/cn';
 
 export interface DesignerCanvasProps {
   /** Plants with position data to render on canvas */
@@ -67,6 +70,73 @@ function getSVGPoint(
 }
 
 /**
+ * Status color map using semantic tokens.
+ */
+const statusColors: Record<PlantStatusType, string> = {
+  online: '#22c55e', // status-success
+  warning: '#eab308', // status-warning
+  critical: '#ef4444', // status-error
+  offline: '#9ca3af', // status-neutral
+};
+
+/**
+ * StatusDot sub-component for plant health indicator.
+ */
+interface StatusDotProps {
+  status: PlantStatusType;
+  x: number;
+  y: number;
+}
+
+function StatusDot({ status, x, y }: StatusDotProps) {
+  return (
+    <circle
+      cx={x}
+      cy={y}
+      r={5}
+      fill={statusColors[status]}
+      stroke="white"
+      strokeWidth={1.5}
+      data-testid="status-dot"
+      data-status={status}
+    />
+  );
+}
+
+/**
+ * Calculate tooltip position to avoid canvas overflow.
+ */
+function calculateTooltipPosition(
+  plantX: number,
+  plantY: number,
+  canvasWidth: number = 800,
+  canvasHeight: number = 600
+): { x: number; y: number } {
+  const tooltipWidth = 180;
+  const tooltipHeight = 160;
+
+  let x = 30; // Default: right of plant
+  let y = -60; // Default: above center
+
+  // Adjust if near right edge
+  if (plantX + x + tooltipWidth > canvasWidth - 20) {
+    x = -(tooltipWidth + 10); // Show to left
+  }
+
+  // Adjust if near top edge
+  if (plantY + y < 20) {
+    y = 30; // Show below
+  }
+
+  // Adjust if near bottom edge
+  if (plantY + y + tooltipHeight > canvasHeight - 20) {
+    y = -(tooltipHeight + 10);
+  }
+
+  return { x, y };
+}
+
+/**
  * PlantMarker sub-component for rendering individual plants on the canvas.
  */
 function PlantMarker({
@@ -78,11 +148,16 @@ function PlantMarker({
   svgRef,
 }: PlantMarkerProps) {
   const [dragging, setDragging] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [position, setPosition] = useState<PlantPosition>(
     plant.position ?? { x: 100, y: 100 }
   );
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const hasDraggedRef = useRef(false);
+
+  // Get plant status for indicator and styling
+  const status = getPlantStatus(plant);
+  const isOffline = status === 'offline';
 
   // Sync position with plant prop when not dragging
   useEffect(() => {
@@ -166,12 +241,17 @@ function PlantMarker({
 
   const cursor = editMode ? (dragging ? 'grabbing' : 'grab') : 'pointer';
 
+  // Calculate tooltip position to avoid overflow
+  const tooltipPos = calculateTooltipPosition(position.x, position.y);
+
   return (
     <g
       transform={'translate(' + position.x + ', ' + position.y + ')'}
-      style={{ cursor }}
+      style={{ cursor, opacity: isOffline ? 0.5 : 1 }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       role="button"
       aria-label={plant.name + (editMode ? ' (drag to reposition)' : '')}
       tabIndex={0}
@@ -181,9 +261,13 @@ function PlantMarker({
         <PlantIcon
           species={plant.species ?? 'unknown'}
           size={48}
-          className="text-gray-700"
+          className={cn('text-gray-700', isOffline && 'text-gray-400')}
         />
       </foreignObject>
+
+      {/* Status dot (bottom-right of icon) */}
+      <StatusDot status={status} x={18} y={18} />
+
       {/* Name label below icon */}
       <text
         x={0}
@@ -194,6 +278,9 @@ function PlantMarker({
       >
         {plant.name}
       </text>
+
+      {/* Tooltip on hover */}
+      <PlantTooltip plant={plant} visible={hovered} position={tooltipPos} />
     </g>
   );
 }
