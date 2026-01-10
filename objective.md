@@ -941,6 +941,23 @@ For Feature 5, relevant skills in `.claude/skills/`:
 
 **Primary role:** `lca-frontend` for all implementation.
 
+### Pre-created Assets (READY - do not regenerate)
+
+All visual assets have been manually created using Google Gemini and are ready for integration:
+
+| Asset | Location | Description |
+|-------|----------|-------------|
+| Room background | `plants-png/room.png` | Scandinavian room scene (~10MB PNG) |
+| 20 plant images | `plants-png/*.png` | Individual plant illustrations (~6-9MB each) |
+
+**Implementation tasks:**
+1. Copy assets from `plants-png/` to `frontend/src/assets/`
+2. Create components to render room + plants
+3. Define 20 fixed plant positions overlaying the room
+4. Wire up plant assignment UI
+
+**Do NOT:** Re-generate images, search for alternative assets, or modify the PNGs.
+
 ### Design Philosophy
 
 **"Minimalist Scandinavian Plant Room" Style:**
@@ -975,7 +992,7 @@ For Feature 5, relevant skills in `.claude/skills/`:
 
 **Asset Location:** `plants-png/room.png`
 
-**Status: COMPLETE** - Room background illustration has been created.
+**Asset Status:** READY (illustration created, not yet integrated into frontend)
 
 **How it was created:**
 - Generated using Google Gemini with prompt matching plant style
@@ -1079,7 +1096,7 @@ interface PlantSpot {
 
 **Asset Location:** `plants-png/` (root of repository)
 
-**Status: COMPLETE** - All 20 plant illustrations have been created.
+**Asset Status:** READY (all 20 illustrations created, not yet integrated into frontend)
 
 **How they were created:**
 - Generated using Google Gemini with consistent prompt template
@@ -1175,11 +1192,12 @@ interface PlantSpot {
 ### Definition of Done
 
 **Room Scene:**
-- [x] Background illustration created (`plants-png/room.png`)
-- [x] Includes sideboard, shelves, armchair, lamps, decor
-- [x] Matches Scandinavian aesthetic
-- [ ] Copy to `frontend/src/assets/room/`
+- [ ] Background renders in Designer page
+- [ ] Room image copied to `frontend/src/assets/` and imported
 - [ ] Responsive scaling works
+- [ ] Plants layer correctly on top of room background
+
+*Asset ready:* `plants-png/room.png` (Gemini-generated, ~10MB)
 
 **Plant Positions:**
 - [ ] 20 fixed spots defined (6 shelf, 8 sideboard, 6 floor)
@@ -1188,12 +1206,12 @@ interface PlantSpot {
 - [ ] Position assignment persists to backend
 
 **Plant Illustrations:**
-- [x] 20 plant species created (Gemini-generated, stored in `plants-png/`)
-- [ ] Multiple sizes per species (small/medium/large) - *optional, single size may suffice*
-- [x] Botanically accurate, detailed style
-- [x] Contrast with minimalist room background (soft grey blends with Scandinavian walls)
-- [ ] Fallback for unknown species
-- [ ] Copy assets to `frontend/src/assets/plants/`
+- [ ] Plant images copied to `frontend/src/assets/plants/` and imported
+- [ ] `<PlantImage species="monstera" />` component renders correct image
+- [ ] Fallback image for unknown species
+- [ ] Images scale appropriately for shelf/sideboard/floor positions
+
+*Assets ready:* `plants-png/*.png` (20 Gemini-generated plants, ~6-9MB each, consistent style)
 
 **UI Polish:**
 - [ ] Tooltip matches cozy aesthetic
