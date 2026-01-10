@@ -1,7 +1,7 @@
 /**
  * PlantImage Component
  *
- * Renders PNG plant illustrations based on species name.
+ * Renders WebP plant illustrations based on species name.
  * Used in the Scandinavian Room View for botanically accurate plant images.
  *
  * @example
@@ -14,27 +14,27 @@
 
 import { useState } from 'react';
 
-// Static imports for plant images
-import monsteraImg from '../../assets/plants/monstera.png';
-import snakeplantImg from '../../assets/plants/snakeplant.png';
-import pothosImg from '../../assets/plants/pothos.png';
-import fiddleImg from '../../assets/plants/fiddle.png';
-import spiderImg from '../../assets/plants/spider.png';
-import peacelilyImg from '../../assets/plants/peacelily.png';
-import rubberImg from '../../assets/plants/rubber.png';
-import zzplantImg from '../../assets/plants/zzplant.png';
-import philondendronImg from '../../assets/plants/philondendron.png';
-import aloeveraImg from '../../assets/plants/aloevera.png';
-import bostonImg from '../../assets/plants/boston.png';
-import chineseImg from '../../assets/plants/chinese.png';
-import dracaenaImg from '../../assets/plants/dracaena.png';
-import jadeImg from '../../assets/plants/jade.png';
-import stringofpearlsImg from '../../assets/plants/stringofpearls.png';
-import calatheaImg from '../../assets/plants/calathea.png';
-import birdofparadiseImg from '../../assets/plants/birdofparadise.png';
-import englishivyImg from '../../assets/plants/englishivy.png';
-import succulentaImg from '../../assets/plants/succulenta.png';
-import cactusImg from '../../assets/plants/cactus.png';
+// Static imports for plant images (optimized WebP format)
+import monsteraImg from '../../assets/plants/monstera.webp';
+import snakeplantImg from '../../assets/plants/snakeplant.webp';
+import pothosImg from '../../assets/plants/pothos.webp';
+import fiddleImg from '../../assets/plants/fiddle.webp';
+import spiderImg from '../../assets/plants/spider.webp';
+import peacelilyImg from '../../assets/plants/peacelily.webp';
+import rubberImg from '../../assets/plants/rubber.webp';
+import zzplantImg from '../../assets/plants/zzplant.webp';
+import philondendronImg from '../../assets/plants/philondendron.webp';
+import aloeveraImg from '../../assets/plants/aloevera.webp';
+import bostonImg from '../../assets/plants/boston.webp';
+import chineseImg from '../../assets/plants/chinese.webp';
+import dracaenaImg from '../../assets/plants/dracaena.webp';
+import jadeImg from '../../assets/plants/jade.webp';
+import stringofpearlsImg from '../../assets/plants/stringofpearls.webp';
+import calatheaImg from '../../assets/plants/calathea.webp';
+import birdofparadiseImg from '../../assets/plants/birdofparadise.webp';
+import englishivyImg from '../../assets/plants/englishivy.webp';
+import succulentaImg from '../../assets/plants/succulenta.webp';
+import cactusImg from '../../assets/plants/cactus.webp';
 
 export interface PlantImageProps {
   /** Plant species name (normalized for matching) */

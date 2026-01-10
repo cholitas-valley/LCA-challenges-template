@@ -8,7 +8,6 @@
 import { useState } from 'react';
 import { PlantSpot as SpotType, SpotSize } from './plantSpots';
 import { PlantImage } from './PlantImage';
-import { StatusRing } from './StatusRing';
 import { Plant } from '../../types/plant';
 import { getPlantStatus } from '../../utils/plantStatus';
 import { cn } from '../../lib/cn';
@@ -61,7 +60,7 @@ export function PlantSpot({
   return (
     <div
       className={cn(
-        'absolute transform -translate-x-1/2 -translate-y-1/2',
+        'absolute transform -translate-x-1/2',
         'transition-all duration-200 ease-in-out',
         editMode && 'cursor-pointer',
         editMode && isEmpty && 'hover:scale-105',
@@ -72,6 +71,7 @@ export function PlantSpot({
         top: `${spot.y}%`,
         width: size.width,
         height: size.height,
+        transform: 'translateX(-50%) translateY(-100%)', // Anchor at bottom so plants sit ON surfaces
       }}
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
@@ -96,7 +96,7 @@ export function PlantSpot({
           </div>
         )
       ) : (
-        // Plant image with status ring
+        // Plant image (status shown via tooltip, not ring to avoid visual clutter)
         <div
           className={cn(
             'relative w-full h-full',
@@ -105,7 +105,6 @@ export function PlantSpot({
             hovered && editMode && 'scale-110'
           )}
         >
-          <StatusRing status={status} size={spot.size} />
           <PlantImage
             species={plant.species ?? 'unknown'}
             size={spot.size}

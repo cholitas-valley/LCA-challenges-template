@@ -46,3 +46,6 @@ export type { CozyTooltipProps } from './CozyTooltip';
 
 export { StatusRing } from './StatusRing';
 export type { StatusRingProps } from './StatusRing';
+
+export { DraggablePlant } from './DraggablePlant';
+export type { DraggablePlantProps } from './DraggablePlant';

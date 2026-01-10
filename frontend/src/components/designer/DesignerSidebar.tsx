@@ -30,24 +30,42 @@ interface SidebarPlantItemProps {
 }
 
 /**
- * SidebarPlantItem renders a single plant in the sidebar.
+ * SidebarPlantItem renders a single draggable plant in the sidebar.
  */
 function SidebarPlantItem({ plant, editMode }: SidebarPlantItemProps) {
+  const handleDragStart = (e: React.DragEvent) => {
+    if (!editMode) {
+      e.preventDefault();
+      return;
+    }
+
+    // Set drag data
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'plant',
+      plantId: plant.id,
+      isFromCanvas: false,
+    }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
   return (
     <div
       className={cn(
         'flex items-center gap-3 p-3 rounded-xl',
         'bg-white/80 border border-stone-200 shadow-sm',
-        editMode && 'ring-2 ring-amber-200 ring-offset-1',
+        editMode && 'cursor-grab ring-2 ring-amber-200 ring-offset-1 hover:ring-amber-400',
+        editMode && 'active:cursor-grabbing',
         'transition-all duration-200'
       )}
       role="listitem"
       aria-label={plant.name}
+      draggable={editMode}
+      onDragStart={handleDragStart}
     >
       <PlantImage
         species={plant.species ?? 'unknown'}
         size="small"
-        className="flex-shrink-0"
+        className="flex-shrink-0 pointer-events-none"
       />
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium text-stone-800 truncate">
@@ -57,6 +75,11 @@ function SidebarPlantItem({ plant, editMode }: SidebarPlantItemProps) {
           {plant.species || 'Unknown species'}
         </div>
       </div>
+      {editMode && (
+        <svg className="w-4 h-4 text-stone-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+        </svg>
+      )}
     </div>
   );
 }
@@ -101,7 +124,7 @@ export function DesignerSidebar({ plants, editMode }: DesignerSidebarProps) {
         <>
           {editMode && (
             <p className="text-xs text-stone-500 mb-3">
-              Click an empty spot on the canvas to place a plant.
+              Drag plants onto the canvas to place them.
             </p>
           )}
           <div className="space-y-2" role="list">

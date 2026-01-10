@@ -16,9 +16,12 @@ export interface PlantAssignmentModalProps {
   isOpen: boolean;
   spotId: number;
   currentPlantId: string | null;
+  currentPlant?: Plant | null;
   availablePlants: Plant[];
+  emptySpotIds: number[];
   onAssign: (plantId: string) => void;
   onRemove: (plantId: string) => void;
+  onMoveToSpot: (plantId: string, newSpotId: number) => void;
   onClose: () => void;
 }
 
@@ -26,14 +29,19 @@ export function PlantAssignmentModal({
   isOpen,
   spotId,
   currentPlantId,
+  currentPlant,
   availablePlants,
+  emptySpotIds,
   onAssign,
   onRemove,
+  onMoveToSpot,
   onClose,
 }: PlantAssignmentModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const spot = getSpotById(spotId);
   const isOccupied = currentPlantId !== null;
+  // Filter out current spot from empty spots list
+  const otherEmptySpots = emptySpotIds.filter(id => id !== spotId);
 
   // Handle escape key
   useEffect(() => {
@@ -99,19 +107,59 @@ export function PlantAssignmentModal({
         {/* Content */}
         <div className="px-6 py-4">
           {isOccupied ? (
-            // Occupied spot - show remove option
-            <div>
-              <p className="text-sm text-stone-600 mb-4">
-                This spot is currently occupied.
-              </p>
-              <div className="flex gap-2">
+            // Occupied spot - show current plant info and move/remove options
+            <div className="space-y-4">
+              {/* Current plant info */}
+              {currentPlant && (
+                <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg border border-stone-200">
+                  <PlantImage
+                    species={currentPlant.species ?? 'unknown'}
+                    size="small"
+                    className="flex-shrink-0"
+                  />
+                  <div>
+                    <div className="font-medium text-stone-900">{currentPlant.name}</div>
+                    <div className="text-sm text-stone-500">{currentPlant.species ?? 'Unknown'}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Move to another spot */}
+              {otherEmptySpots.length > 0 && (
+                <div>
+                  <p className="text-sm text-stone-600 mb-2">Move to another spot:</p>
+                  <div className="max-h-40 overflow-y-auto space-y-1">
+                    {otherEmptySpots.map(emptySpotId => {
+                      const emptySpot = getSpotById(emptySpotId);
+                      return emptySpot ? (
+                        <button
+                          key={emptySpotId}
+                          className={cn(
+                            'w-full p-2 text-left text-sm rounded-lg',
+                            'bg-stone-50 border border-stone-200',
+                            'hover:bg-amber-50 hover:border-amber-200',
+                            'transition-colors'
+                          )}
+                          onClick={() => onMoveToSpot(currentPlantId, emptySpotId)}
+                        >
+                          {emptySpot.label}
+                        </button>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2 border-t border-stone-200">
                 <Button
                   variant="danger"
+                  size="sm"
                   onClick={() => onRemove(currentPlantId)}
                 >
-                  Remove Plant
+                  Remove
                 </Button>
-                <Button variant="secondary" onClick={onClose}>
+                <Button variant="secondary" size="sm" onClick={onClose}>
                   Cancel
                 </Button>
               </div>

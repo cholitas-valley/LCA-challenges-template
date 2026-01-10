@@ -23,35 +23,42 @@ export interface PlantSpot {
 }
 
 /**
- * 20 fixed plant spots distributed across the room.
- * Positions are calibrated to match the room.png illustration.
+ * Fixed plant spots calibrated to match the room.png illustration.
+ *
+ * Room layout:
+ * - Two floating shelves on RIGHT wall (to the right of the painting, x: 68-93)
+ * - Sideboard/credenza in CENTER (has lamp ~43%, books ~68%, vase ~80%)
+ * - Small plant stand on FAR RIGHT (x: 89)
+ * - Floor space on the rug
+ * - Cat sleeping on rug at x~72 - avoid!
+ * - Armchair on LEFT - NO spots there!
+ *
+ * Y positions are set so plants sit ON the surface (bottom of plant touches the line)
  */
 export const PLANT_SPOTS: PlantSpot[] = [
-  // Floating shelves (spots 1-6) - top area of room
-  { id: 1, location: 'shelf', x: 15, y: 18, size: 'small', label: 'Left shelf, position 1' },
-  { id: 2, location: 'shelf', x: 25, y: 18, size: 'small', label: 'Left shelf, position 2' },
-  { id: 3, location: 'shelf', x: 35, y: 18, size: 'medium', label: 'Left shelf, position 3' },
-  { id: 4, location: 'shelf', x: 60, y: 18, size: 'small', label: 'Right shelf, position 1' },
-  { id: 5, location: 'shelf', x: 70, y: 18, size: 'small', label: 'Right shelf, position 2' },
-  { id: 6, location: 'shelf', x: 80, y: 18, size: 'medium', label: 'Right shelf, position 3' },
+  // Upper floating shelf - 4 spots (shelf surface at y~24%)
+  { id: 1, location: 'shelf', x: 71, y: 24, size: 'small', label: 'Upper shelf, spot 1' },
+  { id: 2, location: 'shelf', x: 78, y: 24, size: 'small', label: 'Upper shelf, spot 2' },
+  { id: 3, location: 'shelf', x: 85, y: 24, size: 'small', label: 'Upper shelf, spot 3' },
+  { id: 4, location: 'shelf', x: 92, y: 24, size: 'small', label: 'Upper shelf, spot 4' },
 
-  // Sideboard surface (spots 7-14) - middle area
-  { id: 7, location: 'sideboard', x: 12, y: 52, size: 'small', label: 'Sideboard left end' },
-  { id: 8, location: 'sideboard', x: 22, y: 52, size: 'medium', label: 'Sideboard left-center' },
-  { id: 9, location: 'sideboard', x: 32, y: 52, size: 'small', label: 'Sideboard center-left' },
-  { id: 10, location: 'sideboard', x: 42, y: 52, size: 'medium', label: 'Sideboard center' },
-  { id: 11, location: 'sideboard', x: 52, y: 52, size: 'small', label: 'Sideboard center-right' },
-  { id: 12, location: 'sideboard', x: 62, y: 52, size: 'medium', label: 'Sideboard right-center' },
-  { id: 13, location: 'sideboard', x: 72, y: 52, size: 'small', label: 'Sideboard right' },
-  { id: 14, location: 'sideboard', x: 82, y: 52, size: 'medium', label: 'Sideboard right end' },
+  // Lower floating shelf - 4 spots (shelf surface at y~36%)
+  { id: 5, location: 'shelf', x: 71, y: 36, size: 'small', label: 'Lower shelf, spot 1' },
+  { id: 6, location: 'shelf', x: 78, y: 36, size: 'small', label: 'Lower shelf, spot 2' },
+  { id: 7, location: 'shelf', x: 85, y: 36, size: 'small', label: 'Lower shelf, spot 3' },
+  { id: 8, location: 'shelf', x: 92, y: 36, size: 'small', label: 'Lower shelf, spot 4' },
 
-  // Floor (spots 15-20) - bottom area
-  { id: 15, location: 'floor', x: 8, y: 82, size: 'large', label: 'Floor far left' },
-  { id: 16, location: 'floor', x: 22, y: 85, size: 'large', label: 'Floor left' },
-  { id: 17, location: 'floor', x: 40, y: 88, size: 'large', label: 'Floor center-left' },
-  { id: 18, location: 'floor', x: 58, y: 88, size: 'large', label: 'Floor center-right' },
-  { id: 19, location: 'floor', x: 75, y: 85, size: 'large', label: 'Floor right' },
-  { id: 20, location: 'floor', x: 90, y: 82, size: 'large', label: 'Floor far right' },
+  // Sideboard surface - 2 spots (surface at y~55%)
+  { id: 9, location: 'sideboard', x: 72, y: 55, size: 'small', label: 'Sideboard, right of books' },
+  { id: 10, location: 'sideboard', x: 76, y: 55, size: 'small', label: 'Sideboard, by vase' },
+
+  // Plant stand (far right, stand surface at y~65%)
+  { id: 11, location: 'floor', x: 89, y: 65, size: 'medium', label: 'Plant stand' },
+
+  // Floor spots on the rug (floor line at y~93%)
+  { id: 12, location: 'floor', x: 40, y: 93, size: 'medium', label: 'Rug, center left' },
+  { id: 13, location: 'floor', x: 55, y: 93, size: 'medium', label: 'Rug, center right' },
+  { id: 14, location: 'floor', x: 85, y: 93, size: 'medium', label: 'Floor, bottom right' },
 ];
 
 /**
