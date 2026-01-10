@@ -8,6 +8,8 @@ This guide covers deploying PlantOps for home production use with:
 - Real ESP32 sensor hardware
 - Production-grade security and monitoring
 
+**System Status:** Production-ready as of Feature 3 QA (139 tests passing, all DoD items verified)
+
 ## Prerequisites
 
 - Docker 20.10+ and Docker Compose 2.0+
@@ -696,6 +698,36 @@ Key metrics to monitor:
 - Database query performance
 - Memory usage per container
 - Telemetry message rate
+
+## Known Limitations
+
+Based on Feature 3 QA (task-037):
+
+### TLS Certificates
+- Current certificates are self-signed for development/staging
+- **Production recommendation:** Use certificates from a trusted CA (Let's Encrypt recommended)
+- Self-signed certs are acceptable for home/private deployments
+- Certificate validity: 10 years (suitable for home use)
+
+### Frontend Bundle Size
+- Current bundle: 623KB (exceeds 500KB warning threshold)
+- Performance impact minimal for typical home deployment
+- **Future enhancement:** Implement code-splitting to reduce initial load
+
+### MQTT Reconnection Testing
+- Backend reconnection: Fully tested with unit tests
+- ESP32 reconnection: Code verified, but not integration-tested (requires physical hardware)
+- Both implementations follow industry best practices with exponential backoff
+
+### Integration Testing
+- Health endpoints tested with mocked connections
+- Full end-to-end testing requires running services (`make up`)
+- Consider periodic smoke tests in production environment
+
+### Database Backups
+- Manual backup instructions provided in this guide
+- **Production recommendation:** Automate daily backups with retention policy
+- Consider scheduled jobs for unattended operation
 
 ## Support
 

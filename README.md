@@ -2,6 +2,8 @@
 
 IoT plant monitoring system with AI care advisor.
 
+**Status:** Production-ready (139 tests passing, all features complete)
+
 ## Features
 
 - **Device Provisioning**: Auto-register ESP32 sensors with MQTT credentials

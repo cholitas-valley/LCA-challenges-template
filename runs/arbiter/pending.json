@@ -1,25 +1,25 @@
 {
-  "ts": "2026-01-10T00:41:00.199871Z",
+  "ts": "2026-01-10T00:46:51.981980Z",
   "hook_event_name": "SubagentStop",
-  "current_task_id": "task-036",
-  "completed_task_ids_count": 10,
-  "tokens_total": 22123563,
-  "tokens_since_last_checkpoint": 3758943,
-  "minutes_since_last_checkpoint": 35.1,
-  "tasks_since_last_checkpoint": 1,
+  "current_task_id": null,
+  "completed_task_ids_count": 12,
+  "tokens_total": 23543777,
+  "tokens_since_last_checkpoint": 5179157,
+  "minutes_since_last_checkpoint": 41.0,
+  "tasks_since_last_checkpoint": 3,
   "trigger_reason": "tokens",
   "git": {
     "branch": "run/004",
-    "head": "a5d42358fadd8e0a77c031548e311bb44037992c",
-    "status_porcelain_lines": 5,
-    "diff_stat": "runs/state.json        |  12 ++---\n runs/tools/usage.jsonl | 117 +++++++++++++++++++++++++++++++++++++++++++++++++\n runs/usage/usage.jsonl |   5 +++\n 3 files changed, 128 insertions(+), 6 deletions(-)"
+    "head": "9f90c5b906da353ecf2e1c1dbd53db60f1a69806",
+    "status_porcelain_lines": 7,
+    "diff_stat": "README.md                 |  2 ++\n docs/deployment.md        | 32 ++++++++++++++++++++++++++++++++\n runs/arbiter/pending.json | 28 ++++++++++++++--------------\n runs/state.json           | 12 ++++++------\n runs/tools/usage.jsonl    |  4 ++++\n runs/usage/usage.jsonl    |  4 ++++\n 6 files changed, 62 insertions(+), 20 deletions(-)"
   },
   "diff_metrics": {
-    "files": 3,
-    "lines_added": 128,
-    "lines_removed": 6
+    "files": 6,
+    "lines_added": 62,
+    "lines_removed": 20
   },
-  "tool_invocations_since_last_checkpoint": 289,
+  "tool_invocations_since_last_checkpoint": 317,
   "permission_prompts_since_last_checkpoint": 0,
   "thresholds": {
     "max_files_changed_without_human": 25,
