@@ -93,7 +93,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Min"
                 value={inputs.soil_moisture_min}
                 onChange={(e) => handleChange('soil_moisture_min', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
               <input
                 type="number"
@@ -101,7 +101,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Max"
                 value={inputs.soil_moisture_max}
                 onChange={(e) => handleChange('soil_moisture_max', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
             </div>
           </div>
@@ -118,7 +118,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Min"
                 value={inputs.temperature_min}
                 onChange={(e) => handleChange('temperature_min', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
               <input
                 type="number"
@@ -126,7 +126,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Max"
                 value={inputs.temperature_max}
                 onChange={(e) => handleChange('temperature_max', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
             </div>
           </div>
@@ -143,7 +143,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Min"
                 value={inputs.humidity_min}
                 onChange={(e) => handleChange('humidity_min', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
               <input
                 type="number"
@@ -151,7 +151,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Max"
                 value={inputs.humidity_max}
                 onChange={(e) => handleChange('humidity_max', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
             </div>
           </div>
@@ -168,7 +168,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Min"
                 value={inputs.light_level_min}
                 onChange={(e) => handleChange('light_level_min', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
               <input
                 type="number"
@@ -176,7 +176,7 @@ export function ThresholdForm({ thresholds, onSave, isLoading = false }: Thresho
                 placeholder="Max"
                 value={inputs.light_level_max}
                 onChange={(e) => handleChange('light_level_max', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
               />
             </div>
           </div>

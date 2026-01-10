@@ -52,15 +52,15 @@ export function PlantCare() {
     <Layout>
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <Link to="/" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
+          <Link to="/" className="text-action-primary hover:text-action-primary-hover text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded">
             Dashboard
           </Link>
           <span className="text-gray-500 mx-2">/</span>
-          <Link to="/plants" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
+          <Link to="/plants" className="text-action-primary hover:text-action-primary-hover text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded">
             Plants
           </Link>
           <span className="text-gray-500 mx-2">/</span>
-          <Link to={`/plants/${id}`} className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
+          <Link to={`/plants/${id}`} className="text-action-primary hover:text-action-primary-hover text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded">
             {plant.name}
           </Link>
           <span className="text-gray-500 mx-2">/</span>
@@ -77,7 +77,7 @@ export function PlantCare() {
             </div>
             <Link
               to={`/plants/${id}`}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
             >
               Back to Details
             </Link>
@@ -95,7 +95,7 @@ export function PlantCare() {
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
                   LLM is not configured. Please{' '}
-                  <Link to="/settings" className="font-medium underline text-yellow-700 hover:text-yellow-600">
+                  <Link to="/settings" className="font-medium underline text-yellow-700 hover:text-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 rounded">
                     configure your LLM settings
                   </Link>
                   {' '}to generate care plans.
@@ -119,7 +119,7 @@ export function PlantCare() {
                 </p>
                 <button
                   onClick={handleGenerate}
-                  className="mt-2 text-sm font-medium text-status-error-text underline hover:text-status-error"
+                  className="mt-2 text-sm font-medium text-status-error-text underline hover:text-status-error focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-status-error rounded"
                 >
                   Try again
                 </button>

@@ -165,7 +165,7 @@ export function PlantCard({ plant }: PlantCardProps) {
         </span>
         <Link
           to={`/plants/${plant.id}`}
-          className="text-sm font-medium text-action-primary hover:text-action-primary-hover flex items-center gap-1"
+          className="text-sm font-medium text-action-primary hover:text-action-primary-hover flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded"
         >
           View →
         </Link>

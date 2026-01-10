@@ -106,11 +106,11 @@ export function PlantDetail() {
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
+          <Link to="/" className="text-action-primary hover:text-action-primary-hover text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded">
             Dashboard
           </Link>
           <span className="text-gray-500 mx-2">/</span>
-          <Link to="/plants" className="text-action-primary hover:text-action-primary-hover text-sm font-medium">
+          <Link to="/plants" className="text-action-primary hover:text-action-primary-hover text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded">
             Plants
           </Link>
           <span className="text-gray-500 mx-2">/</span>
@@ -127,7 +127,7 @@ export function PlantDetail() {
                     type="text"
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
-                    className="text-3xl font-bold text-gray-900 border-b-2 border-action-primary focus:outline-none"
+                    className="text-3xl font-bold text-gray-900 border-b-2 border-action-primary focus:outline-none focus:ring-2 focus:ring-action-primary rounded"
                     autoFocus
                   />
                   <Button variant="primary" size="sm" onClick={handleNameSave}>
@@ -142,7 +142,7 @@ export function PlantDetail() {
                   <h1 className="text-3xl font-bold text-gray-900">{plant.name}</h1>
                   <button
                     onClick={handleNameEdit}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded"
                     title="Edit name"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ export function PlantDetail() {
             <div className="flex gap-2">
               <Link
                 to={`/plants/${id}/care`}
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-action-primary text-action-primary-text hover:bg-action-primary-hover transition-colors"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-action-primary text-action-primary-text hover:bg-action-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary"
               >
                 View Care Plan
               </Link>

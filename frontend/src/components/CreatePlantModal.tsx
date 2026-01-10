@@ -76,7 +76,7 @@ export function CreatePlantModal({ isOpen, onClose }: CreatePlantModalProps) {
                     id="plant-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
                     placeholder="e.g., Monstera Deliciosa"
                     required
                     autoFocus
@@ -92,7 +92,7 @@ export function CreatePlantModal({ isOpen, onClose }: CreatePlantModalProps) {
                     id="plant-species"
                     value={species}
                     onChange={(e) => setSpecies(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-action-primary focus:border-action-primary"
                     placeholder="e.g., Monstera deliciosa"
                   />
                 </div>

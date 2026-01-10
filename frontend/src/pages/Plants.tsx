@@ -93,7 +93,7 @@ export function Plants() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link
                         to={`/plants/${plant.id}`}
-                        className="text-action-primary hover:text-action-primary-hover font-medium"
+                        className="text-action-primary hover:text-action-primary-hover font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action-primary rounded"
                       >
                         {plant.name}
                       </Link>
@@ -111,7 +111,7 @@ export function Plants() {
                       <div className="flex justify-end gap-2">
                         <Link
                           to={`/plants/${plant.id}`}
-                          className="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md text-action-ghost-text bg-action-ghost hover:bg-action-ghost-hover transition-colors"
+                          className="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md text-action-ghost-text bg-action-ghost hover:bg-action-ghost-hover transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
                         >
                           View
                         </Link>

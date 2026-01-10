@@ -61,6 +61,8 @@ export function StatusBadge({
 
   return (
     <span
+      role="status"
+      aria-label={`Status: ${displayLabel}`}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full font-medium',
         size === 'sm' && 'px-2 py-0.5 text-xs',
