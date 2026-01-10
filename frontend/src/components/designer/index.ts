@@ -26,3 +26,14 @@ export type { DesignerSidebarProps } from './DesignerSidebar';
 
 export { DesignerToolbar } from './DesignerToolbar';
 export type { DesignerToolbarProps } from './DesignerToolbar';
+
+export { PLANT_SPOTS, getSpotById, findNearestSpot } from './plantSpots';
+export type { PlantSpot as PlantSpotType, SpotLocation, SpotSize } from './plantSpots';
+
+export { PlantSpot } from './PlantSpot';
+export type { PlantSpotProps } from './PlantSpot';
+
+export { ScandinavianCanvas } from './ScandinavianCanvas';
+export type { ScandinavianCanvasProps } from './ScandinavianCanvas';
+
+export { positionsToSpotAssignments, spotToPosition } from './spotAssignment';

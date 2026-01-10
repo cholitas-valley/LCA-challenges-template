@@ -1,0 +1,29 @@
+{
+  "ts": "2026-01-10T13:08:42.611879Z",
+  "hook_event_name": "SubagentStop",
+  "current_task_id": "task-054",
+  "completed_task_ids_count": 0,
+  "tokens_total": 45014518,
+  "tokens_since_last_checkpoint": 4636578,
+  "minutes_since_last_checkpoint": 493.2,
+  "tasks_since_last_checkpoint": 0,
+  "trigger_reason": "tokens",
+  "git": {
+    "branch": "run/007",
+    "head": "809caca64e97d9cb6f41b4bf8340bee185198813",
+    "status_porcelain_lines": 13,
+    "diff_stat": "runs/plan.md                                       | 340 ++++++++++++---------\n ...3ebc0cb3-febf-42ca-be0c-e7c223e8dbff-summary.md |  18 +-\n runs/sessions/latest-summary.md                    |  27 +-\n runs/sessions/starts.jsonl                         |   1 +\n runs/state.json                                    |   6 +-\n runs/tools/usage.jsonl                             |   7 +\n runs/usage/usage.jsonl                             |   4 +\n 7 files changed, 227 insertions(+), 176 deletions(-)"
+  },
+  "diff_metrics": {
+    "files": 7,
+    "lines_added": 236,
+    "lines_removed": 176
+  },
+  "tool_invocations_since_last_checkpoint": 263,
+  "permission_prompts_since_last_checkpoint": 0,
+  "thresholds": {
+    "max_files_changed_without_human": 25,
+    "max_lines_changed_without_human": 800,
+    "max_permission_prompts_between_checkpoints": 3
+  }
+}
