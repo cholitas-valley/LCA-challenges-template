@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { EmptyState } from '../components/EmptyState';
 import { DeviceTable } from '../components/DeviceTable';
 import { RegisterDeviceModal } from '../components/RegisterDeviceModal';
+import { Button, FilterPills, SkeletonTable } from '../components/ui';
+import type { FilterOption } from '../components/ui';
 import { useDevices, useProvisionDevice, useDeleteDevice } from '../hooks';
 
 type StatusFilter = 'all' | 'online' | 'offline' | 'unassigned';
@@ -53,16 +54,13 @@ export function Devices() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Devices</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
             <span className="mr-2">+</span>
             Register Device
-          </button>
+          </Button>
         </div>
 
-        {isLoading && <LoadingSpinner />}
+        {isLoading && <SkeletonTable rows={5} columns={6} />}
 
         {isError && (
           <ErrorMessage
@@ -73,31 +71,17 @@ export function Devices() {
 
         {!isLoading && !isError && data && (
           <>
-            <div className="mb-6 flex gap-2">
-              <button
-                onClick={() => setStatusFilter('all')}
-                className={'px-4 py-2 rounded-md font-medium transition-colors ' + (statusFilter === 'all' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50')}
-              >
-                All ({data.devices.length})
-              </button>
-              <button
-                onClick={() => setStatusFilter('online')}
-                className={'px-4 py-2 rounded-md font-medium transition-colors ' + (statusFilter === 'online' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50')}
-              >
-                Online ({data.devices.filter(d => d.status === 'online').length})
-              </button>
-              <button
-                onClick={() => setStatusFilter('offline')}
-                className={'px-4 py-2 rounded-md font-medium transition-colors ' + (statusFilter === 'offline' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50')}
-              >
-                Offline ({data.devices.filter(d => d.status === 'offline').length})
-              </button>
-              <button
-                onClick={() => setStatusFilter('unassigned')}
-                className={'px-4 py-2 rounded-md font-medium transition-colors ' + (statusFilter === 'unassigned' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50')}
-              >
-                Unassigned ({data.devices.filter(d => d.plant_id === null).length})
-              </button>
+            <div className="mb-6">
+              <FilterPills<StatusFilter>
+                options={[
+                  { value: 'all', label: 'All', count: data.devices.length },
+                  { value: 'online', label: 'Online', count: data.devices.filter(d => d.status === 'online').length },
+                  { value: 'offline', label: 'Offline', count: data.devices.filter(d => d.status === 'offline').length },
+                  { value: 'unassigned', label: 'Unassigned', count: data.devices.filter(d => d.plant_id === null).length },
+                ] as FilterOption<StatusFilter>[]}
+                value={statusFilter}
+                onChange={setStatusFilter}
+              />
             </div>
 
             {filteredDevices && filteredDevices.length === 0 ? (

@@ -3,6 +3,8 @@ import { usePlants } from '../hooks';
 import type { Device } from '../types';
 import { AssignDeviceModal } from './AssignDeviceModal';
 import { ConfirmDialog } from './ConfirmDialog';
+import { Button, StatusBadge } from './ui';
+import type { StatusType } from './ui';
 
 interface DeviceTableProps {
   devices: Device[];
@@ -17,36 +19,6 @@ export function DeviceTable({ devices, onUnassign, onDelete, isUnassigning, isDe
   const [unassignDevice, setUnassignDevice] = useState<Device | null>(null);
   const [deleteDevice, setDeleteDevice] = useState<Device | null>(null);
   const { data: plantsData } = usePlants();
-
-  const getStatusColor = (status: Device['status']) => {
-    switch (status) {
-      case 'online':
-        return 'bg-green-500';
-      case 'offline':
-        return 'bg-gray-400';
-      case 'provisioning':
-        return 'bg-yellow-500';
-      case 'error':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-300';
-    }
-  };
-
-  const getStatusLabel = (status: Device['status']) => {
-    switch (status) {
-      case 'online':
-        return 'Online';
-      case 'offline':
-        return 'Offline';
-      case 'provisioning':
-        return 'Provisioning';
-      case 'error':
-        return 'Error';
-      default:
-        return status;
-    }
-  };
 
   const getPlantName = (plantId: string | null) => {
     if (!plantId) return 'Unassigned';
@@ -115,10 +87,7 @@ export function DeviceTable({ devices, onUnassign, onDelete, isUnassigning, isDe
             {devices.map((device) => (
               <tr key={device.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <div className={'w-3 h-3 rounded-full ' + getStatusColor(device.status)} />
-                    <span className="text-sm text-gray-900">{getStatusLabel(device.status)}</span>
-                  </div>
+                  <StatusBadge status={device.status as StatusType} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="text-sm font-mono text-gray-900">{device.id.substring(0, 8)}...</span>
@@ -136,28 +105,27 @@ export function DeviceTable({ devices, onUnassign, onDelete, isUnassigning, isDe
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => setAssignDevice(device)}
-                      className="text-sm text-green-600 hover:text-green-800 font-medium"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setAssignDevice(device)}>
                       {device.plant_id ? 'Reassign' : 'Assign'}
-                    </button>
+                    </Button>
                     {device.plant_id && (
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setUnassignDevice(device)}
                         disabled={isUnassigning}
-                        className="text-sm text-yellow-600 hover:text-yellow-800 font-medium disabled:opacity-50"
                       >
                         Unassign
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
                       onClick={() => setDeleteDevice(device)}
                       disabled={isDeleting}
-                      className="text-sm text-red-600 hover:text-red-800 font-medium disabled:opacity-50"
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Layout, LoadingSpinner, ErrorMessage, EmptyState, PlantCard, CreatePlantModal } from '../components';
+import { Layout, ErrorMessage, EmptyState, PlantCard, CreatePlantModal } from '../components';
+import { Button, SkeletonCardGrid } from '../components/ui';
 import { usePlants } from '../hooks';
 
 export function Dashboard() {
@@ -21,21 +22,14 @@ export function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
             <span className="mr-2">+</span>
             Add Plant
-          </button>
+          </Button>
         </div>
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="bg-white rounded-lg shadow p-8">
-            <LoadingSpinner />
-          </div>
-        )}
+        {isLoading && <SkeletonCardGrid count={6} />}
 
         {/* Error State */}
         {isError && (

@@ -1,340 +1,263 @@
 # PlantOps Implementation Plan
 
-> Run 004 - Production Hardening for Real ESP32 Deployment
+> Run 005 - Feature 4: UI/UX Refactor
 
-## Run/004 Status: COMPLETE ✅
-
-All 12 tasks executed successfully:
+## Run/005 Status: PLANNING
 
 ```
-┌──────┬───────────────────────────────┬────────┐
-│ Task │             Title             │ Status │
-├──────┼───────────────────────────────┼────────┤
-│ 026  │ TLS Certificate Generation    │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 027  │ Mosquitto TLS Configuration   │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 028  │ Backend TLS Connection        │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 029  │ Health and Ready Endpoints    │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 030  │ Structured Logging            │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 031  │ Migration System Verification │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 032  │ Docker Production Config      │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 033  │ ESP32 Project Scaffold        │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 034  │ ESP32 WiFi and Registration   │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 035  │ ESP32 Sensors and MQTT        │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 036  │ Documentation Update          │ ✓      │
-├──────┼───────────────────────────────┼────────┤
-│ 037  │ Feature 3 Final QA            │ ✓      │
-└──────┴───────────────────────────────┴────────┘
+┌──────┬─────────────────────────────────────────┬────────┐
+│ Task │                  Title                  │ Status │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 038  │ Semantic Color Token Architecture       │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 039  │ Button Component with Variants          │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 040  │ StatusBadge Component                   │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 041  │ FilterPills Component                   │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 042  │ Loading States (Skeletons)              │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 043  │ Page Migration (Dashboard, Devices)     │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 044  │ Page Migration (Plants, PlantDetail)    │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 045  │ Page Migration (Settings, PlantCare)    │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 046  │ Accessibility Audit and Focus States    │ -      │
+├──────┼─────────────────────────────────────────┼────────┤
+│ 047  │ Feature 4 Final QA                      │ -      │
+└──────┴─────────────────────────────────────────┴────────┘
 ```
 
-**PlantOps is now production-ready with all 3 features complete:**
-1. Feature 1: Core Platform ✓
-2. Feature 2: LLM Care Advisor ✓
-3. Feature 3: Production Hardening ✓
+---
 
-**Final Test Count:** 139 tests passing (23 new tests added in Feature 3)
+## Previous Runs
+
+### Run/004 Status: COMPLETE
+- Feature 3: Production Hardening (tasks 026-037)
+- 139 tests passing
+
+### Run/003 Status: COMPLETE
+- Feature 1: Core Platform + Feature 2: LLM Care Advisor (tasks 001-025)
+- 116 tests passing
 
 ---
 
 ## Overview
 
-This plan implements Feature 3: Production Hardening for the PlantOps system, enabling real ESP32 sensor deployment with proper security, resilience, and operational tooling.
+This plan implements Feature 4: UI/UX Refactor for the PlantOps frontend. This is a **frontend-only** run with no backend changes. The goal is to establish a professional, accessible design system with semantic colors and consistent component patterns.
 
-**Completed (run/003):**
-- Feature 1: Core Platform (devices, plants, telemetry, alerts)
-- Feature 2: LLM Care Advisor (settings, care plans, UI)
-- 116 backend tests passing
-- React dashboard with full functionality
+**Scope:** `frontend/` directory only
 
-**This Run (run/004) - COMPLETE:**
-- ✅ 3.1 MQTT Security (TLS on port 8883)
-- ✅ 3.2 Connection Resilience (auto-reconnect, health status)
-- ✅ 3.3 Structured Logging (JSON format, correlation IDs)
-- ✅ 3.4 Database Migrations (versioned, idempotent, schema_version)
-- ✅ 3.5 Docker Production Config (resource limits, health checks)
-- ✅ 3.6 ESP32 Firmware (PlatformIO, WiFi portal, self-registration)
-- ✅ 3.7 Documentation (deployment guide, API reference, firmware setup)
+**Primary Role:** `lca-frontend` for all implementation tasks
+
+**Test Baseline:** 139 tests passing (must not regress)
+
+## Current Problems Identified
+
+Analysis of the codebase reveals:
+
+1. **Color Chaos (60+ instances)**
+   - `bg-green-600` used for primary buttons, links, status indicators, and filters
+   - `bg-red-600` used for both delete buttons AND error status
+   - No semantic meaning to colors
+
+2. **Button Hierarchy Missing**
+   - All primary actions are `bg-green-600` (identical appearance)
+   - No visual distinction between primary/secondary/tertiary actions
+   - Delete and Assign buttons have same weight
+
+3. **Status vs Actions Confused**
+   - Status indicators use same color classes as action buttons
+   - "Online" status (green dot) and "Assign" button (green text) blur together
+   - Filter pills use button styling
+
+4. **Tailwind Tokens Unused**
+   - `tailwind.config.js` has `plant.healthy`, `plant.warning`, `plant.danger` defined
+   - Zero usage of these tokens in components
+   - All 60+ color references are raw utilities
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PLANTOPS PRODUCTION SYSTEM                       │
-└─────────────────────────────────────────────────────────────────────┘
+### Three-Tier Token Architecture
 
-  ┌──────────────┐     1. Register (HTTPS)  ┌──────────────┐
-  │   ESP32      │─────────────────────────▶│   Backend    │
-  │  (Sensor)    │     (get credentials)    │   (FastAPI)  │
-  └──────┬───────┘                          └──────┬───────┘
-         │                                         │
-         │ 2. MQTT/TLS (8883)                     │ Store credentials
-         ▼                                         ▼
-  ┌──────────────┐                          ┌──────────────┐
-  │  Mosquitto   │                          │  TimescaleDB │
-  │  (TLS+Auth)  │                          │              │
-  └──────┬───────┘                          └──────────────┘
-         │ 1883 (dev) / 8883 (prod)                ▲
-         │                                         │
-         │ 3. Publish telemetry                    │
-         ▼                                         │
-  ┌──────────────┐     4. Persist (JSON logs)     │
-  │   Backend    │────────────────────────────────┘
-  │ (reconnect)  │
-  └──────┬───────┘
-         │
-    ┌────┴────┬──────────────┐
-    ▼         ▼              ▼
-┌────────┐ ┌────────┐  ┌───────────┐
-│ Worker │ │Frontend│  │ LLM Care  │──▶ Anthropic/OpenAI
-│(alerts)│ │        │  │ Advisor   │   (user's API key)
-└────────┘ └────────┘  └───────────┘
+```
+Layer 1: Primitives (raw values in tailwind.config.js)
+  colors.green.500, colors.red.500, colors.yellow.500, etc.
+
+Layer 2: Semantic (intent-based)
+  colors.action.primary      -> for main CTAs
+  colors.action.secondary    -> for alternative actions
+  colors.action.danger       -> for destructive actions
+  colors.status.success      -> for healthy/online indicators
+  colors.status.warning      -> for caution indicators
+  colors.status.error        -> for critical/offline indicators
+  colors.status.info         -> for informational indicators
+
+Layer 3: Component (Tailwind CSS classes via @layer)
+  btn-primary, btn-secondary, btn-ghost, btn-danger
+  status-badge-online, status-badge-offline, status-badge-error
+  filter-pill, filter-pill-active
 ```
 
-## Tech Stack
+### Component Hierarchy
 
-| Component | Technology |
-|-----------|------------|
-| Backend | Python 3.11+ with FastAPI |
-| Database | PostgreSQL 15 + TimescaleDB |
-| Frontend | React 18 + TypeScript + Vite |
-| MQTT Broker | Mosquitto 2.x with TLS |
-| Firmware | ESP32 with PlatformIO (C++) |
-| Containerization | Docker + Docker Compose |
-| Logging | structlog (JSON format) |
+```
+frontend/src/components/
+  ui/                          # NEW: Design system primitives
+    Button.tsx                 # Primary/Secondary/Ghost/Danger variants
+    StatusBadge.tsx            # Dot + text for status indicators
+    FilterPills.tsx            # Toggle pattern for filters
+    Skeleton.tsx               # Loading skeletons
+    cn.ts                      # Class name utility (clsx + tailwind-merge)
 
-## New Components for Feature 3
-
-### MQTT TLS Infrastructure
-- Self-signed CA and server certificates
-- Mosquitto TLS listener on port 8883
-- Backend TLS connection support
-- ESP32 TLS client with CA certificate
-
-### Resilience Layer
-- Backend MQTT auto-reconnect with exponential backoff
-- ESP32 WiFi and MQTT reconnection
-- Health endpoint with connection status
-- Readiness endpoint (503 when disconnected)
-
-### Structured Logging
-- JSON log format via structlog
-- Correlation IDs for request tracing
-- Configurable log levels (LOG_LEVEL env)
-- Device/plant context in log entries
-
-### Migration System
-- schema_version table (already exists)
-- Migration files with up() functions (already exists)
-- Idempotent execution (already exists)
-- Migration runner at startup (already exists)
-
-### Production Docker
-- docker-compose.prod.yml
-- Resource limits (memory, CPU)
-- Health checks for all services
-- No bind mounts (built-in code)
-
-### ESP32 Firmware
-- PlatformIO project structure
-- WiFi captive portal for configuration
-- HTTP registration with backend
-- MQTT/TLS connection and publishing
-- DHT22, soil moisture, BH1750 sensors
-
-## Database Schema Updates
-
-No schema changes required for Feature 3. Existing schema from run/003:
-
-```sql
--- schema_migrations table (existing)
-CREATE TABLE IF NOT EXISTS schema_migrations (
-    version TEXT PRIMARY KEY,
-    applied_at TIMESTAMPTZ DEFAULT NOW()
-);
+  # Existing components (will use new ui/ primitives)
+  PlantCard.tsx
+  DeviceTable.tsx
+  CreatePlantModal.tsx
+  ...
 ```
 
-## API Endpoint Changes
+## Design Decisions
 
-### Health Endpoints (Enhanced)
-| Method | Path | Purpose |
-|--------|------|---------|
-| GET | `/api/health` | Health check with component status |
-| GET | `/api/ready` | Readiness probe (503 if not ready) |
+### Color Mapping
 
-### Response Changes
-```json
-// GET /api/health
-{
-  "status": "healthy",
-  "timestamp": "2026-01-09T12:00:00Z",
-  "version": "1.0.0",
-  "components": {
-    "database": "connected",
-    "mqtt": "connected"
-  }
-}
+| Current (Raw) | New (Semantic) | Usage |
+|---------------|----------------|-------|
+| `bg-green-600` (buttons) | `btn-primary` | Primary CTAs |
+| `bg-green-600` (filters) | `filter-pill-active` | Active filter state |
+| `text-green-600` (links) | `text-action-primary` | Action links |
+| `bg-green-500` (status) | `status-badge-online` | Online/healthy status |
+| `bg-red-600` (delete) | `btn-danger` | Destructive actions |
+| `text-red-600` (status) | `status-badge-error` | Error/offline status |
+| `bg-yellow-500` (status) | `status-badge-warning` | Warning status |
 
-// GET /api/ready
-// Returns 200 if ready, 503 if not
-{
-  "ready": true,
-  "checks": {
-    "database": true,
-    "mqtt": true
-  }
-}
+### Button Variants
+
+```tsx
+<Button variant="primary">Add Plant</Button>      // Filled, brand color
+<Button variant="secondary">Cancel</Button>       // Outlined/subtle
+<Button variant="ghost">View Details</Button>     // Text-only
+<Button variant="danger">Delete</Button>          // Filled red, destructive
+```
+
+### StatusBadge vs Button
+
+```tsx
+// STATUS: Shows state, not clickable
+<StatusBadge status="online" />      // Green dot + "Online"
+<StatusBadge status="offline" />     // Gray dot + "Offline"
+<StatusBadge status="error" />       // Red dot + "Error"
+
+// ACTION: Triggers behavior, clickable
+<Button variant="primary">Assign</Button>
+<Button variant="danger">Delete</Button>
+```
+
+### FilterPills Pattern
+
+```tsx
+// Toggle pattern, NOT action buttons
+<FilterPills
+  options={['All', 'Online', 'Offline', 'Unassigned']}
+  value={filter}
+  onChange={setFilter}
+/>
 ```
 
 ## Implementation Phases
 
-### Phase 11: MQTT Security (Tasks 026-027)
-- Generate TLS certificates
-- Configure Mosquitto TLS
-- Backend TLS connection support
+### Phase 19: Design System Foundation (Tasks 038-041)
+- Semantic color tokens in tailwind.config.js
+- Button component with variants
+- StatusBadge component
+- FilterPills component
 
-### Phase 12: Connection Resilience (Tasks 028-029)
-- Enhanced MQTT reconnection
-- Health/ready endpoints with status
+### Phase 20: Page Migration (Tasks 042-045)
+- Loading skeletons for tables and cards
+- Dashboard and Devices page migration
+- Plants and PlantDetail page migration
+- Settings and PlantCare page migration
 
-### Phase 13: Structured Logging (Task 030)
-- Implement structlog
-- Correlation IDs
-- Log level configuration
-
-### Phase 14: Migration Enhancement (Task 031)
-- Verify migration system
-- Add migration tests
-- Document migration process
-
-### Phase 15: Docker Production (Task 032)
-- docker-compose.prod.yml
-- Dockerfiles for production
-- Environment documentation
-
-### Phase 16: ESP32 Firmware (Tasks 033-035)
-- PlatformIO project setup
-- WiFi and registration
-- Sensor reading and MQTT publishing
-- TLS support
-
-### Phase 17: Documentation (Task 036)
-- Deployment guide
-- API reference
-- Firmware setup guide
-
-### Phase 18: Final QA (Task 037)
-- Integration testing
-- TLS verification
-- Documentation review
+### Phase 21: Accessibility and QA (Tasks 046-047)
+- Focus states on all interactive elements
+- Contrast ratio verification
+- Final visual review
+- Test validation
 
 ## Documentation
 
-Documentation lives in `docs/`:
+Documentation updates for `docs/`:
 
-- `docs/deployment.md` - Production deployment guide
-  - Sections: Prerequisites, Docker Production, TLS Setup, Environment Variables
-  - Updated by: task-032 (Docker production), task-027 (TLS)
+- `docs/design-system.md` - Design system documentation (NEW)
+  - Sections: Color Tokens, Button Variants, Status Indicators, Loading States
+  - Created by: task-047
 
-- `docs/api.md` - Complete API reference
-  - Sections: Health, Devices, Plants, Settings, Care Plans
-  - Updated by: task-029 (health endpoints)
-
-- `docs/firmware.md` - ESP32 firmware guide (NEW)
-  - Sections: Hardware, PlatformIO Setup, Configuration, Flashing, Troubleshooting
-  - Created by: task-035
-
-- `docs/development.md` - Development setup
-  - Sections: Local Setup, Testing, Simulator, Debugging
-  - Updated by: task-037 (final QA)
+No updates needed for existing docs (backend unchanged).
 
 ## Task Outline
 
-### Feature 3: Production Hardening
+### Feature 4: UI/UX Refactor
 
 | ID | Title | Role | Depends On |
 |----|-------|------|------------|
-| 026 | TLS Certificate Generation | backend | - |
-| 027 | Mosquitto TLS Configuration | backend | 026 |
-| 028 | Backend TLS Connection | backend | 027 |
-| 029 | Health and Ready Endpoints | backend | 028 |
-| 030 | Structured Logging | backend | - |
-| 031 | Migration System Verification | backend | - |
-| 032 | Docker Production Config | backend | 029, 030, 031 |
-| 033 | ESP32 Project Scaffold | backend | - |
-| 034 | ESP32 WiFi and Registration | backend | 033 |
-| 035 | ESP32 Sensors and MQTT | backend | 034, 028 |
-| 036 | Documentation Update | docs | 032, 035 |
-| 037 | Feature 3 Final QA | qa | 036 |
+| 038 | Semantic Color Token Architecture | frontend | - |
+| 039 | Button Component with Variants | frontend | 038 |
+| 040 | StatusBadge Component | frontend | 038 |
+| 041 | FilterPills Component | frontend | 038 |
+| 042 | Loading States (Skeletons) | frontend | 038 |
+| 043 | Page Migration (Dashboard, Devices) | frontend | 039, 040, 041, 042 |
+| 044 | Page Migration (Plants, PlantDetail) | frontend | 043 |
+| 045 | Page Migration (Settings, PlantCare) | frontend | 044 |
+| 046 | Accessibility Audit and Focus States | frontend | 045 |
+| 047 | Feature 4 Final QA | qa | 046 |
 
 ## Risks and Mitigations
 
 | Risk | Mitigation |
 |------|------------|
-| Certificate expiration | Document renewal process, use long-lived certs for home use |
-| ESP32 memory constraints | Optimize firmware, use streaming for large payloads |
-| TLS handshake failures | Include CA cert in firmware, document debugging |
-| Log volume in production | Implement log rotation, default to INFO level |
-| Migration conflicts | Use semantic versioning, test on production clone |
+| Visual regression | Take screenshots before/after each page migration |
+| Breaking existing tests | Run `make check` after each task |
+| Inconsistent migration | Complete page-by-page, not partial |
+| Color contrast failures | Use contrast checker tool during implementation |
+| Scope creep | Strictly frontend-only, no backend changes |
 
-## Success Criteria (Feature 3)
+## Success Criteria (Feature 4)
 
 From objective.md Definition of Done:
 
-**MQTT Security:**
-1. [ ] Mosquitto configured with TLS on port 8883
-2. [ ] Self-signed certificates generated and documented
-3. [ ] Backend connects via TLS when `MQTT_USE_TLS=true`
-4. [ ] ESP32 firmware connects via TLS
+**Color System:**
+- [ ] 3-layer token architecture in tailwind.config.js
+- [ ] No raw color utilities in components (no `bg-green-600`)
+- [ ] Status colors separate from action colors
+- [ ] Color contrast meets WCAG AA (4.5:1 for text)
 
-**Connection Resilience:**
-5. [ ] Backend reconnects automatically on MQTT disconnect
-6. [ ] ESP32 reconnects automatically on WiFi/MQTT disconnect
-7. [ ] `/health` endpoint shows MQTT connection status
-8. [ ] `/ready` endpoint returns 503 when not connected
+**Components:**
+- [ ] Button component with Primary/Secondary/Ghost/Danger variants
+- [ ] StatusBadge component for online/offline/error states
+- [ ] FilterPills component for filter toggles
+- [ ] All buttons use consistent hierarchy
 
-**Structured Logging:**
-9. [ ] All backend logs in JSON format (when `LOG_FORMAT=json`)
-10. [ ] Log level configurable via `LOG_LEVEL`
-11. [ ] Request tracing with correlation IDs
+**States:**
+- [ ] Skeleton loading for tables and cards
+- [ ] Empty states with clear CTAs
+- [ ] Focus states visible on all interactive elements
 
-**Database Migrations:**
-12. [ ] Migrations versioned in `migrations/` directory
-13. [ ] `schema_version` table tracks applied migrations
-14. [ ] Startup skips already-applied migrations
+**Quality:**
+- [ ] `make check` passes (build + 139 tests)
+- [ ] Visual review confirms professional appearance
+- [ ] No duplicate color definitions
 
-**Docker Production:**
-15. [ ] `docker-compose.prod.yml` with resource limits
-16. [ ] No bind mounts in production config
-17. [ ] Health checks on all services
-18. [ ] `.env.prod.example` documented
+## Skills Reference
 
-**ESP32 Firmware:**
-19. [ ] PlatformIO project compiles for ESP32
-20. [ ] WiFi connection with captive portal setup
-21. [ ] Device self-registration working
-22. [ ] Telemetry and heartbeat publishing
-23. [ ] TLS connection to Mosquitto
-
-**Documentation:**
-24. [ ] Deployment guide created
-25. [ ] API reference updated
-26. [ ] Firmware setup guide created
-27. [ ] README updated with production instructions
-
-**Tests:**
-28. [ ] All existing 116 tests still pass
-29. [ ] New tests for TLS, reconnection, logging
-30. [ ] `make check` passes
+Design skills available in `.claude/skills/`:
+- `color-theory` - Semantic colors, contrast, 60-30-10 rule
+- `design-systems` - Token architecture, three-tier structure
+- `ui-design` - Component patterns, hierarchy, 8pt grid
+- `ux-design` - Loading states, error recovery, zero-state design
+- `tailwind-css` - Custom config, cn utility, component extraction
 
 ---
 
-*Generated by lca-planner for run/004*
+*Generated by lca-planner for run/005*

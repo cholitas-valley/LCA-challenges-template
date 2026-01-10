@@ -1,17 +1,14 @@
 {
-  "severity": "WARNING",
+  "severity": "INFO",
   "needs_human": false,
   "reasons": [
-    "Lines changed (919) slightly exceeds threshold (800) - mostly logging files",
-    "Permission prompts (4) exceeded threshold (3) - planning-related, not security concerns",
-    "High token consumption (17.9M) but proportional to 8 tasks completed",
-    "Good progress: 8 tasks completed since last checkpoint (task-026 through task-034)",
-    "Work aligns with Feature 3 objectives (structured logging, migrations, Docker prod, ESP32)"
+    "3 tasks completed since last checkpoint - progress is being made",
+    "Files changed (3) is 12% of threshold (25)",
+    "Lines changed (78) is 9.75% of threshold (800)",
+    "Zero permission prompts (threshold: 3)",
+    "No high-risk bash commands detected",
+    "All changes confined to runs/ directory (logging/metadata)"
   ],
   "suggested_user_actions": [],
-  "permission_requests_summary": [
-    "AskUserQuestion: Planning clarification for care plan timing and health check output",
-    "ExitPlanMode: Plan approval for care plan refactoring",
-    "2 notification prompts (informational)"
-  ]
+  "permission_requests_summary": []
 }

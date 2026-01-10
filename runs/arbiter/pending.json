@@ -1,25 +1,25 @@
 {
-  "ts": "2026-01-10T02:15:31.467761Z",
+  "ts": "2026-01-10T02:54:52.664150Z",
   "hook_event_name": "SubagentStop",
-  "current_task_id": null,
-  "completed_task_ids_count": 12,
-  "tokens_total": 29636852,
-  "tokens_since_last_checkpoint": 11272232,
-  "minutes_since_last_checkpoint": 129.6,
-  "tasks_since_last_checkpoint": 3,
+  "current_task_id": "task-038",
+  "completed_task_ids_count": 0,
+  "tokens_total": 32507734,
+  "tokens_since_last_checkpoint": 2870882,
+  "minutes_since_last_checkpoint": 8.1,
+  "tasks_since_last_checkpoint": -12,
   "trigger_reason": "tokens",
   "git": {
-    "branch": "run/004",
-    "head": "1a3e576789fe1f211668b539de3f60ab22270cae",
-    "status_porcelain_lines": 23,
-    "diff_stat": "runs/arbiter/pending.json | 24 ++++++++++++------------\n runs/tools/usage.jsonl    | 17 +++++++++++++++++\n runs/usage/usage.jsonl    | 37 +++++++++++++++++++++++++++++++++++++\n 3 files changed, 66 insertions(+), 12 deletions(-)"
+    "branch": "run/005",
+    "head": "9695e22803beacc5f05696ec9151d53d00af976b",
+    "status_porcelain_lines": 21,
+    "diff_stat": "runs/arbiter/decision.json      |  19 +-\n runs/arbiter/pending.json       |  29 ---\n runs/arbiter/state.json         |   6 +-\n runs/plan.md                    | 501 +++++++++++++++++-----------------------\n runs/sessions/latest-summary.md |  35 ++-\n runs/sessions/starts.jsonl      |   1 +\n runs/state.json                 |   6 +-\n runs/tools/usage.jsonl          |  22 ++\n runs/usage/usage.jsonl          |  30 +++\n 9 files changed, 294 insertions(+), 355 deletions(-)"
   },
   "diff_metrics": {
-    "files": 3,
-    "lines_added": 66,
-    "lines_removed": 12
+    "files": 9,
+    "lines_added": 308,
+    "lines_removed": 353
   },
-  "tool_invocations_since_last_checkpoint": 364,
+  "tool_invocations_since_last_checkpoint": 16,
   "permission_prompts_since_last_checkpoint": 0,
   "thresholds": {
     "max_files_changed_without_human": 25,
