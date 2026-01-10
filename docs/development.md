@@ -153,6 +153,66 @@ cd backend && pytest tests/test_migrations.py -v
 cd backend && pytest --cov=src.db.migration_runner tests/test_migrations.py
 ```
 
+## Firmware Development
+
+### PlatformIO Setup
+
+The ESP32 firmware is developed using PlatformIO:
+
+```bash
+# Install PlatformIO (if not already installed)
+pip install platformio
+
+# Navigate to firmware directory
+cd firmware
+
+# Build firmware
+pio run
+
+# Flash to connected ESP32
+pio run -t upload
+
+# Monitor serial output
+pio device monitor
+```
+
+### Firmware Structure
+
+```
+firmware/
+├── include/
+│   ├── config.h           # Configuration constants
+│   ├── wifi_manager.h     # WiFi portal and connectivity
+│   ├── sensors.h          # Sensor reading interface
+│   └── mqtt_client.h      # MQTT client with TLS
+├── src/
+│   ├── main.cpp          # Main application loop
+│   ├── wifi_manager.cpp  # WiFi implementation
+│   ├── sensors.cpp       # Sensor implementations
+│   └── mqtt_client.cpp   # MQTT implementation
+└── platformio.ini        # Build configuration
+```
+
+### Testing Firmware Changes
+
+1. Update code in `firmware/src/` or `firmware/include/`
+2. Build: `pio run`
+3. Flash to device: `pio run -t upload`
+4. Monitor serial output: `pio device monitor`
+5. Verify behavior with backend logs: `make logs`
+
+### Firmware Configuration
+
+Edit `firmware/include/config.h` to change:
+- Backend host/port
+- MQTT broker host/port
+- Sensor pins
+- Telemetry intervals
+
+After changes, rebuild and reflash the device.
+
+See [firmware.md](firmware.md) for complete setup and troubleshooting.
+
 ## Code Quality
 
 The project uses several tools to maintain code quality:

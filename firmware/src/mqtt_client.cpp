@@ -97,17 +97,19 @@ bool connectMQTT() {
     // Generate client ID
     String clientId = "plantops-" + deviceId;
     
-    if (mqttClient.connect(clientId.c_str(), 
-                           mqttUsername.c_str(), 
-                           mqttPassword.c_str())) {
+    bool connected = mqttClient.connect(clientId.c_str(),
+                                         mqttUsername.c_str(),
+                                         mqttPassword.c_str());
+
+    if (connected) {
         currentStatus = MQTT_CONNECTED;
         Serial.println("[MQTT] Connected!");
         return true;
-    } else {
-        currentStatus = MQTT_DISCONNECTED;
-        Serial.printf("[MQTT] Failed, rc=%d\n", mqttClient.state());
-        return false;
     }
+
+    currentStatus = MQTT_DISCONNECTED;
+    Serial.printf("[MQTT] Failed, rc=%d\n", mqttClient.state());
+    return false;
 }
 
 bool checkMQTTConnection() {
@@ -147,13 +149,15 @@ bool publishTelemetry(float temperature, float humidity,
     String payload;
     serializeJson(doc, payload);
     
-    if (!mqttClient.publish(telemetryTopic.c_str(), payload.c_str())) {
+    bool published = mqttClient.publish(telemetryTopic.c_str(), payload.c_str());
+
+    if (published) {
+        Serial.printf("[MQTT] Published telemetry: %s\n", payload.c_str());
+    } else {
         Serial.println("[MQTT] Publish failed");
-        return false;
     }
 
-    Serial.printf("[MQTT] Published telemetry: %s\n", payload.c_str());
-    return true;
+    return published;
 }
 
 bool publishHeartbeat() {
@@ -169,12 +173,13 @@ bool publishHeartbeat() {
     String payload;
     serializeJson(doc, payload);
 
-    if (!mqttClient.publish(heartbeatTopic.c_str(), payload.c_str())) {
-        return false;
+    bool published = mqttClient.publish(heartbeatTopic.c_str(), payload.c_str());
+
+    if (published) {
+        Serial.println("[MQTT] Heartbeat sent");
     }
 
-    Serial.println("[MQTT] Heartbeat sent");
-    return true;
+    return published;
 }
 
 void mqttLoop() {

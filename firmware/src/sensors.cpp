@@ -56,9 +56,8 @@ SensorData readSensors() {
     // Map from ~4095 (dry) to ~1500 (wet) to 0-100%
     data.soilMoisture = map(constrain(rawMoisture, 1500, 4095), 4095, 1500, 0, 100);
     
-    // Read light level
-    float lux = lightMeter.readLightLevel();
-    data.lightLevel = (lux >= 0) ? lux : 0;
+    // Read light level (BH1750 returns -1 on error)
+    data.lightLevel = max(0.0f, lightMeter.readLightLevel());
     
     data.valid = true;
     
