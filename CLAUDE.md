@@ -40,6 +40,31 @@ If `runs/state.json` does not exist OR `runs/tasks/` is empty:
    - `runs/tasks/task-001.md ...` (rolling plan is fine)
    - `runs/state.json` (point to next task, set `phase = "BETWEEN_TASKS"`)
 
+## Resume (session continuation)
+If `runs/state.json` exists, check `phase` and resume appropriately:
+
+| Phase | Action |
+|-------|--------|
+| `PLANNING` | Continue/complete planning with `lca-planner` |
+| `BETWEEN_TASKS` | Proceed to execution loop (check arbiter first) |
+| `IN_TASK` | **Resume the current task** — read task file, re-invoke the role agent with context from any partial handoff |
+| `BLOCKED` | **STOP** — wait for human input, check `runs/notes.md` for details |
+
+**Resuming IN_TASK:**
+1. Read `runs/state.json` to get `current_task_id` and `current_role`
+2. Read the task file `runs/tasks/{current_task_id}.md`
+3. Check if partial handoff exists at `runs/handoffs/{current_task_id}.md`
+4. Re-invoke the role agent with:
+   - The task requirements
+   - Any partial progress from the handoff (if exists)
+   - Instruction to complete the task and run `check_command`
+
+**State validation:**
+Before proceeding, verify state is consistent:
+- If `current_task_id` is set, the task file must exist
+- If `phase=IN_TASK`, `current_role` must be set
+- If inconsistent, set `phase=BLOCKED` and log to `runs/notes.md`
+
 ## Execution loop
 Repeat until all tasks are marked complete in `runs/state.json`:
 

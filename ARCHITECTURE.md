@@ -153,10 +153,12 @@ docs/                        # Implementation docs (lca-docs writes here)
 │   ├── lca-enforcer.md      # Protocol compliance gate (automatic)
 │   └── lca-arbiter.md       # Periodic checkpoint auditor
 ├── hooks/
-│   ├── usage-record.py      # Token tracking (no LLM overhead)
-│   ├── tool-use-record.py   # Tool invocation logging (PreToolUse)
-│   ├── permission-record.py # Permission request logging (when prompts occur)
-│   └── arbiter-scheduler.py # Triggers arbiter on token/time thresholds
+│   ├── session-start.py     # SessionStart: LCA state + arbiter alerts on resume
+│   ├── session-summary.py   # Stop: writes session summary for easier resume
+│   ├── tool-record.py       # PostToolUse: tool outcomes (Bash/Edit/Write)
+│   ├── usage-record.py      # Stop: token tracking (no LLM overhead)
+│   ├── permission-record.py # PermissionRequest: permission prompt logging
+│   └── arbiter-scheduler.py # Stop: triggers arbiter on token/time thresholds
 └── skills/
     └── lca-protocol/
         └── SKILL.md         # Protocol definition (task/state/handoff formats)
@@ -185,6 +187,10 @@ runs/
 ├── usage/                   # Generated: usage.jsonl (token usage records)
 ├── tools/                   # Generated: usage.jsonl (tool invocation log)
 ├── permissions/             # Generated: requests.jsonl (permission prompts, if any)
+├── sessions/                # Generated: session start logs + summaries
+│   ├── starts.jsonl         # Session start events
+│   ├── <session_id>-summary.md  # Per-session summary
+│   └── latest-summary.md    # Most recent session summary
 ├── arbiter/                 # Arbiter checkpoint system
 │   ├── config.json          # Thresholds (tokens, time, files, lines, permissions)
 │   ├── state.json           # Last checkpoint metadata
@@ -301,6 +307,38 @@ After each task, the executing role agent must write a handoff containing at lea
 
 This is what enables deterministic context passing between role agents without relying on long chat history.
 
+### Hooks System
+
+Claude Code hooks provide out-of-band automation without LLM token overhead:
+
+| Hook | Scripts | Purpose |
+|------|---------|---------|
+| `SessionStart` | `session-start.py` | LCA state + arbiter alerts on session resume |
+| `PostToolUse` | `tool-record.py` | Tool outcomes (Bash/Edit/Write) with success/failure |
+| `Stop` | `usage-record.py`, `arbiter-scheduler.py`, `session-summary.py` | Tokens + arbiter trigger + session summary |
+| `SubagentStop` | (same as Stop) | Same hooks for subagent completion |
+| `PermissionRequest` | `permission-record.py` | Permission prompt logging |
+| `Notification` | `permission-record.py` | Permission prompt logging |
+
+**SessionStart Hook:**
+* Injects LCA protocol state on session start/resume
+* Shows arbiter alerts if `pending.json` exists or phase is `BLOCKED`
+* Provides one-line state summary: `[LCA: phase=IN_TASK, task=task-038, role=lca-backend, completed=12]`
+* Logs session starts to `runs/sessions/starts.jsonl`
+
+**PostToolUse Hook (tool-record.py):**
+* Logs tool outcomes (replaces PreToolUse for richer data)
+* Captures: tool name, success/failure, command, task context
+* Detects check_command executions (`make check`, `pytest`, etc.)
+* Includes result preview for errors and check commands
+* Logs to `runs/tools/usage.jsonl`
+
+**Session Summary Hook:**
+* Writes `runs/sessions/<session_id>-summary.md` on session end
+* Includes: LCA state, files modified, recent actions, failure count
+* Also writes `runs/sessions/latest-summary.md` for easy access
+* Helps with session resume and debugging
+
 ### Token Tracking
 
 Token usage is captured **out-of-band** (no LLM overhead) via Claude Code hooks:
@@ -332,15 +370,42 @@ The arbiter is an independent "blackhat" auditor that operates between tasks to 
 * `max_lines_changed_without_human`: 800
 * `max_permission_prompts_between_checkpoints`: 3
 
-**Tool Usage Logging:**
-* `PreToolUse` hook triggers `.claude/hooks/tool-use-record.py` for every Bash invocation
-* Logs to `runs/tools/usage.jsonl` - works even with `bypassPermissions` mode
-* Tagged with `task_id`, `role`, and `phase` for arbiter review
-
 **Permission Logging:**
 * `PermissionRequest` and `Notification` hooks trigger `.claude/hooks/permission-record.py`
 * Only fires when actual permission prompts occur (not in `bypassPermissions` mode)
 * Logs to `runs/permissions/requests.jsonl`
+
+### Plugins
+
+Claude Code plugins extend functionality with reusable components:
+
+**Installed Plugins:**
+
+| Plugin | Source | Purpose |
+|--------|--------|---------|
+| `code-simplifier` | claude-plugins-official | Code clarity/consistency (post agent) |
+| `security-guidance` | claude-plugins-official | Security pattern warnings on file edits |
+
+**security-guidance Plugin:**
+* PreToolUse hook on Edit/Write operations
+* Warns about security patterns before code is written:
+  - `os.system` - Python command injection
+  - `eval()` - Code injection
+  - `pickle` - Unsafe deserialization
+  - `dangerouslySetInnerHTML` - React XSS
+  - `.innerHTML` - XSS
+  - `document.write` - XSS
+  - `child_process.exec` - Node.js command injection
+  - `new Function` - Code injection
+  - GitHub Actions workflow injection
+* Blocks execution (exit code 2) until acknowledged
+* Shows each warning once per file per session
+
+**Installation:**
+```bash
+claude plugin install security-guidance
+claude plugin install code-simplifier
+```
 
 ### Communication Model
 
