@@ -12,11 +12,17 @@ export interface PlantThresholds {
   light_level?: ThresholdConfig;
 }
 
+export interface PlantPosition {
+  x: number;
+  y: number;
+}
+
 export interface Plant {
   id: string;
   name: string;
   species: string | null;
   thresholds: PlantThresholds | null;
+  position: PlantPosition | null;
   created_at: string;
   latest_telemetry?: TelemetryRecord | null;
   device_count: number;
