@@ -17,22 +17,21 @@
 #include "config.h"
 #include "wifi_manager.h"
 #include "registration.h"
+#include "sensors.h"
+#include "mqtt_client.h"
 
-// Forward declarations
-void setup();
-void loop();
-void checkFactoryReset();
-
-// Configuration
 const char* FIRMWARE_VERSION = "1.0.0";
-
-// Factory reset button configuration
-#define RESET_BUTTON_PIN 0  // BOOT button on most ESP32 boards
-#define RESET_HOLD_TIME_MS 10000
 
 // Global state
 static RegistrationResult deviceCredentials;
-static unsigned long lastReconnectAttempt = 0;
+static unsigned long lastTelemetryTime = 0;
+static unsigned long lastHeartbeatTime = 0;
+static unsigned long lastWifiCheck = 0;
+
+// Factory reset button
+#define RESET_BUTTON_PIN 0
+#define RESET_HOLD_TIME_MS 10000
+#define WIFI_CHECK_INTERVAL_MS 10000
 
 void setup() {
     Serial.begin(115200);
@@ -78,25 +77,64 @@ void setup() {
 
     Serial.printf("[Main] Device ID: %s\n", deviceCredentials.deviceId.c_str());
 
-    // TODO: Initialize sensors (task-035)
-    // TODO: Connect to MQTT (task-035)
+    // Initialize sensors
+    initSensors();
+
+    // Initialize MQTT with TLS
+    initMQTT(
+        DEFAULT_MQTT_HOST,
+        DEFAULT_MQTT_PORT,
+        deviceCredentials.mqttUsername,
+        deviceCredentials.mqttPassword,
+        deviceCredentials.deviceId
+    );
+
+    // Connect to MQTT
+    connectMQTT();
+
+    Serial.println("[Main] Setup complete!");
 }
 
 void loop() {
+    unsigned long now = millis();
+
     // Check for factory reset button
     checkFactoryReset();
 
-    // Check WiFi connection
-    if (getWiFiStatus() != WIFI_CONNECTED) {
-        if (millis() - lastReconnectAttempt > WIFI_RECONNECT_DELAY_MS) {
-            lastReconnectAttempt = millis();
+    // Check WiFi connection periodically
+    if (now - lastWifiCheck > WIFI_CHECK_INTERVAL_MS) {
+        lastWifiCheck = now;
+        if (getWiFiStatus() != WIFI_CONNECTED) {
             checkWiFiConnection();
         }
     }
 
-    // TODO: Read sensors and publish telemetry (task-035)
-    // TODO: Send heartbeat (task-035)
-    // TODO: Handle MQTT reconnection (task-035)
+    // Maintain MQTT connection
+    checkMQTTConnection();
+    mqttLoop();
+
+    // Publish telemetry
+    if (now - lastTelemetryTime > TELEMETRY_INTERVAL_MS) {
+        lastTelemetryTime = now;
+
+        if (getMQTTStatus() == MQTT_CONNECTED) {
+            SensorData data = readSensors();
+            if (data.valid) {
+                publishTelemetry(
+                    data.temperature,
+                    data.humidity,
+                    data.soilMoisture,
+                    data.lightLevel
+                );
+            }
+        }
+    }
+
+    // Publish heartbeat
+    if (now - lastHeartbeatTime > HEARTBEAT_INTERVAL_MS) {
+        lastHeartbeatTime = now;
+        publishHeartbeat();
+    }
 
     delay(100);
 }
@@ -104,20 +142,21 @@ void loop() {
 void checkFactoryReset() {
     static unsigned long buttonPressStart = 0;
 
-    if (digitalRead(RESET_BUTTON_PIN) == LOW) {
-        if (buttonPressStart == 0) {
-            buttonPressStart = millis();
-            Serial.println("[Main] Factory reset button pressed...");
-        } else if (millis() - buttonPressStart > RESET_HOLD_TIME_MS) {
-            Serial.println("[Main] Factory reset triggered!");
-            clearStoredCredentials();
-            resetWiFiCredentials();
-            // resetWiFiCredentials() calls ESP.restart()
-        }
-    } else {
-        if (buttonPressStart != 0) {
-            Serial.println("[Main] Factory reset button released");
-        }
+    bool buttonPressed = digitalRead(RESET_BUTTON_PIN) == LOW;
+
+    if (!buttonPressed) {
         buttonPressStart = 0;
+        return;
+    }
+
+    if (buttonPressStart == 0) {
+        buttonPressStart = millis();
+        return;
+    }
+
+    if (millis() - buttonPressStart > RESET_HOLD_TIME_MS) {
+        Serial.println("[Main] Factory reset!");
+        clearStoredCredentials();
+        resetWiFiCredentials();
     }
 }
