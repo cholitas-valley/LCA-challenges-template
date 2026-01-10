@@ -4,6 +4,40 @@ Interactive skill for setting up a new feature. Follow this checklist when user 
 
 ## Checklist
 
+### 0. Mark Previous Feature Complete (if applicable)
+
+Before setting up a new feature, close out the previous completed feature:
+
+- [ ] Read the previous run's final QA handoff: `runs/handoffs/task-XXX-recorder.md` (the last recorder handoff)
+- [ ] Read `runs/state.json` to confirm:
+  - `phase` is `BETWEEN_TASKS` (run complete)
+  - All expected tasks in `completed_task_ids`
+- [ ] Update `objective.md`:
+  - Mark all Definition of Done items as `[x]` (checked)
+  - Add completion metadata after DoD section:
+    ```markdown
+    **Completed:** run/NNN (YYYY-MM-DD) — N tests passing
+    ```
+- [ ] Update Implementation Order section if it has status markers
+- [ ] Verify: grep the feature section for any remaining `[ ]` (unchecked items)
+
+**Example transformation:**
+```markdown
+# Before
+### Definition of Done
+- [ ] Button component with 4 variants
+- [ ] StatusBadge component for status indicators
+- [ ] `make check` passes
+
+# After
+### Definition of Done
+- [x] Button component with 4 variants
+- [x] StatusBadge component for status indicators
+- [x] `make check` passes
+
+**Completed:** run/005 (2026-01-10) — 139 tests passing
+```
+
 ### 1. Define Feature in objective.md
 - [ ] Read current objective.md
 - [ ] Discuss feature scope with user

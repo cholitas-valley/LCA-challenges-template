@@ -478,13 +478,20 @@ Features 1 and 2 are **complete** as of run/003:
    - ESP32 firmware
    - Documentation
 
-4. **Feature 4** (UI/UX Refactor) - Design cleanup
+4. **Feature 4** (UI/UX Refactor) - Design cleanup ✅ COMPLETE (run/005)
    - Semantic color system (fix red/green button chaos)
    - Consistent component patterns
    - Proper button hierarchy (primary/secondary/danger)
    - Status indicators vs action buttons separation
    - Accessibility improvements (color blindness, contrast)
    - Design token architecture
+
+5. **Feature 5** (Designer Space) - Visual floor plan
+   - Minimalist "clean technical" aesthetic
+   - 20 SVG plant icons (top-down line art)
+   - Interactive canvas with drag-and-drop
+   - Real-time status overlays
+   - Backend position storage
 
 ---
 
@@ -613,26 +620,28 @@ Solution:
 ### Definition of Done
 
 **Color System:**
-- [ ] 3-layer token architecture in tailwind.config.js (primitives → semantic → component)
-- [ ] No raw color utilities in components (no `bg-green-600`)
-- [ ] Status colors separate from action colors
-- [ ] Color contrast meets WCAG AA (4.5:1 for text)
+- [x] 3-layer token architecture in tailwind.config.js (primitives → semantic → component)
+- [x] No raw color utilities in components (no `bg-green-600`)
+- [x] Status colors separate from action colors
+- [x] Color contrast meets WCAG AA (4.5:1 for text)
 
 **Components:**
-- [ ] Button component with Primary/Secondary/Ghost/Danger variants
-- [ ] StatusBadge component for online/offline/error states
-- [ ] FilterPills component for filter toggles
-- [ ] All buttons use consistent hierarchy
+- [x] Button component with Primary/Secondary/Ghost/Danger variants
+- [x] StatusBadge component for online/offline/error states
+- [x] FilterPills component for filter toggles
+- [x] All buttons use consistent hierarchy
 
 **States:**
-- [ ] Skeleton loading for tables and cards
-- [ ] Empty states with clear CTAs
-- [ ] Focus states visible on all interactive elements
+- [x] Skeleton loading for tables and cards
+- [x] Empty states with clear CTAs
+- [x] Focus states visible on all interactive elements
 
 **Quality:**
-- [ ] `make check` passes (build + tests)
-- [ ] Visual review confirms professional appearance
-- [ ] No duplicate color definitions
+- [x] `make check` passes (build + tests)
+- [x] Visual review confirms professional appearance
+- [x] No duplicate color definitions
+
+**Completed:** run/005 (2026-01-10) — 139 tests passing
 
 ### Skills Available
 
@@ -707,3 +716,190 @@ Alert message is generated from stored data:
 f"{metric} is {value:.1f}, threshold {direction} {threshold:.1f}"
 # Example: "soil_moisture is 15.2, threshold min 20.0"
 ```
+
+---
+
+## Feature 5: Designer Space (Visual Floor Plan)
+
+**Goal:** A visual "room view" where users can see their plants spatially arranged, using a minimalist architectural blueprint aesthetic with real-time status overlays.
+
+**Scope:** Frontend-heavy (`frontend/`) with minor backend additions for position storage.
+
+**Primary role:** `lca-frontend` for UI implementation, `lca-backend` for position API.
+
+### Design Philosophy
+
+**"Clean Technical" Style:**
+- Top-down 2D view (like an architectural floor plan)
+- Uniform black or dark grey lines on white background
+- No shading, shadows, or 3D effects
+- Simple geometric outlines for plants
+- Status colors (green/yellow/red) pop against the monochrome base
+
+**Visual Language:**
+```
+┌─────────────────────────────────────────────┐
+│                                             │
+│     🌿              🪴                      │
+│   [Monstera]     [Snake Plant]              │
+│    ● Online       ● Warning                 │
+│                                             │
+│              🌱                             │
+│           [Pothos]                          │
+│           ● Offline                         │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+### 5.1 Plant Icon Library
+
+**Requirement:** SVG line art icons for common houseplants.
+
+Top 20 houseplants to support (geometric top-down silhouettes):
+1. Monstera Deliciosa (split leaves)
+2. Snake Plant / Sansevieria (pointed cluster)
+3. Pothos (trailing heart leaves)
+4. Fiddle Leaf Fig (large oval leaves)
+5. Spider Plant (arching fronds)
+6. Peace Lily (oval leaves, central flower)
+7. Rubber Plant (large oval)
+8. ZZ Plant (compound leaves)
+9. Philodendron (heart-shaped cluster)
+10. Aloe Vera (pointed rosette)
+11. Boston Fern (arching fronds)
+12. Chinese Evergreen (oval pointed)
+13. Dracaena (sword-shaped)
+14. Jade Plant (round succulent leaves)
+15. String of Pearls (trailing dots)
+16. Calathea (striped oval)
+17. Bird of Paradise (large paddle)
+18. English Ivy (trailing star)
+19. Succulent (generic rosette)
+20. Cactus (generic outline)
+
+**Icon specs:**
+- SVG format, single path
+- Viewbox: 64x64 or 128x128
+- Stroke-only (no fills) - `stroke: currentColor`
+- Line weight: 1.5-2px
+- Monochrome (inherit color from parent)
+
+### 5.2 Designer Canvas
+
+**Requirement:** Interactive canvas for placing and viewing plants.
+
+- **Canvas Component**: SVG or Canvas-based, responsive to container
+- **Grid System**: Optional snap-to-grid (8pt or 16pt grid)
+- **Room Outline**: Simple rectangle or user-customizable shape
+- **Zoom/Pan**: Optional, but nice for larger spaces
+
+**Plant Placement:**
+- Drag plants from a sidebar onto the canvas
+- Plants snap to grid (optional toggle)
+- Position persisted to backend
+- Click plant to see details (opens existing PlantDetail)
+
+### 5.3 Status Overlay
+
+**Requirement:** Real-time status visualization on each plant.
+
+**Status Indicators:**
+- Small colored dot below/beside plant icon
+- Uses existing status tokens: `status-success`, `status-warning`, `status-error`
+- Optionally: colored ring/glow around plant outline
+
+**Status Rules:**
+- Online + Optimal → Green dot
+- Online + Warning → Yellow dot
+- Online + Critical → Red dot
+- Offline → Grey dot + dimmed icon
+
+**Optional Enhancements:**
+- Subtle pulse animation for alerts
+- Hover to show quick stats (soil %, temp, etc.)
+
+### 5.4 Backend: Position Storage
+
+**Requirement:** Store plant positions for the designer view.
+
+**API Endpoint:**
+```
+PUT /api/plants/{id}/position
+Body: { "x": 120, "y": 80 }
+
+GET /api/plants (existing, add position to response)
+Response: { ..., "position": { "x": 120, "y": 80 } }
+```
+
+**Database:**
+- Add `position JSONB` column to plants table
+- Default: `null` (not placed in designer)
+- Migration: `ALTER TABLE plants ADD COLUMN position JSONB;`
+
+### 5.5 Designer Page
+
+**Requirement:** New page route `/designer` or `/space`.
+
+**Layout:**
+```
+┌──────────────────────────────────────────────────┐
+│ Designer Space                        [Edit Mode]│
+├───────────┬──────────────────────────────────────┤
+│           │                                      │
+│ Unplaced: │                                      │
+│ [🌿 M...]│         ┌─────────────┐              │
+│ [🪴 S...]│         │    ROOM     │              │
+│           │         │             │              │
+│           │         │  🌿   🪴   │              │
+│           │         │             │              │
+│           │         └─────────────┘              │
+│           │                                      │
+└───────────┴──────────────────────────────────────┘
+```
+
+**Modes:**
+- **View Mode**: See plants with status, click for details
+- **Edit Mode**: Drag to reposition, toggle grid
+
+### Definition of Done
+
+**Icons:**
+- [ ] 20 SVG plant icons created (top-down line art)
+- [ ] Icons accessible via `<PlantIcon species="monstera" />`
+- [ ] Fallback icon for unknown species
+
+**Canvas:**
+- [ ] DesignerCanvas component renders plants at positions
+- [ ] Drag-and-drop to reposition (edit mode)
+- [ ] Click plant navigates to plant detail
+- [ ] Responsive canvas sizing
+
+**Status:**
+- [ ] Status dots use semantic tokens
+- [ ] Real-time updates (polling or existing data)
+- [ ] Offline plants visually dimmed
+
+**Backend:**
+- [ ] `position` column added to plants table
+- [ ] `PUT /api/plants/{id}/position` endpoint
+- [ ] Position included in `GET /api/plants` response
+
+**Page:**
+- [ ] `/designer` route added
+- [ ] Sidebar shows unplaced plants
+- [ ] Edit/View mode toggle
+- [ ] Integrates with existing navigation
+
+**Quality:**
+- [ ] `make check` passes
+- [ ] Visual matches "clean technical" aesthetic
+- [ ] Touch-friendly (works on tablet)
+
+### Skills Available
+
+For Feature 5, relevant skills in `.claude/skills/`:
+- `ui-design` - Component patterns, hierarchy
+- `ux-design` - User flows, interaction patterns
+- `tailwind-css` - Styling
+- `frontend` - React patterns
+- `design-systems` - Consistent tokens

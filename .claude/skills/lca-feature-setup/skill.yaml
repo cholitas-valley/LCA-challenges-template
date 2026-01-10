@@ -16,6 +16,17 @@ triggers:
   - "feature setup"
 
 checklist:
+  0_mark_previous_complete:
+    description: "Mark previous feature as complete in objective.md (if applicable)"
+    steps:
+      - "Read the previous run's final QA/recorder handoff"
+      - "Confirm runs/state.json shows phase=BETWEEN_TASKS and all tasks complete"
+      - "Update objective.md Definition of Done: change all [ ] to [x]"
+      - "Add completion metadata: **Completed:** run/NNN (date) — N tests passing"
+      - "Update Implementation Order status markers if present"
+      - "Verify no unchecked [ ] items remain in the feature section"
+    skip_if: "No previous feature to close out (first feature of project)"
+
   1_define_feature:
     description: "Define the feature in objective.md"
     steps:
