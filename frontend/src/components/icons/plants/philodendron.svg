@@ -1,0 +1,9 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Philodendron - Heart-shaped cluster of leaves -->
+  <path d="M32 12C26 8 18 12 18 20C18 26 26 32 32 26C38 32 46 26 46 20C46 12 38 8 32 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 26L32 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M20 30C14 26 6 30 6 38C6 44 14 50 20 44C26 50 34 44 34 38C34 30 26 26 20 30Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 30C38 26 30 30 30 38C30 44 38 50 44 44C50 50 58 44 58 38C58 30 50 26 44 30Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 44L20 56" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M44 44L44 56" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

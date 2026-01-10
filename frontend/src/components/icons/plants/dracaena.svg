@@ -1,0 +1,9 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dracaena - Sword-shaped leaves in cluster -->
+  <path d="M32 6L34 32L32 36L30 32L32 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 10L28 32L26 36L22 28L24 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 10L36 32L38 36L42 28L40 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 16L24 34L22 38L14 30L16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 16L40 34L42 38L50 30L48 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="32" cy="48" rx="14" ry="8" stroke="currentColor" stroke-width="1.5"/>
+</svg>

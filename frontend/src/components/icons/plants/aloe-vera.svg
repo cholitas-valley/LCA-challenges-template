@@ -1,0 +1,11 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Aloe Vera - Pointed rosette pattern, succulent leaves -->
+  <path d="M32 8L36 32L32 36L28 32L32 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 14L30 32L28 38L18 28L20 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 14L34 32L36 38L46 28L44 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 24L26 36L24 42L10 34L12 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M52 24L38 36L40 42L54 34L52 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 40L28 44L26 52L14 46L16 40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 40L36 44L38 52L50 46L48 40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="36" r="4" stroke="currentColor" stroke-width="1.5"/>
+</svg>

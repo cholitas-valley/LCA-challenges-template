@@ -1,0 +1,17 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- English Ivy - Star-shaped trailing leaves -->
+  <circle cx="32" cy="12" r="6" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M26 16L18 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M38 16L46 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 18L32 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Star-shaped leaves -->
+  <path d="M18 28L14 24L18 32L22 28L18 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M46 28L42 24L46 32L50 28L46 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 36L28 32L32 40L36 36L32 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18 32L12 44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M46 32L52 44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 40L32 52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M12 44L8 40L12 48L16 44L12 44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M52 44L48 40L52 48L56 44L52 44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 52L28 48L32 56L36 52L32 52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

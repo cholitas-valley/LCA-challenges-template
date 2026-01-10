@@ -1,0 +1,19 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- String of Pearls - Trailing dots/beads pattern -->
+  <ellipse cx="32" cy="10" rx="10" ry="6" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M26 14C24 18 22 24 20 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 14C32 20 32 28 32 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M38 14C40 18 42 24 44 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="20" cy="20" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="18" cy="28" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="16" cy="36" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="14" cy="44" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="32" cy="24" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="32" cy="34" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="32" cy="44" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="32" cy="54" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="44" cy="20" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="46" cy="28" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="48" cy="36" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <circle cx="50" cy="44" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+</svg>

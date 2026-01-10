@@ -1,0 +1,10 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Peace Lily - Oval leaves with one central flower spike -->
+  <ellipse cx="20" cy="32" rx="10" ry="18" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M20 14L20 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="44" cy="32" rx="10" ry="18" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M44 14L44 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 56L32 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 24C28 20 28 12 32 8C36 12 36 20 32 24Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="32" cy="18" rx="1.5" ry="6" stroke="currentColor" stroke-width="1.5"/>
+</svg>

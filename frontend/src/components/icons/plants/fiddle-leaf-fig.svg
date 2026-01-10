@@ -1,0 +1,12 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fiddle Leaf Fig - Large oval leaves with prominent veins -->
+  <ellipse cx="32" cy="24" rx="12" ry="16" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M32 8L32 40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M26 16L32 20L38 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 24L32 28L40 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 32L32 36L38 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="18" cy="44" rx="8" ry="10" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M18 34L18 54" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="46" cy="44" rx="8" ry="10" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M46 34L46 54" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

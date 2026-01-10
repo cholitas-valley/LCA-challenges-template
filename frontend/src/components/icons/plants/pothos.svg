@@ -1,0 +1,10 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pothos - Heart-shaped leaves trailing/cascading -->
+  <path d="M32 20C28 16 22 18 22 24C22 28 28 32 32 28C36 32 42 28 42 24C42 18 36 16 32 20Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 36C16 32 10 34 10 40C10 44 16 48 20 44C24 48 30 44 30 40C30 34 24 32 20 36Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 36C40 32 34 34 34 40C34 44 40 48 44 44C48 48 54 44 54 40C54 34 48 32 44 36Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 28L26 34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 28L38 34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M20 44L16 52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M44 44L48 52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

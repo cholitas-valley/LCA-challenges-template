@@ -1,0 +1,16 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Boston Fern - Dense fronds arching in all directions -->
+  <circle cx="32" cy="32" r="3" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M32 32C32 32 32 24 32 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 24 26 12 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 40 26 52 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 24 32 10 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 40 32 54 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 24 38 12 46" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 40 38 52 46" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 28 40 22 54" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 32C32 32 36 40 42 54" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M30 14L32 10L34 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 20L12 18L16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M50 20L52 18L48 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

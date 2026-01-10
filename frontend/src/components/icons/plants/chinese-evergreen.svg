@@ -1,0 +1,12 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chinese Evergreen - Oval pointed leaves from center -->
+  <ellipse cx="32" cy="22" rx="10" ry="14" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M32 8L32 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="18" cy="38" rx="8" ry="12" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M18 26L18 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="46" cy="38" rx="8" ry="12" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M46 26L46 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M26 18L32 22L38 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 34L18 38L23 34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M41 34L46 38L51 34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

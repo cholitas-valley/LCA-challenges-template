@@ -1,0 +1,17 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Jade Plant - Small round succulent leaves on branches -->
+  <path d="M32 56L32 36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 36L24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 36L40 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M24 24L16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M24 24L24 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M40 24L48 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M40 24L40 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="16" cy="12" rx="4" ry="3" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="24" cy="10" rx="4" ry="3" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="32" cy="32" rx="4" ry="3" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="48" cy="12" rx="4" ry="3" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="40" cy="10" rx="4" ry="3" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="12" cy="20" rx="3" ry="2.5" stroke="currentColor" stroke-width="1.5"/>
+  <ellipse cx="52" cy="20" rx="3" ry="2.5" stroke="currentColor" stroke-width="1.5"/>
+</svg>
