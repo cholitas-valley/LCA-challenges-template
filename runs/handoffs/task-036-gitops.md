@@ -6,25 +6,22 @@ Committed comprehensive documentation updates for Feature 3 (Production Hardenin
 
 ## Commit Information
 
-**Commit Hash**: `2ecad526770c361751d15ed26654ed227860631d`
+**Commit Hash**: `59e894d2efe5989f9fbc6fdb47343ccfe6874f60`
 
 **Commit Message**:
 ```
 task-036: Documentation Update
 
-Created comprehensive API reference (docs/api.md) covering all 20 endpoints
-with request/response examples. Enhanced deployment guide with environment
-variables reference, network configuration (firewall examples), and
-logging/monitoring sections.
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 **Branch**: run/004
 
 **Author**: Claude Haiku 4.5 <noreply@anthropic.com>
 
-**Timestamp**: 2026-01-10T01:36:50+01:00
+**Timestamp**: 2026-01-10T01:37:34+01:00
 
-**Stats**: 5 files changed, 228 insertions(+), 41 deletions(-)
+**Stats**: 1 file changed, 4 insertions(+)
 
 ## Files Committed
 
@@ -34,12 +31,8 @@ logging/monitoring sections.
 - `docs/deployment.md` - Enhanced deployment guide with TLS, Docker, environment variables, operations, monitoring
 - `docs/development.md` - Developer guide with migration system and testing procedures
 
-### Administrative Files (Current commit)
-- `runs/handoffs/task-036-gitops.md` - This gitops handoff file
-- `runs/handoffs/task-036-recorder.md` - Recorder handoff (modified)
-- `runs/state.json` - Updated task state and phase
-- `runs/tools/usage.jsonl` - Token usage tracking
-- `runs/usage/usage.jsonl` - Usage metrics
+### Administrative Files (Current gitops commit 59e894d)
+- `runs/tools/usage.jsonl` - Token usage tracking (4 insertions)
 
 ## Task Documentation Summary
 
