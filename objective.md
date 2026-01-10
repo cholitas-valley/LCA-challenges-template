@@ -814,9 +814,26 @@ Top 20 houseplants to support (geometric top-down silhouettes):
 - Online + Critical → Red dot
 - Offline → Grey dot + dimmed icon
 
+**Hover Tooltip (Required):**
+- On hover, show tooltip with current sensor readings:
+  ```
+  ┌──────────────────┐
+  │ Monstera         │
+  │ ──────────────── │
+  │ 💧 Soil: 45%     │
+  │ 🌡️ Temp: 22°C    │
+  │ 💨 Humidity: 65% │
+  │ ☀️ Light: 800 lx │
+  │ ──────────────── │
+  │ Last: 2 min ago  │
+  └──────────────────┘
+  ```
+- Tooltip appears on hover (desktop) or tap (mobile)
+- Shows "No data" if device offline
+- Uses existing telemetry from plant API
+
 **Optional Enhancements:**
 - Subtle pulse animation for alerts
-- Hover to show quick stats (soil %, temp, etc.)
 
 ### 5.4 Backend: Position Storage
 
@@ -878,6 +895,8 @@ Response: { ..., "position": { "x": 120, "y": 80 } }
 - [ ] Status dots use semantic tokens
 - [ ] Real-time updates (polling or existing data)
 - [ ] Offline plants visually dimmed
+- [ ] Hover tooltip shows sensor readings (soil, temp, humidity, light)
+- [ ] Tooltip shows "last updated" timestamp
 
 **Backend:**
 - [ ] `position` column added to plants table
