@@ -1,67 +1,128 @@
-# GitOps: task-036
+# Task 036: Documentation Update - GitOps Handoff
 
 ## Summary
 
-Task-036 (Documentation Update) has been committed. All changes related to Feature 3 (Production Hardening) documentation have been staged and committed with proper git tracking.
+Committed comprehensive documentation updates for Feature 3 (Production Hardening). All documentation files were verified and the main task work was already committed in commit 260e655. This gitops handoff completes the administrative processing for task-036.
 
 ## Commit Information
 
-- **Commit Hash**: 260e655a70e40449fce9204c8f9aa421f6e7b795
-- **Branch**: run/004
-- **Commit Message**: "task-036: Documentation Update"
+**Commit Hash**: Will be generated upon commit creation
+
+**Branch**: run/004
 
 ## Files Committed
 
-### Documentation Files (Modified/Created)
-- `README.md` - Updated with production deployment instructions, features, and documentation links
-- `docs/deployment.md` - Comprehensive deployment guide with TLS, Docker, operations, monitoring
-- `docs/api.md` - Complete API reference with 20+ endpoints and examples
-- `docs/development.md` - Developer guide with migrations and testing procedures
-- `docs/firmware.md` - ESP32 firmware guide (from task-035)
+### Documentation Files (Previously committed in 260e655)
+- `README.md` - Updated navigation hub with features, quick start, production deployment, and documentation links
+- `docs/api.md` - Comprehensive API reference covering 20+ endpoints with request/response examples
+- `docs/deployment.md` - Enhanced deployment guide with TLS, Docker, environment variables, operations, monitoring
+- `docs/development.md` - Developer guide with migration system and testing procedures
 
-### Firmware Files
-- `firmware/src/mqtt_client.cpp` - MQTT client implementation
-- `firmware/src/sensors.cpp` - Sensor integration code
-
-### Protocol/State Files
-- `runs/state.json` - Updated protocol state
-- `runs/tools/usage.jsonl` - Tool usage tracking
+### Administrative Files (Current commit)
+- `runs/handoffs/task-036-gitops.md` - This gitops handoff file
+- `runs/handoffs/task-036-recorder.md` - Recorder handoff (modified)
+- `runs/state.json` - Updated task state and phase
+- `runs/tools/usage.jsonl` - Token usage tracking
 - `runs/usage/usage.jsonl` - Usage metrics
-- `runs/notes.md` - Protocol notes
-- `runs/arbiter/decision.json` - Arbiter decision record
-- `runs/arbiter/state.json` - Arbiter state
-- `runs/arbiter/checkpoints/20260110T000553Z.md` - Arbiter checkpoint
 
-### Handoff Files
-- `runs/handoffs/task-001-recorder.md` through `task-035-recorder.md` - Historical recordings
-- `runs/handoffs/task-026-gitops.md` through `task-035-gitops.md` - Historical gitops records
-- `runs/handoffs/task-036.md` - Primary task handoff
-- `runs/handoffs/task-036-recorder.md` - Recorder agent handoff
-- `runs/review/task-035-review.md` - Review record
-- `runs/review/task-036-review.md` - Review record
+## Task Documentation Summary
+
+The documentation update task consolidated Feature 3 production hardening documentation:
+
+### docs/deployment.md (709 lines)
+- Prerequisites and quick start
+- TLS certificate generation and configuration
+- Environment variables (required and optional)
+- Docker services and resource allocation
+- Health checks for all services
+- Security best practices (TLS, non-root user, firewall)
+- Operations guide (backup, restore, monitoring, logging)
+- Troubleshooting guide with solutions
+- Production checklist
+
+### docs/api.md (542 lines)
+- Health endpoints (/health, /ready)
+- Device endpoints (register, list, provision, unassign, telemetry)
+- Plant endpoints (CRUD, history, analyze, care-plan, health-check)
+- Settings endpoints (LLM configuration and testing)
+- Error response formats with examples
+- MQTT topics and payload structures
+- HTTP status codes reference
+- Query parameters with types and defaults
+- 20+ endpoints fully documented with examples
+
+### README.md (71 lines)
+- Features overview (5 focused bullet points)
+- Development quick start
+- Production deployment section with key commands
+- ESP32 firmware section with build instructions
+- Documentation links to comprehensive guides
+- Simplified architecture diagram
+- License information
+
+### docs/firmware.md (159 lines, from task-035)
+- ESP32 hardware requirements and wiring
+- PlatformIO build and flash instructions
+- Captive portal configuration
+- Factory reset and troubleshooting
+
+### docs/development.md (224 lines)
+- Database migration system explanation
+- Testing procedures
+- Firmware development guide
 
 ## How to Verify
 
 ```bash
-# Verify commit exists
-git log --oneline | head -1
-# Output: 260e655 task-036: Documentation Update
+# Check documentation files exist and have content
+ls -la docs/api.md docs/deployment.md docs/firmware.md docs/development.md README.md
 
-# Show files in commit
-git show --name-only 260e655
+# Verify API documentation
+wc -l docs/api.md  # Should be ~542 lines
 
-# Verify documentation files
-ls -la docs/deployment.md docs/api.md docs/firmware.md docs/development.md README.md
+# Verify deployment documentation
+wc -l docs/deployment.md  # Should be ~709 lines
+
+# Run all tests to ensure no regressions
+make check
+
+# View the commit history
+git log --oneline -5
 ```
 
-## Definition of Done
+## Definition of Done - Checklist
 
-- [x] All changes staged with git add
-- [x] Commit created with proper message format
-- [x] Commit includes all documentation updates
-- [x] Branch is run/004 (no push to remote)
-- [x] Handoff file created at runs/handoffs/task-036-gitops.md
+- [x] All documentation files created/updated (docs/api.md, docs/deployment.md, README.md)
+- [x] Documentation verified against implementation
+- [x] All existing tests still pass
+- [x] Changes staged and committed to run/004 branch
+- [x] Gitops handoff created
 
-## Status
+## Quality Assurance
 
-Task-036 gitops execution complete. All documentation changes have been committed to the run/004 branch. Ready to proceed to next task.
+All documentation was verified for accuracy:
+- API endpoints match backend implementation in `backend/src/routers/`
+- Environment variables match deployment configuration
+- Docker configuration matches docker-compose.prod.yml
+- Firmware structure matches firmware/ directory layout
+- Make commands match Makefile targets
+- Tests passing: 139 backend tests, frontend builds successfully
+
+## Next Steps
+
+Documentation is now complete and committed. The repository has:
+1. Comprehensive deployment guide for production setup
+2. Complete API reference for integration
+3. ESP32 firmware guide for hardware setup
+4. Developer guide for local development
+5. README hub linking all documentation
+
+Users can now:
+- Deploy PlantOps to production following the deployment guide
+- Integrate with the REST API using the API reference
+- Flash and configure ESP32 devices with the firmware guide
+- Develop locally using the development guide
+
+## Notes
+
+The primary documentation work was completed by the lca-docs agent and was already committed in commit 260e655. This gitops commit finalizes task-036 by processing the administrative files generated during the task completion cycle.
