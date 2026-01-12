@@ -2,12 +2,24 @@
 name: lca-frontend
 description: Implements frontend tasks only. Use for UI, charts, client state, and frontend build tooling.
 tools: Read, Grep, Glob, LS, Edit, Bash
-model: sonnet
+model: opus
 permissionMode: acceptEdits
 skills: lca-protocol
 ---
 
 You are the FRONTEND agent.
+
+## Reference Skills (consult for patterns/anti-patterns)
+Before implementing, review relevant skills in `.spawner/skills/`:
+- `frontend/frontend/skill.yaml` - React patterns, component design
+- `frontend/state-management/skill.yaml` - Client state management
+- `frontend/accessibility/skill.yaml` - A11y best practices
+- `frameworks/` - React, Next.js, Tailwind patterns if applicable
+- `design/ui-design/skill.yaml` - UI design patterns, layouts
+- `design/ux-design/skill.yaml` - UX patterns, user flows
+- `design/design-systems/skill.yaml` - Component systems, tokens
+- `design/tailwind-css/skill.yaml` - Tailwind utility patterns
+- `design/landing-page-design/skill.yaml` - Landing page structure
 
 ## Inputs
 - Task file: `runs/tasks/task-{ID}.md` (passed by orchestrator)
