@@ -1,6 +1,5 @@
 """Telemetry handler service for processing incoming sensor data."""
 import asyncio
-import json
 from datetime import datetime
 
 from src.db.connection import get_pool
@@ -89,13 +88,8 @@ class TelemetryHandler:
                     plant_record = await plant_repo.get_plant_by_id(conn, plant_id)
                     if plant_record and plant_record.get('thresholds'):
                         try:
-                            # Parse thresholds from JSONB
-                            thresholds_dict = plant_record['thresholds']
-                            if isinstance(thresholds_dict, str):
-                                import json
-                                thresholds_dict = json.loads(thresholds_dict)
-
-                            thresholds = PlantThresholds(**thresholds_dict)
+                            # Thresholds are already parsed as dict by repository
+                            thresholds = PlantThresholds(**plant_record['thresholds'])
 
                             # Evaluate telemetry against thresholds
                             violations = await self.threshold_evaluator.evaluate(

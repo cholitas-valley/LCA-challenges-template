@@ -26,7 +26,6 @@ from src.services.heartbeat_handler import HeartbeatHandler
 from src.services.mqtt_subscriber import MQTTSubscriber, parse_device_id
 from src.services.telemetry_handler import TelemetryHandler
 from src.services.threshold_evaluator import ThresholdEvaluator
-from src.routers import plants as plants_router
 
 # Setup logging early
 setup_logging()
@@ -52,7 +51,7 @@ care_plan_queue = asyncio.Queue(maxsize=100)
 care_plan_worker = CarePlanWorker(queue=care_plan_queue)
 
 # Set queue reference in plants router for auto-generation on create
-plants_router.set_care_plan_queue(care_plan_queue)
+plants.set_care_plan_queue(care_plan_queue)
 
 
 async def handle_telemetry(topic: str, payload: bytes) -> None:
@@ -186,28 +185,16 @@ async def lifespan(app: FastAPI):
 
         yield
 
-        # Shutdown: Stop alert worker
+        # Shutdown: Stop background workers and cancel tasks
         alert_worker.stop()
-        alert_task.cancel()
-        try:
-            await alert_task
-        except asyncio.CancelledError:
-            pass
-
-        # Shutdown: Stop care plan worker
         care_plan_worker.stop()
-        care_plan_task.cancel()
-        try:
-            await care_plan_task
-        except asyncio.CancelledError:
-            pass
 
-        # Shutdown: Cancel offline checker
-        offline_task.cancel()
-        try:
-            await offline_task
-        except asyncio.CancelledError:
-            pass
+        for task in [alert_task, care_plan_task, offline_task]:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
         # Shutdown: Disconnect MQTT
         await mqtt.disconnect()

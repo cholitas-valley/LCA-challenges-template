@@ -1,5 +1,5 @@
 """Device repository for database operations."""
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import asyncpg
 
@@ -261,8 +261,6 @@ async def get_stale_devices(
     Returns:
         List of device IDs that are stale
     """
-    from datetime import datetime, timedelta
-
     cutoff_time = datetime.now() - timedelta(seconds=threshold_seconds)
 
     rows = await conn.fetch(

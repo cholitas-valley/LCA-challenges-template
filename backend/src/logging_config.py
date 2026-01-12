@@ -12,7 +12,9 @@ def setup_logging() -> None:
 
     Uses JSON format in production, colored console output in development.
     """
-    # Shared processors
+    log_level = getattr(logging, settings.log_level.upper())
+
+    # Shared processors for all formats
     shared_processors = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
@@ -20,41 +22,25 @@ def setup_logging() -> None:
         structlog.processors.StackInfoRenderer(),
     ]
 
+    # Format-specific renderer
     if settings.log_format == "json":
-        # Production: JSON format
-        structlog.configure(
-            processors=shared_processors
-            + [
-                structlog.processors.format_exc_info,
-                structlog.processors.JSONRenderer(),
-            ],
-            wrapper_class=structlog.make_filtering_bound_logger(
-                getattr(logging, settings.log_level.upper())
-            ),
-            context_class=dict,
-            logger_factory=structlog.PrintLoggerFactory(),
-            cache_logger_on_first_use=True,
-        )
+        final_processors = [
+            structlog.processors.format_exc_info,
+            structlog.processors.JSONRenderer(),
+        ]
     else:
-        # Development: Human-readable
-        structlog.configure(
-            processors=shared_processors
-            + [
-                structlog.dev.ConsoleRenderer(colors=True),
-            ],
-            wrapper_class=structlog.make_filtering_bound_logger(
-                getattr(logging, settings.log_level.upper())
-            ),
-            context_class=dict,
-            logger_factory=structlog.PrintLoggerFactory(),
-            cache_logger_on_first_use=True,
-        )
+        final_processors = [structlog.dev.ConsoleRenderer(colors=True)]
 
-    # Also configure standard logging to use structlog
-    logging.basicConfig(
-        format="%(message)s",
-        level=getattr(logging, settings.log_level.upper()),
+    structlog.configure(
+        processors=shared_processors + final_processors,
+        wrapper_class=structlog.make_filtering_bound_logger(log_level),
+        context_class=dict,
+        logger_factory=structlog.PrintLoggerFactory(),
+        cache_logger_on_first_use=True,
     )
+
+    # Also configure standard logging
+    logging.basicConfig(format="%(message)s", level=log_level)
 
 
 def get_logger(name: str | None = None) -> structlog.BoundLogger:

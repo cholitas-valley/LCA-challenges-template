@@ -1,11 +1,10 @@
 """MQTT authentication service for managing Mosquitto password file."""
-import fcntl
+import logging
 import os
 import secrets
 import subprocess
 import uuid
 from pathlib import Path
-from typing import Optional
 
 
 class MQTTAuthService:
@@ -162,7 +161,7 @@ class MQTTAuthService:
                 "Install mosquitto-clients package."
             )
     
-    def reload_mosquitto(self, pid_file: Optional[str] = None) -> None:
+    def reload_mosquitto(self, pid_file: str | None = None) -> None:
         """
         Send SIGHUP to Mosquitto to reload password file.
 
@@ -171,7 +170,6 @@ class MQTTAuthService:
         Args:
             pid_file: Path to Mosquitto PID file (optional)
         """
-        import logging
         logger = logging.getLogger(__name__)
         try:
             result = subprocess.run(

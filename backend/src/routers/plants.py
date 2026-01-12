@@ -2,6 +2,7 @@
 import asyncio
 import json
 import logging
+import os
 import uuid
 from datetime import datetime, timedelta
 
@@ -10,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 
 from src.db.connection import get_db
 from src.models.care_plan import CarePlan, CarePlanResponse
+from src.models.device import DeviceListResponse, DeviceResponse
 from src.models.health_check import (
     HealthIssue,
     HealthRecommendation,
@@ -25,17 +27,15 @@ from src.models.plant import (
     PlantResponse,
     PlantUpdate,
 )
-from src.models.device import DeviceListResponse, DeviceResponse
 from src.models.telemetry import TelemetryHistoryResponse, TelemetryRecord
-from src.repositories import plant as plant_repo
-from src.repositories import device as device_repo
-from src.repositories import telemetry as telemetry_repo
 from src.repositories import care_plan as care_plan_repo
+from src.repositories import device as device_repo
+from src.repositories import plant as plant_repo
 from src.repositories import settings as settings_repo
+from src.repositories import telemetry as telemetry_repo
 from src.services.care_plan_worker import CarePlanGenerationRequest
 from src.services.encryption import EncryptionService
 from src.services.llm import LLMService
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,14 @@ def set_care_plan_queue(queue: asyncio.Queue) -> None:
     """Set the care plan queue for background generation."""
     global _care_plan_queue
     _care_plan_queue = queue
+
+
+def _parse_position(plant_data: dict) -> PlantPosition | None:
+    """Parse position from plant data dict."""
+    if plant_data.get("position"):
+        return PlantPosition(**plant_data["position"])
+    return None
+
 
 router = APIRouter(prefix="/api/plants", tags=["plants"])
 
@@ -94,17 +102,12 @@ async def create_plant(
         except asyncio.QueueFull:
             logger.warning(f"Care plan queue full, skipping generation for {plant_id}")
 
-    # Parse position if present
-    position = None
-    if plant_data.get("position"):
-        position = PlantPosition(**plant_data["position"])
-
     return PlantResponse(
         id=plant_data["id"],
         name=plant_data["name"],
         species=plant_data["species"],
         thresholds=plant_data["thresholds"],
-        position=position,
+        position=_parse_position(plant_data),
         created_at=plant_data["created_at"],
         latest_telemetry=None,
         device_count=device_count,
@@ -132,18 +135,13 @@ async def list_plants(
         device_count = await plant_repo.get_plant_device_count(db, p["id"])
         latest = await telemetry_repo.get_latest_by_plant(db, p["id"])
 
-        # Parse position if present
-        position = None
-        if p.get("position"):
-            position = PlantPosition(**p["position"])
-
         plants.append(
             PlantResponse(
                 id=p["id"],
                 name=p["name"],
                 species=p["species"],
                 thresholds=p["thresholds"],
-                position=position,
+                position=_parse_position(p),
                 created_at=p["created_at"],
                 latest_telemetry=latest,
                 device_count=device_count,
@@ -173,17 +171,12 @@ async def get_plant(
     device_count = await plant_repo.get_plant_device_count(db, plant_id)
     latest = await telemetry_repo.get_latest_by_plant(db, plant_id)
 
-    # Parse position if present
-    position = None
-    if plant_data.get("position"):
-        position = PlantPosition(**plant_data["position"])
-
     return PlantResponse(
         id=plant_data["id"],
         name=plant_data["name"],
         species=plant_data["species"],
         thresholds=plant_data["thresholds"],
-        position=position,
+        position=_parse_position(plant_data),
         created_at=plant_data["created_at"],
         latest_telemetry=latest,
         device_count=device_count,
@@ -225,17 +218,12 @@ async def update_plant(
     # Get device count
     device_count = await plant_repo.get_plant_device_count(db, plant_id)
 
-    # Parse position if present
-    position = None
-    if plant_data.get("position"):
-        position = PlantPosition(**plant_data["position"])
-
     return PlantResponse(
         id=plant_data["id"],
         name=plant_data["name"],
         species=plant_data["species"],
         thresholds=plant_data["thresholds"],
-        position=position,
+        position=_parse_position(plant_data),
         created_at=plant_data["created_at"],
         latest_telemetry=None,
         device_count=device_count,

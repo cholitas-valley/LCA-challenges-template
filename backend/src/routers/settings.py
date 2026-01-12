@@ -144,6 +144,31 @@ async def update_llm_settings(
         )
 
 
+def _build_test_response(
+    status_code: int,
+    provider_name: str,
+    elapsed_ms: int,
+) -> LLMTestResponse:
+    """Build LLM test response based on status code."""
+    if status_code == 200:
+        return LLMTestResponse(
+            success=True,
+            message=f"{provider_name} API key is valid",
+            latency_ms=elapsed_ms,
+        )
+    if status_code == 401:
+        return LLMTestResponse(
+            success=False,
+            message="Invalid API key",
+            latency_ms=elapsed_ms,
+        )
+    return LLMTestResponse(
+        success=False,
+        message=f"API error: {status_code}",
+        latency_ms=elapsed_ms,
+    )
+
+
 @router.post("/llm/test", response_model=LLMTestResponse)
 async def test_llm_settings(
     settings_update: LLMSettingsUpdate,
@@ -161,9 +186,8 @@ async def test_llm_settings(
     start_time = time.time()
 
     try:
-        if provider == LLMProvider.ANTHROPIC:
-            # Test Anthropic API
-            async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            if provider == LLMProvider.ANTHROPIC:
                 response = await client.post(
                     "https://api.anthropic.com/v1/messages",
                     headers={
@@ -177,31 +201,10 @@ async def test_llm_settings(
                         "messages": [{"role": "user", "content": "Hi"}],
                     },
                 )
-
                 elapsed_ms = int((time.time() - start_time) * 1000)
+                return _build_test_response(response.status_code, "Anthropic", elapsed_ms)
 
-                if response.status_code == 200:
-                    return LLMTestResponse(
-                        success=True,
-                        message="Anthropic API key is valid",
-                        latency_ms=elapsed_ms,
-                    )
-                elif response.status_code == 401:
-                    return LLMTestResponse(
-                        success=False,
-                        message="Invalid API key",
-                        latency_ms=elapsed_ms,
-                    )
-                else:
-                    return LLMTestResponse(
-                        success=False,
-                        message=f"API error: {response.status_code}",
-                        latency_ms=elapsed_ms,
-                    )
-
-        elif provider == LLMProvider.OPENAI:
-            # Test OpenAI API
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            elif provider == LLMProvider.OPENAI:
                 response = await client.post(
                     "https://api.openai.com/v1/chat/completions",
                     headers={
@@ -214,33 +217,14 @@ async def test_llm_settings(
                         "messages": [{"role": "user", "content": "Hi"}],
                     },
                 )
-
                 elapsed_ms = int((time.time() - start_time) * 1000)
+                return _build_test_response(response.status_code, "OpenAI", elapsed_ms)
 
-                if response.status_code == 200:
-                    return LLMTestResponse(
-                        success=True,
-                        message="OpenAI API key is valid",
-                        latency_ms=elapsed_ms,
-                    )
-                elif response.status_code == 401:
-                    return LLMTestResponse(
-                        success=False,
-                        message="Invalid API key",
-                        latency_ms=elapsed_ms,
-                    )
-                else:
-                    return LLMTestResponse(
-                        success=False,
-                        message=f"API error: {response.status_code}",
-                        latency_ms=elapsed_ms,
-                    )
-
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported provider: {provider}",
-            )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported provider: {provider}",
+                )
 
     except httpx.TimeoutException:
         elapsed_ms = int((time.time() - start_time) * 1000)

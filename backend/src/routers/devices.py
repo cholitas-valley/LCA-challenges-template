@@ -1,5 +1,4 @@
 """Device registration and management endpoints."""
-import secrets
 import uuid
 
 import asyncpg
